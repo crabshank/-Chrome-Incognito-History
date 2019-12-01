@@ -1,0 +1,44 @@
+<html>
+
+<head>
+</head>
+<script src="jscolor.js"></script>
+
+<style>
+        button {
+    background-color: #d8d8d8;
+    border-color: #d8d8d8;
+	    transform: scale(1.4);
+		    margin-left: 22px;
+}
+body {
+    width: 260px;
+	height:275px;
+}
+		</style>
+
+<body>
+
+        <br>
+        <button title="RECORDING (Click to stop)" id="recStop" style="filter:  hue-rotate(147deg); background-color:#7097ff; border-color:#7097ff;  transform: scale(1.4); margin-left: 10px;">&#x23FA;</button>
+        <button id="delPg" title="Delete page from history" style="display: none">&#x1F6AE;</button>
+        <button id="delSte" title="Delete site from history" style="font-weight:bolder">&#x1F5D1;</button>
+
+        <br><br>
+        <input type="checkbox" id="visCol" style="transform: scale(1.4);" checked="true">Colour visited links differently</input>
+        <br>
+        <a id="eg" class="jscolor" style="color:#9043cc; text-decoration: underline;">http://www.example.com/</a>
+        <br>
+        <input type="text" id="vis" class="jscolor" value="#9043cc" />
+        <br><br>
+        <span>Blacklisted sites (Separate with commas; use asterisks with slashes):</span>
+        <textarea id="bklst"></textarea>
+        <br><br>
+        <button id="save" title="Save settings">Save settings</button>
+
+
+
+</body>
+<script src="index.js"></script>
+
+</html>

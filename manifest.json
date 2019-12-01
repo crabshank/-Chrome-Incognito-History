@@ -1,0 +1,28 @@
+{
+  "manifest_version": 2,
+  "name": "Incognito history",
+  "version": "1.0",
+ 
+  "content_scripts": [
+    {
+	      "all_frames": true,
+      "matches": [
+        "<all_urls>"
+      ],
+      "js": ["content.js"]
+    }
+  ],
+   "background": {
+    "scripts": ["background.js"],
+    "persistent": true
+  },
+     "permissions": ["contextMenus","history", "tabs", "activeTab", "https://*/", "http://*/"],
+
+  "browser_action": {
+    "default_icon": "ih.png",
+    "default_popup": "index.html",
+	   "default_title": "Record history (selectively) in Incognito Mode"
+  },	"icons": {
+        "128": "ih.png"
+    }
+}

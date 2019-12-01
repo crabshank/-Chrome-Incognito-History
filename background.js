@@ -1,0 +1,910 @@
+var blacklist = [];
+var tmpURLBlacklist = []
+var tabStatus = []; //[{'tabId':_,'status': 'r'/'s'/'a'/'i'}]
+var unrcTb_done = [];
+if (localStorage.blkst) {
+	blacklist = localStorage.blkst.split(',');
+}
+var tabBlacklist = [];
+var tmpTbUrl = [];
+console.log(localStorage);
+
+function start() {
+
+	chrome.tabs.query({}, function(tabs) {
+		for (let t = 0; t < tabs.length; t++) {
+			tabStatus.push({
+				'tabId': tabs[t].id,
+				'status': 'i'
+			});
+		}
+	})
+
+
+	chrome.tabs.query({
+		active: true,
+		currentWindow: true
+	}, function(tabs) {
+		activate(tabs[0]);
+	});
+}
+start();
+
+function removeChar(c, array) {
+	for (let i = 0; i < array.length; i++) {
+		array[i] = array[i].split(c).join('');
+	}
+	return array;
+}
+
+function removeEls(d, array) {
+	var newArray = [];
+	for (let i = 0; i < array.length; i++) {
+		if (array[i] != d) {
+			newArray.push(array[i]);
+		}
+	}
+	return newArray;
+}
+
+function replaceEls(r, w, array) {
+	for (let i = 0; i < array.length; i++) {
+		if (array[i] == r) {
+			array[i] = w;
+		}
+	}
+	return array;
+}
+
+function blacklistMatch(array, t) {
+	var notFound = false;
+	if ((array.length == 1 && array[0] == "") || (array.length == 0)) {
+		return false
+	} else {
+		var track = null;
+		for (let i = 0; i < array.length; i++) {
+			let b = removeEls("", array[i].split('*'));
+			for (let k = 0; k < b.length; k++) {
+				let pos = t.toLocaleLowerCase().indexOf(b[k].toLocaleLowerCase()); //full, then part
+				if (pos >= track) {
+					track = pos;
+				} else {
+					if (i == array.length - 1 && k == b.length - 1 && track == null) {
+						notFound = true;
+					}
+				}
+			}
+		}
+		if (notFound) {
+			return false;
+		} else {
+			return true;
+		}
+	}
+}
+
+function caseInsMatch(array, t) { //Term (partially) in array element?
+	var found = false;
+	for (let i = 0; i < array.length; i++) {
+		if (array[i].toLocaleLowerCase().indexOf(t.toLocaleLowerCase()) = 0) { //full, then part
+			console.log(array[i]);
+			found = true;
+		}
+	}
+	return found;
+}
+
+function pageBlMatch(array, t) {
+		var found = false;
+	if(array.length==0){
+		return false;
+	}else{
+
+
+
+	var pg = t.split('://')[1].split('?')[0];
+	for (let i = 0; i < array.length; i++) {
+		if (array[i].indexOf("://") >= 0) {
+			if (array[i].indexOf(t) >=0) {
+				console.log(array[i]);
+				found = true;
+				i = array.length - 1;
+			}
+
+		} 
+		return found;
+	}
+}
+}
+
+
+
+function tbSt(d, t) {
+	let foundTS = 0;
+	for (let i = 0; i < tabStatus.length; i++) {
+		if (tabStatus[i].tabId == d) {
+			foundTS = 1;
+			tabStatus[i].status = t;
+			i = tabStatus.length - 1;
+		}
+	}
+	if (foundTS == 0) {
+		tabStatus.push({
+			'tabId': d,
+			'status': t
+		});
+	}
+	console.log(tabStatus);
+}
+
+function tbRd(d) {
+	let foundTbS = 0;
+	let rdTS = null;
+	for (let i = 0; i < tabStatus.length; i++) {
+		if (tabStatus[i].tabId == d) {
+			foundTbS = 1;
+			rdTS = tabStatus[i].status;
+			i = tabStatus.length - 1;
+		}
+	}
+	if (rdTS !== null) {
+		return rdTS;
+	}
+}
+
+function tbDel(d) {
+	let foundTS = 0;
+	for (let i = 0; i < tabStatus.length; i++) {
+		if (tabStatus[i].tabId == d) {
+			foundTS = 1;
+			tabStatus = removeEls(tabStatus[i], tabStatus);
+			i = tabStatus.length - 1;
+		}
+	}
+}
+
+function tbRep(o, n) {
+	let foundTS = 0;
+	for (let i = 0; i < tabStatus.length; i++) {
+		if (tabStatus[i].tabId == o) {
+			foundTS = 1;
+			tabStatus[i].tabId = n;
+			i = tabStatus.length - 1;
+		}
+	}
+}
+
+function tabSet(d) {
+	let foundTb = 0;
+	for (let i = 0; i < tabStatus.length; i++) {
+		if (tabStatus[i].tabId == d) {
+			foundTb = 1;
+			console.log(tabStatus);
+			switch (tabStatus[i].status) {
+				case "r":
+					chrome.browserAction.setIcon({
+						path: "rec.png"
+					});
+					break;
+				case "s":
+					chrome.browserAction.setIcon({
+						path: "stop.png"
+					});
+					break;
+				case "a":
+					chrome.browserAction.setIcon({
+						path: "recAdd.png"
+					});
+					break;
+				case "i":
+					chrome.browserAction.setIcon({
+						path: "ih.png"
+					});
+					break;
+				default:
+					console.log("Couldn't set icon for tab " + d);
+			}
+			i = tabStatus.length - 1;
+		}
+	}
+	
+}
+let contexts = ["link", "image"];
+chrome.contextMenus.create({
+	"title": "⏹ Open in unrecorded incognito tab",
+	"contexts": contexts,
+	"onclick": function(info, tab) {
+		console.log(tab);
+		if (tab.incognito) {
+			chrome.tabs.create({
+				"url": info.linkUrl,
+				"windowId": tab.windowId,
+				"active": false
+			}, function(tab) {
+				tabBlacklist.push(tab.id);
+				tabBlacklist = Array.from(new Set(tabBlacklist));
+				tmpURLBlacklist.push(tab.url);
+				tmpURLBlacklist = Array.from(new Set(tmpURLBlacklist));
+				tbSt(tab.id, 's');
+				if (tab.active) {
+					tabSet(tab.id);
+				}
+				unrcTb_done = removeEls(tab.id, unrcTb_done);
+			});
+		} else {
+			chrome.windows.create({
+				"url": info.linkUrl,
+				"incognito": true
+			}, function(newWindow) {
+				for (let i = 0; i < newWindow.tabs.length; i++) {
+					if (newWindow.tabs[i].url == info.linkUrl) {
+						tabBlacklist.push(newWindow.tabs[i].id);
+						tabBlacklist = Array.from(new Set(tabBlacklist));
+						tmpURLBlacklist.push(newWindow.tabs[i].url);
+						tmpURLBlacklist = Array.from(new Set(tmpURLBlacklist));
+						tbSt(newWindow.tabs[i].id, 's');
+						if (newWindow.tabs[i].active) {
+							tabSet(newWindow.tabs[i].id);
+						}
+						unrcTb_done = removeEls(newWindow.tabs[i].id, unrcTb_done);
+					}
+				}
+			});
+		}
+	}
+});
+
+
+function activate(tab) {
+	let tId = null;
+	if (tab.tabId) {
+		tId = tab.tabId;
+	} else if (tab.id) {
+		tId = tab.id;
+	}
+
+
+	chrome.browserAction.setBadgeText({
+		'text': tId.toString()
+	});
+	tabSet(tId);
+		console.log('Switched to tab ' + tId);
+	chrome.runtime.sendMessage({
+		type: "NEWACTIVE",
+		id: tId
+	}, function(response) {
+	//	console.log(response);
+	});
+
+
+}
+
+
+chrome.tabs.onActivated.addListener(function(tab) {
+	activate(tab);
+	//	console.log(tabBlacklist);
+	//console.log(tmpHistDelPg);
+}); 
+
+chrome.windows.onFocusChanged.addListener(function (windowId){
+				chrome.tabs.query({
+					currentWindow: true,
+				active: true
+			}, function(tabs) {
+				
+				
+				tabs.forEach(function(tb) {
+					console.log('Switched to tab '+tb.id);
+					activate(tb);
+			});
+			
+			
+			
+	
+});
+});
+
+
+
+
+chrome.tabs.onRemoved.addListener(function(tabId, removeInfo) {
+	console.log('Tab ' + tabId + ' removed');
+
+	tabBlacklist = removeEls(tabId, tabBlacklist);
+
+	tbDel(tabId);
+	console.log(tabBlacklist);
+
+});
+
+chrome.tabs.onReplaced.addListener(function(addedTabId, removedTabId) {
+	console.log('Tab ' + removedTabId + ' replaced by tab ' + addedTabId);
+
+	console.log(tabBlacklist);
+
+	tbRep(removedTabId, addedTabId);
+	tabBlacklist = replaceEls(newTabId, oldTabId, tabBlacklist);
+
+	chrome.tabs.query({}, function(tabs) {
+		for (let i = 0; i < tabs.length; i++) {
+			if (tabs[i].id == addedTabId) {
+				visited(tabs[i]);
+				i = tabs.length - 1;
+			}
+		}
+	});
+
+	console.log(tabBlacklist);
+
+});
+
+
+chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
+	//console.log('Tab ' + tabId + ' updated');
+	if ((changeInfo.url) && (unrcTb_done.includes(tabId) == false)) { //Only process tabs that have passed the six second wait
+		console.log('Tab ' + tabId + ' updated with new page');
+		/* tmpHistAdd.push(tab.id);
+		tmpHistAdd = Array.from(new Set(tmpHistAdd));
+		console.log(tmpHistAdd);
+		tmpHistDelPg = removeEls(tab.id, tmpHistDelPg)
+		console.log(tmpHistDelPg); */
+
+		if ((tabBlacklist.includes(tabId) == false) && (blacklistMatch(blacklist, tab.url) == false)) {
+
+
+			tbSt(tabId, 'r');
+			if (tab.active) {
+				tabSet(tabId);
+			}
+
+			inhist(tab);
+			visited(tab);
+
+
+
+
+			chrome.runtime.sendMessage({
+				type: "TBUPDATE",
+				id: tabId
+			}, function(response) {
+				// console.log(response);
+			});
+
+
+			/* 		chrome.tabs.query({}, function(tabs) {
+
+					tabs.forEach(function(tb) {
+						if ((tmpUpdAdd == 1) && (tb.active == true)) {
+							sendURL(tb.url);
+						}
+					});
+					
+								}		
+				);	 */
+
+		} else {
+
+			tbSt(tabId, 's');
+
+			if (tab.active) {
+				tabSet(tabId);
+			}
+
+
+
+		}
+
+
+	}
+
+});
+
+
+
+
+
+//  when tab is created
+chrome.tabs.onCreated.addListener(function(tab) {
+	tbSt(tab.id, 'i');
+	if (tab.active) {
+		tabSet(tab.id);
+	}
+	unrcTb_done.push(tab.id);
+	unrcTb_done = Array.from(new Set(unrcTb_done));
+	console.log('Tab ' + tab.id + ' created');
+	var unrcTb = setTimeout(function() {
+		if ((tabBlacklist.includes(tab.id) == false) && (blacklistMatch(blacklist, tab.url) == false) && (pageBlMatch(tmpURLBlacklist, tab.url) == false)) { //&& (tmpHistDelPg.includes(tab.tabId) == false) 
+			tbSt(tab.id, 'r');
+			if (tab.active) {
+				tabSet(tab.id);
+			}
+			inhist(tab);
+			visited(tab);
+			chrome.tabs.query({
+				active: true
+			}, function(tabs) {
+				tabs.forEach(function(tb) {
+					sendURL(tb.url);
+				});
+			});
+		} else {
+			tbSt(tab.id, 's');
+			if (tab.active) {
+				tabSet(tab.id);
+			}
+		}
+
+		unrcTb_done = removeEls(tab.id, unrcTb_done);
+
+
+
+
+
+	}, 6000);
+});
+
+function inhist(tab) {
+	//	if ((tabBlacklist.includes(tab.id) == false) && (blacklistMatch(blacklist, tab.url) == false) && (blacklistMatch(tmpURLBlacklist, tab.url) == false)) {
+	//	console.log('Going to add ' + tab.id + ' to history!');
+
+
+
+	tbSt(tab.id, 'r');
+	if (tab.active) {
+		tabSet(tab.id);
+	}
+	addhist(tab.url);
+
+
+
+	/* 	console.log(tmpHistAdd);
+		tmpHistAdd.push(tab.id);
+		tmpHistAdd = Array.from(new Set(tmpHistAdd));
+		console.log(tmpHistAdd);
+	} else {
+		console.log('Tab ' + tab.id + ', is in a blacklist!');
+		tbSt(tab.id, 's');
+		if (tab.active) {
+			tabSet(tab.id);
+		} */
+	//}
+}
+
+function visited(tab) {
+	if (tab.url.split('://')[0] !== 'chrome') {
+		if (localStorage.cgVisCol) {
+			chrome.tabs.executeScript(tab.id, {
+				allFrames: true,
+				file: 'content.js'
+			});
+		}
+	}
+}
+
+function sendURL(url) {
+	chrome.tabs.query({
+		active: true
+	}, function(tabs) {
+		for (let t = 0; t < tabs.length; t++) {
+			chrome.tabs.sendMessage(tabs[t].id, {
+				type: "URL",
+				url: url
+			}, function(response) {});
+		}
+	});
+}
+
+function addhist(url) {
+	if ((url.split('//')[0] !== "chrome:") && (url.split('//')[0] !== "chrome-extension:")) {
+		chrome.history.addUrl({
+			url: url
+		}, function() {
+			console.log(url + " added to history!");
+
+			tmpTbUrl = [url];
+
+			chrome.runtime.sendMessage({
+				type: "VISITED",
+				tmpTbUrl
+			}, function(response) {
+				console.log(response);
+			});
+
+			chrome.tabs.query({}, function(tabs) {
+				tabs.forEach(function(tb) {
+					if (tb.url == url) {
+						tbSt(tb.id, 'a');
+						if (tb.active) {
+							tabSet(tb.id);
+						}
+						chrome.runtime.sendMessage({
+							type: "ISINHISTORY",
+							id: tb.id
+						}, function(response) {
+							console.log(response);
+						});
+					}
+				});
+			});
+			sendURL(url);
+		});
+	}
+}
+
+
+var visitd = [];
+var hstchk = [];
+chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
+	switch (request.type) {
+		case "TAB_ID":
+			if (request.recording == "stop") {
+
+
+				let inHsty = 'false';
+				chrome.history.search({
+					text: "",
+					startTime: 0,
+					maxResults: 0
+				}, function(hist) {
+
+					for (let i = 0; i < hist.length; i++) {
+
+						if (pageBlMatch([hist[i].url], request.send_url) == true) {
+							inHsty = 'true';
+							i = hist.length - 1;
+
+						}
+					}
+
+					if (inHsty = 'false') {
+
+						tbSt(request.send_id, 's');
+						chrome.tabs.query({}, function(tabs) {
+							for (let i = 0; i < tabs.length; i++) {
+								if (tabs[i].id == request.send_id) {
+									if (tabs[i].active) {
+										tabSet(request.send_id);
+
+									}
+									i = tabs.length - 1;
+								}
+							}
+						});
+					}
+
+				});
+
+				tabBlacklist.push(request.send_id);
+				tabBlacklist = Array.from(new Set(tabBlacklist));
+				console.log("Won't record tab " + request.send_id + " from now.");
+			} else if (request.recording == "rec") {
+
+
+
+				let inHsty = 'false';
+				chrome.history.search({
+					text: "",
+					startTime: 0,
+					maxResults: 0
+				}, function(hist) {
+
+					for (let i = 0; i < hist.length; i++) {
+
+						if (pageBlMatch([hist[i].url], request.send_url) == true) {
+							inHsty = 'true';
+							i = hist.length - 1;
+
+						}
+					}
+
+					if (inHsty = 'true') {
+
+						tbSt(request.send_id, 'r');
+
+						chrome.tabs.query({}, function(tabs) {
+							for (let i = 0; i < tabs.length; i++) {
+								if (tabs[i].id == request.send_id) {
+									if (tabs[i].active) {
+										tabSet(request.send_id);
+
+									}
+									i = tabs.length - 1;
+								}
+							}
+						});
+
+					}
+
+				});
+
+				tabBlacklist = removeEls(request.send_id, tabBlacklist);
+				console.log("Tab " + request.send_id + " will be recorded from now on.");
+
+				let tempURLBlacklist = tmpURLBlacklist;
+				for (let i = 0; i < tmpURLBlacklist.length; i++) {
+
+					if (pageBlMatch([tmpURLBlacklist[i]], request.send_url) == true) {
+						tempURLBlacklist = removeEls(tmpURLBlacklist[i], tmpURLBlacklist);
+					}
+				}
+				tmpURLBlacklist = tempURLBlacklist;
+
+			} else if (request.recording == "ask") {
+				let inHistry = 'false';
+
+
+
+				chrome.history.search({
+					text: "",
+					startTime: 0,
+					maxResults: 0
+				}, function(hist) {
+
+					for (let i = 0; i < hist.length; i++) {
+
+						if (pageBlMatch([hist[i].url], request.send_url) == true) {
+
+							inHistry = 'true';
+							i = hist.length - 1;
+
+						}
+					}
+
+					console.log(inHistry);
+					sendResponse({
+						type: "TBSTUS",
+						inHstry: inHistry,
+						sts: tbRd(request.send_id),
+						blTb: tabBlacklist.includes(request.send_id)
+					});
+
+				});
+
+
+
+
+
+
+
+
+
+			} else {
+				console.log(request);
+			}
+			console.log(tabBlacklist);
+			return true;
+			break;
+		case "SETTINGS":
+			localStorage = request.localStorage;
+			blacklist = localStorage.blkst.split(',');
+			blacklist = removeEls("", blacklist);
+			blacklist = removeChar("\n", blacklist);
+			localStorage.blkst = blacklist;
+			sendResponse({
+				type: "SET",
+				settings: localStorage
+			});
+			return true;
+			break;
+		case "DELETE_PG":
+			console.log('Page (' + request.url + ') deletion request received');
+			chrome.tabs.query({}, function(tabs) {
+				let tmpCanDel = 0;
+				for (let t = 0; t < tabs.length; t++) {
+					if (tabs[t].url == request.url) {
+						if (unrcTb_done.includes(tabs[t].id) == false) {
+							console.log('Page (' + request.url + ') about to be deleted');
+							tmpCanDel = 1;
+							if (delPg(request.url) == true) {
+								tbSt(tabs[i].id, 's');
+								if (tabs[i].active) {
+									tabSet(tabs[i].id)
+								}
+							};
+							t = tabs.length - 1;
+						}
+					}
+				}
+				if (tmpCanDel == 0) {
+					console.log("Hold on!");
+					sendResponse({
+						type: "DELETED_PAGE",
+						msg: "Hold on!",
+						url: request.url
+					});
+				}
+			});
+
+			function delPg(url) {
+				var done;
+				chrome.history.deleteUrl({
+					url: url
+				}, function() {
+					chrome.history.search({
+						text: "",
+						startTime: 0,
+						maxResults: 0
+					}, function(hist) {
+						done = true;
+						for (let i = 0; i < hist.length; i++) {
+							if (pageBlMatch([hist[i].url], url) == true) {
+								console.log("Page delete failed.");
+								i = hist.length - 1;
+								done = false;
+							}
+						}
+						if (done) {
+							console.log(url + " deleted from history!");
+
+							chrome.tabs.query({}, function(tabs) {
+								tabs.forEach(function(tb) {
+									if (tb.url == url) {
+
+
+										tbSt(tb.id, 's');
+										if (tb.active) {
+											tabSet(tb.id);
+										}
+
+									}
+								});
+							});
+
+
+
+							sendResponse({
+								type: "DELETED_PAGE",
+								status: 'successful',
+								msg: url + " deleted from history!",
+								url: url
+							});
+
+			chrome.runtime.sendMessage({
+				type: "PGDELETED"
+			}, function(response) {
+				console.log(response);
+			});
+
+
+						} else {
+							//console.log(hist);
+							console.log("Page delete failed");
+							sendResponse({
+								type: "DELETED_PAGE",
+								status: 'failed',
+								msg: "Deletion of " + url + " from history failed! Try again!",
+								url: request.url
+							});
+							//delStePg(url);
+						}
+					});
+				});
+				return done;
+			}
+			return true;
+			break;
+		case "DELETE_STE":
+			chrome.history.search({
+				text: "",
+				startTime: 0,
+				maxResults: 0
+			}, function(hist) {
+				console.log(hist);
+				for (let i = 0; i < hist.length; i++) {
+					if (hist[i].url.indexOf(request.url) >= 0) {
+						chrome.history.deleteUrl({
+							url: hist[i].url
+						})
+					}
+				}
+			});
+			chrome.history.search({
+				text: "",
+				startTime: 0,
+				maxResults: 0
+			}, function(hist) {
+				var nthgFnd = 1;
+				for (let i = 0; i < hist.length; i++) {
+					if (hist[i].url.indexOf(request.url) >= 0) {
+						nthgFnd = 0;
+						i = hist.length - 1;
+					}
+				}
+
+				if (nthgFnd == 1) {
+
+					chrome.tabs.query({}, function(tabs) {
+						tabs.forEach(function(tb) {
+							if (tb.url.indexOf(request.url) >=0) {
+								tbSt(tb.id, 's');
+								if (tb.active) {
+									tabSet(tb.id);
+								}
+							}
+						});
+					});
+					sendResponse({
+						type: "DELETED_SITE",
+						status: 'successful',
+						msg: "All pages from site " + request.url + " have been deleted from history!",
+						url: request.url
+					});
+					console.log("All pages from site " + request.url + " have been deleted from history!");
+					
+					
+			chrome.runtime.sendMessage({
+				type: "STDELETED"
+			}, function(response) {
+				console.log(response);
+			});
+					
+				}
+				if (nthgFnd == 0) {
+					sendResponse({
+						type: "DELETED_SITE",
+						status: 'failed',
+						msg: "Deleting all pages from site " + request.url + " failed, please try again!",
+						url: request.url
+					});
+					console.log("Deleting all pages from site " + request.url + " failed, please try again!");
+				}
+			});
+			return true;
+			break;
+
+		case "PG_LINKS":
+			console.log(request.chk);
+			if (localStorage.cgVisCol) {
+				chrome.history.search({
+					text: "",
+					startTime: 0,
+					maxResults: 0
+				}, function(hist) {
+					for (var k = 0; k < hist.length; k++) {
+						hstchk.push(hist[k].url);
+					}
+				});
+				for (var i = 0; i < request.b.length; i++) {
+					for (var m = 0; m < hstchk.length; m++) {
+						if (hstchk[m] == request.b[i]) {
+							visitd.push(request.b[i]);
+						}
+					}
+				}
+				let uniq = Array.from(new Set(visitd));
+
+
+				/* 				sendResponse({
+									type: "VISITED",
+									uniq,
+									localStorage
+								});
+								 */
+
+				chrome.tabs.query({
+					active: true
+				}, function(tabs) {
+					for (let t = 0; t < tabs.length; t++) {
+						chrome.tabs.sendMessage(tabs[t].id, {
+							type: "VISITED",
+							uniq,
+							localStorage
+						}, function(response) {
+
+						});
+					}
+				});
+
+
+
+				console.log('Sent visited links to be coloured');
+				visitd = [];
+				hstchk = [];
+			}
+			return true;
+			break;
+		default:
+			console.log(request);
+			break;
+	}
+});
