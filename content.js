@@ -80,6 +80,7 @@ function shaderef(u, c) {
  lk[i].innerHTML="▶"+ lk[i].innerHTML;
 	  lk[i].setAttribute('incog_hist_marked', true);
 	           console.log(lk[i].href+' coloured.');
+	           console.log(lk[i]);
                 }
         }
 }
@@ -112,7 +113,7 @@ function deShadeRef(u) {
 const observer = new MutationObserver( (mutations) => {
   if (timer) {clearTimeout(timer);}
   timer = setTimeout(() => {
-	  console.log('Rescan page links')
+	//  console.log('Rescan page links')
 initialise();
   }, 1000);
 });
@@ -172,7 +173,7 @@ function send(b) {
 
 function arrangeShade(request,lnks){
 	var tmpLinks=[];
-	                                                console.log(request);
+	                                                //console.log(request);
 												localStorage["col"]=request.localStorage.col;
 					storeCol=localStorage["col"];
                 for(let k = 0; k < lnks.length; k++) {
