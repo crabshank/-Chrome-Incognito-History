@@ -223,7 +223,8 @@ chrome.contextMenus.create({
 			}, function(tab) {
 				tabBlacklist.push(tab.id);
 				tabBlacklist = Array.from(new Set(tabBlacklist));
-				tmpURLBlacklist.push(tab.url);
+				let tab_url=getUrl(tab);
+				tmpURLBlacklist.push(tab_url);
 				tmpURLBlacklist = Array.from(new Set(tmpURLBlacklist));
 				tbSt(tab.id, 's');
 				if (tab.active) {
@@ -348,8 +349,8 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
 		console.log(tmpHistAdd);
 		tmpHistDelPg = removeEls(tab.id, tmpHistDelPg)
 		console.log(tmpHistDelPg); */
-
-		if ((tabBlacklist.includes(tabId) == false) && (blacklistMatch(blacklist, tab.url) == false)) {
+		let tab_url=getUrl(tab);
+		if ((tabBlacklist.includes(tabId) == false) && (blacklistMatch(blacklist, tab_url) == false)) {
 
 
 			tbSt(tabId, 'r');
@@ -413,7 +414,8 @@ chrome.tabs.onCreated.addListener(function(tab) {
 	unrcTb_done = Array.from(new Set(unrcTb_done));
 	console.log('Tab ' + tab.id + ' created');
 	var unrcTb = setTimeout(function() {
-		if ((tabBlacklist.includes(tab.id) == false) && (blacklistMatch(blacklist, tab.url) == false) && (pageBlMatch(tmpURLBlacklist, tab.url) == false)) { //&& (tmpHistDelPg.includes(tab.tabId) == false) 
+		let tab_url=getUrl(tab);
+		if ((tabBlacklist.includes(tab.id) == false) && (blacklistMatch(blacklist, tab_url) == false) && (pageBlMatch(tmpURLBlacklist, tab_url) == false)) { //&& (tmpHistDelPg.includes(tab.tabId) == false) 
 			tbSt(tab.id, 'r');
 			if (tab.active) {
 				tabSet(tab.id);
@@ -453,7 +455,8 @@ function inhist(tab) {
 	if (tab.active) {
 		tabSet(tab.id);
 	}
-	addhist(tab.url);
+	let tab_url=getUrl(tab);
+	addhist(tab_url);
 
 
 
@@ -471,7 +474,8 @@ function inhist(tab) {
 }
 
 function visited(tab) {
-	if (tab.url.split('://')[0] !== 'chrome') {
+	let tab_url=getUrl(tab);
+	if (tab_url.split('://')[0] !== 'chrome') {
 		if (localStorage.cgVisCol) {
 			chrome.tabs.executeScript(tab.id, {
 				allFrames: true,
@@ -492,6 +496,10 @@ function sendURL(url) {
 			}, function(response) {});
 		}
 	});
+}
+
+function getUrl(tab){
+	return (tab.url=="")?tab.pendingUrl:tab.url;
 }
 
 function addhist(url) {
