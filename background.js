@@ -7,7 +7,7 @@ if (localStorage.blkst) {
 }
 var tabBlacklist = [];
 var tmpTbUrl = [];
-console.log(localStorage);
+
 
 function start() {
 
@@ -27,6 +27,13 @@ function start() {
 	}, function(tabs) {
 		activate(tabs[0]);
 	});
+	
+	if (localStorage.length==0) {
+		localStorage["cgVisCol"] = true;
+		localStorage["col"] = '#9043cc';
+		localStorage["blkst"] = "";
+	}
+	console.log(localStorage);
 }
 start();
 
