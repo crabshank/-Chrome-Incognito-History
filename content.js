@@ -19,7 +19,7 @@ chrome.storage.local.get(null, function(items) {
 	
 chrome.storage.local.set({"cgVisCol":"true"}, function(){
 	chrome.storage.local.set({"col":"#9043cc"}, function(){
-		chrome.storage.local.set({"bklist":"true"}, function(){
+		chrome.storage.local.set({"bklist":""}, function(){
 			chrome.storage.local.get(null, function(items) {
 				console.log(items);
 			});
