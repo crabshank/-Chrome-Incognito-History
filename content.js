@@ -1,4 +1,4 @@
-var timer;
+	var timer;
         var links = [];
 		var innHT=[];
 		
@@ -13,9 +13,25 @@ var timer;
 }
 		
 function initialise() {
+	
+chrome.storage.local.get(null, function(items) {
+	 if (Object.keys(items).length == 0) {
+	
+chrome.storage.local.set({"cgVisCol":"true"}, function(){
+	chrome.storage.local.set({"col":"#9043cc"}, function(){
+		chrome.storage.local.set({"bklist":"true"}, function(){
+			chrome.storage.local.get(null, function(items) {
+				console.log(items);
+			});
+});
+});
+});
 
+}
 		getLinks();
         send(links);
+});
+
 
 }
  
@@ -42,15 +58,7 @@ if ((lk[i].innerHTML!=="")&&(!lk[i].getAttribute('incog_hist_marked'))){
  }
  
  
- if(localStorage.length>0){
- 
- let storeCol=localStorage["col"];
- 
- }else{
-	 let storeCol='#9043cc';
- }
- 
- 
+
 initialise();
 
 
@@ -93,7 +101,7 @@ function deShadeRef(u) {
 			 for(let j = 0; j < innHT.length; j++) {
 				 if(u.innerHTML){
 					 
-					 if( u.innerHTML.charAt( 0 ) === '▶' ){
+					 if(( u.innerHTML.charAt( 0 ) === '▶' )&&((u.getAttribute('incog_hist_marked')=="true"))){
     var origIH = u.innerHTML.slice( 1 );
 				 }else{
 					 var origIH = u.innerHTML;
@@ -110,6 +118,7 @@ function deShadeRef(u) {
 //}
 }
 
+if((typeof observer !== "undefined")&&(!(observer))){
 const observer = new MutationObserver( (mutations) => {
   if (timer) {clearTimeout(timer);}
   timer = setTimeout(() => {
@@ -119,14 +128,12 @@ initialise();
 });
 
 
-
-
 observer.observe(document, {
         attributes: true,
 		childList: true,
 		subtree:true
 });
-
+}
 
 /*
 observer.observe(document, {
@@ -172,10 +179,13 @@ function send(b) {
 
 
 function arrangeShade(request,lnks){
-	var tmpLinks=[];
+
 	                                                //console.log(request);
-												localStorage["col"]=request.localStorage.col;
-					storeCol=localStorage["col"];
+												//localStorage["col"]=request.items.col;
+												
+chrome.storage.local.set({"col":request.items.col}, function(){
+	var tmpLinks=[];
+					storeCol=request.items.col;
                 for(let k = 0; k < lnks.length; k++) {
 tmpLinks.push(lnks[k].href);
                         for(let j = 0; j < request.uniq.length; j++) {
@@ -183,7 +193,7 @@ tmpLinks.push(lnks[k].href);
 
                                 if(request.uniq[j] == lnks[k].href) {
 
-                                        shaderef(lnks[k].href, request.localStorage.col);
+                                        shaderef(lnks[k].href, request.items.col);
 										tmpLinks=removeEls(lnks[k].href,tmpLinks);
 										
 /*                                 }else{
@@ -200,6 +210,9 @@ tmpLinks.push(lnks[k].href);
 	for (let m=0;m<tmpLinks.length;m++){
 		  deShadeRef(tmpLinks[m]);
 	}
+
+});
+
 
 }
 

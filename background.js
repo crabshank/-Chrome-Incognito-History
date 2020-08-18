@@ -2,12 +2,8 @@ var blacklist = [];
 var tmpURLBlacklist = []
 var tabStatus = []; //[{'tabId':_,'status': 'r'/'s'/'a'/'i'}]
 var unrcTb_done = [];
-if (localStorage.blkst) {
-	blacklist = localStorage.blkst.split(',');
-}
 var tabBlacklist = [];
 var tmpTbUrl = [];
-
 
 function start() {
 
@@ -18,7 +14,8 @@ function start() {
 				'status': 'i'
 			});
 		}
-	})
+
+	});
 
 
 	chrome.tabs.query({
@@ -27,16 +24,10 @@ function start() {
 	}, function(tabs) {
 		activate(tabs[0]);
 	});
-	
-	if (localStorage.length==0) {
-		localStorage["cgVisCol"] = true;
-		localStorage["col"] = '#9043cc';
-		localStorage["blkst"] = "";
-	}
-	console.log(localStorage);
-}
-start();
 
+ 
+}
+	
 function removeChar(c, array) {
 	for (let i = 0; i < array.length; i++) {
 		array[i] = array[i].split(c).join('');
@@ -483,12 +474,14 @@ function inhist(tab) {
 function visited(tab) {
 	let tab_url=getUrl(tab);
 	if (tab_url.split('://')[0] !== 'chrome') {
-		if (localStorage.cgVisCol) {
+			chrome.storage.local.get("cgVisCol", function(item) {
+			if (item!=""){
 			chrome.tabs.executeScript(tab.id, {
 				allFrames: true,
 				file: 'content.js'
 			});
-		}
+				}
+		});
 	}
 }
 
@@ -690,14 +683,17 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 			return true;
 			break;
 		case "SETTINGS":
-			localStorage = request.localStorage;
-			blacklist = localStorage.blkst.split(',');
+			chrome.storage.local.get(null, function(items) {
+			blacklist = items.bklist.split(',');
 			blacklist = removeEls("", blacklist);
 			blacklist = removeChar("\n", blacklist);
-			localStorage.blkst = blacklist;
-			sendResponse({
+			chrome.storage.local.set({"bklist":blacklist}, function(){
+				sendResponse({
 				type: "SET",
-				settings: localStorage
+				settings: items
+			});
+			});
+
 			});
 			return true;
 			break;
@@ -721,10 +717,10 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 					}
 				}
 				if (tmpCanDel == 0) {
-					console.log("Hold on!");
+					console.log("Please wait!");
 					sendResponse({
 						type: "DELETED_PAGE",
-						msg: "Hold on!",
+						msg: "Please wait!",
 						url: request.url
 					});
 				}
@@ -869,7 +865,9 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 
 		case "PG_LINKS":
 			console.log(request.chk);
-			if (localStorage.cgVisCol) {
+
+			chrome.storage.local.get(null, function(items) {
+				if (items.cgVisCol!="") {
 				chrome.history.search({
 					text: "",
 					startTime: 0,
@@ -903,19 +901,18 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 						chrome.tabs.sendMessage(tabs[t].id, {
 							type: "VISITED",
 							uniq,
-							localStorage
+							items
 						}, function(response) {
 
 						});
 					}
 				});
 
-
-
 				console.log('Sent visited links to be coloured');
 				visitd = [];
 				hstchk = [];
 			}
+			});
 			return true;
 			break;
 		default:

@@ -10,19 +10,25 @@ var currentTab;
 
 let rec = true;
 recBtn();
-console.log(localStorage);
 
-if(localStorage.length>0){
-visColour.checked = localStorage["cgVisCol"];
-visC.value = localStorage["col"];
+chrome.storage.local.get(null, function(items) {
 
-if(localStorage.blkst){
-bklist.textContent = localStorage["blkst"].split(',').join(',\n');
+if(Object.keys(items).length>0){
+visColour.checked = items.cgVisCol;
+visC.value = items.col;
+
+if(items.bklist!=""){
+bklist.textContent = items.bklist.split(',').join(',\n');
 }
 
 }else{
 	 saveSnd();
 }
+
+});
+
+
+
 
 start();
 
@@ -186,10 +192,10 @@ saver.addEventListener('click', saveSnd, false)
 
 
 	function saveSnd(){
-        localStorage["cgVisCol"] = visColour.checked;
-        localStorage["col"] = '#' + visC.value.replace(/#/g,'');
-		
-		let lstChk=bklist.value.split(',');
+		chrome.storage.local.get(null, function(items) {
+			chrome.storage.local.set({"cgVisCol":visColour.checked}, function(){
+				chrome.storage.local.set({"col":'#' + visC.value.replace(/#/g,'')}, function(){
+								let lstChk=bklist.value.split(',');
 		let validate=true;
 		
 		lstChk=removeEls("",lstChk);
@@ -219,23 +225,29 @@ alert(lstChk[i]+' is invalid');
 	}
 
 	}
-	
-	if(validate){
-		        localStorage["blkst"] = bklist.value;
-	}else{
-		    localStorage["blkst"] = "";
-	}
-		
+		let out_bk=(validate)?bklist.value:"";
 
-        chrome.runtime.sendMessage({
+		     	chrome.storage.local.set({"bklist": out_bk}, function(){
+					        chrome.runtime.sendMessage({
                 type: "SETTINGS",
-                localStorage
+                items
         }, function(response) {
                 if(response.type == "SET") {
                         console.log(response.settings);
                         alert("Current settings saved!")
                 }
         });
+					
+				});
+
+		
+
+
+	});
+				});
+			});
+			
+
 
 
 }
