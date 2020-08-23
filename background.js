@@ -27,6 +27,7 @@ function start() {
 
  
 }
+
 	
 function removeChar(c, array) {
 	for (let i = 0; i < array.length; i++) {
@@ -278,7 +279,8 @@ function activate(tab) {
 
 }
 
-
+start();
+	
 chrome.tabs.onActivated.addListener(function(tab) {
 	activate(tab);
 	//	console.log(tabBlacklist);
