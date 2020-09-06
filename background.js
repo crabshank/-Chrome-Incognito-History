@@ -86,7 +86,7 @@ function caseInsMatch(array, t) { //Term (partially) in array element?
 	var found = false;
 	for (let i = 0; i < array.length; i++) {
 		if (array[i].toLocaleLowerCase().indexOf(t.toLocaleLowerCase()) = 0) { //full, then part
-			console.log(array[i]);
+			//console.log(array[i]);
 			found = true;
 		}
 	}
@@ -105,7 +105,7 @@ function pageBlMatch(array, t) {
 	for (let i = 0; i < array.length; i++) {
 		if (array[i].indexOf("://") >= 0) {
 			if (array[i].indexOf(t) >=0) {
-				console.log(array[i]);
+				//console.log(array[i]);
 				found = true;
 				i = array.length - 1;
 			}
@@ -133,7 +133,7 @@ function tbSt(d, t) {
 			'status': t
 		});
 	}
-	console.log(tabStatus);
+	//console.log(tabStatus);
 }
 
 function tbRd(d) {
@@ -178,7 +178,7 @@ function tabSet(d) {
 	for (let i = 0; i < tabStatus.length; i++) {
 		if (tabStatus[i].tabId == d) {
 			foundTb = 1;
-			console.log(tabStatus);
+			//console.log(tabStatus);
 			switch (tabStatus[i].status) {
 				case "r":
 					chrome.browserAction.setIcon({
@@ -213,7 +213,7 @@ chrome.contextMenus.create({
 	"title": "⏹ Open in unrecorded incognito tab",
 	"contexts": contexts,
 	"onclick": function(info, tab) {
-		console.log(tab);
+		//console.log(tab);
 		if (tab.incognito) {
 			chrome.tabs.create({
 				"url": info.linkUrl,
@@ -314,14 +314,14 @@ chrome.tabs.onRemoved.addListener(function(tabId, removeInfo) {
 	tabBlacklist = removeEls(tabId, tabBlacklist);
 
 	tbDel(tabId);
-	console.log(tabBlacklist);
+	//console.log(tabBlacklist);
 
 });
 
 chrome.tabs.onReplaced.addListener(function(addedTabId, removedTabId) {
 	console.log('Tab ' + removedTabId + ' replaced by tab ' + addedTabId);
 
-	console.log(tabBlacklist);
+	//console.log(tabBlacklist);
 
 	tbRep(removedTabId, addedTabId);
 	tabBlacklist = replaceEls(newTabId, oldTabId, tabBlacklist);
@@ -335,14 +335,42 @@ chrome.tabs.onReplaced.addListener(function(addedTabId, removedTabId) {
 		}
 	});
 
-	console.log(tabBlacklist);
+	//console.log(tabBlacklist);
 
 });
 
 
 chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
 	//console.log('Tab ' + tabId + ' updated');
-	if ((changeInfo.url) && (unrcTb_done.includes(tabId) == false)) { //Only process tabs that have passed the six second wait
+	
+	if (tbRd(tabId)=='i'){
+		let tab_url=getUrl(tab);
+		if ((tabBlacklist.includes(tabId) == false) && (blacklistMatch(blacklist, tab_url) == false) && (pageBlMatch(tmpURLBlacklist, tab_url) == false)) { //&& (tmpHistDelPg.includes(tab.tabId) == false) 
+			tbSt(tabId, 'r');
+			if (tab.active) {
+				tabSet(tabId);
+			}
+			inhist(tab);
+			visited(tab);
+			chrome.tabs.query({
+				active: true
+			}, function(tabs) {
+				tabs.forEach(function(tb) {
+					sendURL(tb.url);
+				});
+			});
+		} else {
+			tbSt(tabId, 's');
+			if (tab.active) {
+				tabSet(tabId);
+			}
+		}
+
+		unrcTb_done = removeEls(tabId, unrcTb_done);
+
+}
+	
+	if ((changeInfo.url) && (unrcTb_done.includes(tabId) == false)) {
 		console.log('Tab ' + tabId + ' updated with new page');
 		/* tmpHistAdd.push(tab.id);
 		tmpHistAdd = Array.from(new Set(tmpHistAdd));
@@ -398,6 +426,8 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
 
 	}
 
+	console.log(tabStatus);
+
 });
 
 
@@ -413,36 +443,6 @@ chrome.tabs.onCreated.addListener(function(tab) {
 	unrcTb_done.push(tab.id);
 	unrcTb_done = Array.from(new Set(unrcTb_done));
 	console.log('Tab ' + tab.id + ' created');
-	var unrcTb = setTimeout(function() {
-		let tab_url=getUrl(tab);
-		if ((tabBlacklist.includes(tab.id) == false) && (blacklistMatch(blacklist, tab_url) == false) && (pageBlMatch(tmpURLBlacklist, tab_url) == false)) { //&& (tmpHistDelPg.includes(tab.tabId) == false) 
-			tbSt(tab.id, 'r');
-			if (tab.active) {
-				tabSet(tab.id);
-			}
-			inhist(tab);
-			visited(tab);
-			chrome.tabs.query({
-				active: true
-			}, function(tabs) {
-				tabs.forEach(function(tb) {
-					sendURL(tb.url);
-				});
-			});
-		} else {
-			tbSt(tab.id, 's');
-			if (tab.active) {
-				tabSet(tab.id);
-			}
-		}
-
-		unrcTb_done = removeEls(tab.id, unrcTb_done);
-
-
-
-
-
-	}, 6000);
 });
 
 function inhist(tab) {
@@ -517,7 +517,7 @@ function addhist(url) {
 				type: "VISITED",
 				tmpTbUrl
 			}, function(response) {
-				console.log(response);
+				//console.log(response);
 			});
 
 			chrome.tabs.query({}, function(tabs) {
@@ -531,7 +531,7 @@ function addhist(url) {
 							type: "ISINHISTORY",
 							id: tb.id
 						}, function(response) {
-							console.log(response);
+							//console.log(response);
 						});
 					}
 				});
@@ -586,7 +586,7 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 
 				tabBlacklist.push(request.send_id);
 				tabBlacklist = Array.from(new Set(tabBlacklist));
-				console.log("Won't record tab " + request.send_id + " from now.");
+				console.log("Won't record tab " + request.send_id + " from now on.");
 			} else if (request.recording == "rec") {
 
 
@@ -660,7 +660,7 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 						}
 					}
 
-					console.log(inHistry);
+					//console.log(inHistry);
 					sendResponse({
 						type: "TBSTUS",
 						inHstry: inHistry,
@@ -679,9 +679,9 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 
 
 			} else {
-				console.log(request);
+				//console.log(request);
 			}
-			console.log(tabBlacklist);
+			//console.log(tabBlacklist);
 			return true;
 			break;
 		case "SETTINGS":
@@ -775,7 +775,7 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 			chrome.runtime.sendMessage({
 				type: "PGDELETED"
 			}, function(response) {
-				console.log(response);
+				//console.log(response);
 			});
 
 
@@ -802,7 +802,7 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 				startTime: 0,
 				maxResults: 0
 			}, function(hist) {
-				console.log(hist);
+				//console.log(hist);
 				for (let i = 0; i < hist.length; i++) {
 					if (hist[i].url.indexOf(request.url) >= 0) {
 						chrome.history.deleteUrl({
@@ -848,7 +848,7 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 			chrome.runtime.sendMessage({
 				type: "STDELETED"
 			}, function(response) {
-				console.log(response);
+				//console.log(response);
 			});
 					
 				}
@@ -866,7 +866,7 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 			break;
 
 		case "PG_LINKS":
-			console.log(request.chk);
+			//console.log(request.chk);
 
 			chrome.storage.local.get(null, function(items) {
 				if (items.cgVisCol!="") {
@@ -918,7 +918,7 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 			return true;
 			break;
 		default:
-			console.log(request);
+			/*console.log(request)*/;
 			break;
 	}
 });

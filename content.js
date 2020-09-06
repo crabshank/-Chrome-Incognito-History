@@ -21,7 +21,7 @@ chrome.storage.local.set({"cgVisCol":"true"}, function(){
 	chrome.storage.local.set({"col":"#9043cc"}, function(){
 		chrome.storage.local.set({"bklist":""}, function(){
 			chrome.storage.local.get(null, function(items) {
-				console.log(items);
+				console.table(items);
 			});
 });
 });
@@ -87,8 +87,10 @@ function shaderef(u, c) {
 							                        lk[i].style.color = c;
  lk[i].innerHTML="▶"+ lk[i].innerHTML;
 	  lk[i].setAttribute('incog_hist_marked', true);
-	           console.log(lk[i].href+' coloured.');
+			   console.groupCollapsed(lk[i].href+" coloured: ");
 	           console.log(lk[i]);
+	           console.dir(lk[i]);
+			   console.groupEnd();
                 }
         }
 }
@@ -245,7 +247,7 @@ initialise();
 break;
 
                         default:
-                                console.log(request);
+                                //console.log(request);
                                 break;
 
                 }
