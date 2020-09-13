@@ -1,4 +1,4 @@
-const bklist = document.getElementById('bklst');
+const blklist = document.getElementById('bklst');
 const visC = document.getElementById('vis');
 const visColour = document.getElementById('visCol');
 const recStopper = document.getElementById('recStop');
@@ -12,13 +12,14 @@ let rec = true;
 recBtn();
 
 chrome.storage.local.get(null, function(items) {
-
+console.log(items);
 if(Object.keys(items).length>0){
 visColour.checked = items.cgVisCol;
 visC.value = items.col;
 
-if(items.bklist!=""){
-bklist.textContent = items.bklist.split(',').join(',\n');
+
+if(items.bklist.length>0){
+blklist.textContent = items.bklist.join(",\n");
 }
 
 }else{
@@ -195,7 +196,7 @@ saver.addEventListener('click', saveSnd, false)
 		chrome.storage.local.get(null, function(items) {
 			chrome.storage.local.set({"cgVisCol":visColour.checked}, function(){
 				chrome.storage.local.set({"col":'#' + visC.value.replace(/#/g,'')}, function(){
-								let lstChk=bklist.value.split(',');
+								let lstChk=blklist.value.split(',');
 		let validate=true;
 		
 		lstChk=removeEls("",lstChk);
@@ -225,7 +226,8 @@ alert(lstChk[i]+' is invalid');
 	}
 
 	}
-		let out_bk=(validate)?bklist.value:"";
+	if (validate){
+		let out_bk=blklist.value;
 
 		     	chrome.storage.local.set({"bklist": out_bk}, function(){
 					        chrome.runtime.sendMessage({
@@ -240,7 +242,7 @@ alert(lstChk[i]+' is invalid');
 					
 				});
 
-		
+				}
 
 
 	});
