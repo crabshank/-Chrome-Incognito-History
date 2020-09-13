@@ -105,7 +105,7 @@ function blacklistMatch(array, t) {
             i = (found) ? array.length - 1 : i;
         }
     }
-    console.log(found);
+    //console.log(found);
     return found;
 
 }
