@@ -8,6 +8,14 @@ const delSite = document.getElementById('delSte');
 
 var currentTab;
 
+
+function removeChar(c, array) {
+	for (let i = 0; i < array.length; i++) {
+		array[i] = array[i].split(c).join('');
+	}
+	return array;
+}
+
 let rec = true;
 recBtn();
 
@@ -19,7 +27,7 @@ visC.value = items.col;
 
 
 if(items.bklist.length>0){
-blklist.textContent = items.bklist.join(",\n");
+blklist.value = items.bklist.join(",\n");
 }
 
 }else{
@@ -33,34 +41,59 @@ blklist.textContent = items.bklist.join(",\n");
 
 start();
 
-function blacklistMatch(array, t) {
-        var notFound = false;
-        if((array.length == 1 && array[0] == "")||(array.length==0)) {
-                return false
-        } else {
-
-                var track = null;
-                for(let i = 0; i < array.length; i++) {
-
-                        let b = removeEls("", array[i].split('*'));
-                        for(let k = 0; k < b.length; k++) {
-                                let pos = t.toLocaleLowerCase().indexOf(b[k].toLocaleLowerCase()); //full, then part
-                                if(pos >= track) {
-                                        track = pos;
-                                } else {
-                                        if(i == array.length - 1 && k == b.length - 1 && track == null) {
-                                                notFound = true;
-                                        }
-                                }
-                        }
-
-                }
-                if(notFound) {
-                        return false;
-                } else {
-                        return true;
-                }
+function findIndexTotalInsens(string, substring, index) {
+    string = string.toLocaleLowerCase();
+    substring = substring.toLocaleLowerCase();
+    for (let i = 0; i < string.length ; i++) {
+        if ((string.includes(substring, i)) && (!(string.includes(substring, i + 1)))) {
+            index.push(i);
+            break;
         }
+    }
+    return index;
+}
+
+function blacklistMatch(array, t) {
+    var found = false;
+    if (!((array.length == 1 && array[0] == "") || (array.length == 0))) {
+        ts = t.toLocaleLowerCase();
+        for (var i = 0; i < array.length; i++) {
+            let spl = array[i].split('*');
+            spl = removeEls("", spl);
+
+            var spl_mt = [];
+            for (let k = 0; k < spl.length; k++) {
+                var spl_m = [];
+                findIndexTotalInsens(ts, spl[k], spl_m);
+
+                spl_mt.push(spl_m);
+
+
+            }
+
+            found = true;
+
+            if ((spl_mt.length == 1) && (typeof spl_mt[0][0] === "undefined")) {
+                found = false;
+            } else if (!((spl_mt.length == 1) && (typeof spl_mt[0][0] !== "undefined"))) {
+
+                for (let m = 0; m < spl_mt.length - 1; m++) {
+
+                    if ((typeof spl_mt[m][0] === "undefined") || (typeof spl_mt[m + 1][0] === "undefined")) {
+                        found = false;
+                        m = spl_mt.length - 2; //EARLY TERMINATE
+                    } else if (!(spl_mt[m + 1][0] > spl_mt[m][0])) {
+                        found = false;
+                    }
+                }
+
+            }
+            i = (found) ? array.length - 1 : i;
+        }
+    }
+    console.log(found);
+    return found;
+
 }
 
 function removeEls(d, array) {
@@ -200,6 +233,7 @@ saver.addEventListener('click', saveSnd, false)
 		let validate=true;
 		
 		lstChk=removeEls("",lstChk);
+		lstChk = removeChar("\n", lstChk);
 		
 		for(let i=0;i<lstChk.length;i++){
 			
@@ -227,9 +261,8 @@ alert(lstChk[i]+' is invalid');
 
 	}
 	if (validate){
-		let out_bk=blklist.value;
 
-		     	chrome.storage.local.set({"bklist": out_bk}, function(){
+		     	chrome.storage.local.set({"bklist": lstChk}, function(){
 					        chrome.runtime.sendMessage({
                 type: "SETTINGS",
                 items
@@ -243,6 +276,7 @@ alert(lstChk[i]+' is invalid');
 				});
 
 				}
+				
 
 
 	});
@@ -342,9 +376,6 @@ function(request, sender, sendResponse) {
            	currentTab = tabs[0]; 
 					});	
 				if (request.id==currentTab.id){
-					
-
-					
 					console.log('URL in history now, can be deleted.');
 					shwDels();
 				}
