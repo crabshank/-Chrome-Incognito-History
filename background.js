@@ -6,6 +6,24 @@ var tabBlacklist = [];
 var tmpTbUrl = [];
 
 function start() {
+	
+	chrome.storage.local.get(null, function(items) {
+	 if (Object.keys(items).length == 0) {
+	
+chrome.storage.local.set({"cgVisCol":"true"}, function(){
+	chrome.storage.local.set({"col":"#9043cc"}, function(){
+		chrome.storage.local.set({"bklist":[]}, function(){
+});
+});
+
+});
+	 }else{
+		 
+		 			blacklist = items.bklist;
+			blacklist = removeEls("", blacklist);
+			blacklist = removeChar("\n", blacklist);
+	 }
+});
 
 	chrome.tabs.query({}, function(tabs) {
 		for (let t = 0; t < tabs.length; t++) {
