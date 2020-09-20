@@ -151,28 +151,7 @@ function send(b) {
       chrome.runtime.sendMessage({
                 type: "PG_LINKS",
                 b:b
-        }, function(response) {
-			
-/* 			if(response.type=="VISITED"){
-                                                console.log(response);
-												localStorage["col"]=response.localStorage.col;
-					storeCol=localStorage["col"];
-                for(let k = 0; k < b.length; k++) {
-
-                        for(let j = 0; j < response.uniq.length; j++) {
-
-
-                                if(response.uniq[j] == b[k]) {
-
-                                        shaderef(b[k], response.localStorage.col);
-                                }
-
-                        }
-
-                }
-} */
-
-        }); 
+        }, function(response) {}); 
 
 }
 
@@ -187,7 +166,6 @@ function arrangeShade(request,lnks){
 												
 chrome.storage.local.set({"col":request.items.col}, function(){
 	var tmpLinks=[];
-					storeCol=request.items.col;
                 for(let k = 0; k < lnks.length; k++) {
 tmpLinks.push(lnks[k].href);
                         for(let j = 0; j < request.uniq.length; j++) {
@@ -225,8 +203,19 @@ chrome.runtime.onMessage.addListener(
                 switch (request.type) {
 
                         case "URL":
-						
- shaderef(request.url, storeCol);
+				
+chrome.storage.local.get(null, function(items) {
+	if (Object.keys(items).length == 0) {
+	chrome.storage.local.set({"col":"#9043cc"}, function(){
+	shaderef(request.url, "#9043cc");
+	});
+	}else{
+	shaderef(request.url, items.col);
+	}
+});
+				
+				
+
 
                                 break;
 
