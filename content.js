@@ -21,7 +21,16 @@ chrome.storage.local.set({"cgVisCol":"true"}, function(){
 	chrome.storage.local.set({"col":"#9043cc"}, function(){
 		chrome.storage.local.set({"bklist":[]}, function(){
 			chrome.storage.local.get(null, function(items) {
-				console.table(items);
+				
+			chrome.runtime.sendMessage({
+                type: "SETTINGS",
+                items
+        }, function(response) {
+                if(response.type == "SET") {
+                        console.log('Initial settings set!');
+                }
+        });
+
 			});
 });
 });
