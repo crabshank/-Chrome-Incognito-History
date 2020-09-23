@@ -8,6 +8,7 @@ const delSite = document.getElementById('delSte');
 
 var currentTab;
 
+const blklist_h=blklist.clientHeight;
 
 function removeChar(c, array) {
 	for (let i = 0; i < array.length; i++) {
@@ -218,6 +219,14 @@ function rec_stop() {
 
         }
 }
+
+
+blklist.addEventListener('input', function(){
+	let hgt=blklist.scrollHeight+2;
+	let hgt1=(hgt>blklist_h)?hgt:blklist_h;
+blklist.style.height = hgt1+"px";
+}, false);
+
 
 recStopper.addEventListener('click', rec_stop, false);
 
