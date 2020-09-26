@@ -31,6 +31,10 @@ if(items.bklist.length>0){
 blklist.value = items.bklist.join(",\n");
 }
 
+let hgt=blklist.scrollHeight+2;
+let hgt1=(hgt>blklist_h)?hgt:blklist_h;
+blklist.style.height = hgt1+"px";
+
 }else{
 	 saveSnd();
 }
@@ -109,9 +113,6 @@ function removeEls(d, array) {
 
 
  function start() {
-	let hgt=blklist.scrollHeight+2;
-	let hgt1=(hgt>blklist_h)?hgt:blklist_h;
-	blklist.style.height = hgt1+"px";
    chrome.tabs.query({
                 active: true,
                 currentWindow: true
