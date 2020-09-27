@@ -39,12 +39,14 @@ blklist.style.height = hgt1+"px";
 	 saveSnd();
 }
 
+start();
+
 });
 
 
 
 
-start();
+
 
 function findIndexTotalInsens(string, substring, index) {
     string = string.toLocaleLowerCase();
