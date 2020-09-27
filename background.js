@@ -260,9 +260,10 @@ chrome.contextMenus.create({
 	"contexts": contexts,
 	"onclick": function(info, tab) {
 		//console.log(tab);
+		let to_url=(typeof info.linkUrl === 'undefined')?info.srcUrl:info.linkUrl;
 		if (tab.incognito) {
 			chrome.tabs.create({
-				"url": info.linkUrl,
+				"url": to_url,
 				"windowId": tab.windowId,
 				"active": false
 			}, function(tab) {
@@ -279,11 +280,11 @@ chrome.contextMenus.create({
 			});
 		} else {
 			chrome.windows.create({
-				"url": info.linkUrl,
+				"url": to_url,
 				"incognito": true
 			}, function(newWindow) {
 				for (let i = 0; i < newWindow.tabs.length; i++) {
-					if (newWindow.tabs[i].url == info.linkUrl) {
+					if (newWindow.tabs[i].url == to_url) {
 						tabBlacklist.push(newWindow.tabs[i].id);
 						tabBlacklist = Array.from(new Set(tabBlacklist));
 						tmpURLBlacklist.push(newWindow.tabs[i].url);
