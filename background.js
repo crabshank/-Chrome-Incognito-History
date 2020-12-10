@@ -392,13 +392,13 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
 	
 	if (tbRd(tabId)=='i'){
 		let tab_url=getUrl(tab);
+		visited(tab);
 		if ((tabBlacklist.includes(tabId) == false) && (blacklistMatch(blacklist, tab_url) == false) && (pageBlMatch(tmpURLBlacklist, tab_url) == false)) { //&& (tmpHistDelPg.includes(tab.tabId) == false) 
 			tbSt(tabId, 'r');
 			if (tab.active) {
 				tabSet(tabId);
 			}
 			inhist(tab);
-			visited(tab);
 			chrome.tabs.query({
 				active: true
 			}, function(tabs) {
@@ -425,6 +425,7 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
 		tmpHistDelPg = removeEls(tab.id, tmpHistDelPg)
 		console.log(tmpHistDelPg); */
 		let tab_url=getUrl(tab);
+		visited(tab);
 		if ((tabBlacklist.includes(tabId) == false) && (blacklistMatch(blacklist, tab_url) == false)) {
 
 
@@ -434,10 +435,6 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
 			}
 
 			inhist(tab);
-			visited(tab);
-
-
-
 
 			chrome.runtime.sendMessage({
 				type: "TBUPDATE",
