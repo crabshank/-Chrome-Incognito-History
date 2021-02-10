@@ -5,6 +5,10 @@ const recStopper = document.getElementById('recStop');
 const saver = document.getElementById('save');
 const delPage = document.getElementById('delPg');
 const delSite = document.getElementById('delSte');
+const exmp = document.getElementById('eg');
+const vsL = document.getElementById('visL');
+const s1 = document.getElementById('isC');
+const s2 = document.getElementById('isC2');
 
 var currentTab;
 
@@ -20,13 +24,23 @@ function removeChar(c, array) {
 let rec = true;
 recBtn();
 
+visC.oninput= ()=>{
+	s1.innerText='input[type="color" i]::-webkit-color-swatch{\nborder-color:'+visC.value;+'\n}'
+	s2.innerText='input[type="color" i]{\nbackground-color:'+visC.value;+'\nborder:'+visC.value+';\n}'
+	vsL.innerText=' '+visC.value;	
+	exmp.style.color=visC.value;
+}
+
 chrome.storage.local.get(null, function(items) {
 console.log(items);
 if(Object.keys(items).length>0){
 visColour.checked = items.cgVisCol;
 visC.value = items.col;
-
-
+	s1.innerText='input[type="color" i]::-webkit-color-swatch{\nborder-color:'+visC.value;+'\n}'
+	s2.innerText='input[type="color" i]{\nbackground-color:'+visC.value;+'\nborder:'+visC.value+';\n}'
+	vsL.innerText=' '+visC.value;	
+	exmp.style.color=visC.value;
+	
 if(items.bklist.length>0){
 blklist.value = items.bklist.join(",\n");
 }
@@ -126,22 +140,6 @@ function removeEls(d, array) {
 		/* 	console.log("Requesting status of tab "+ currentTab.id+" from background");
           */
 } 
-
-const observer = new WebKitMutationObserver(function(mutations) {
-
-        document.getElementById('eg').style.color = "#" + visC.value.replace(/#/g,'');
-
-
-});
-
-
-observer.observe(visC, {
-        attributes: true,
-        characterData: true,
-});
-
-
-
 
 
 

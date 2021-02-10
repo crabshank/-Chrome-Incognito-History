@@ -2,7 +2,6 @@
 
 <head>
 </head>
-<script src="jscolor.js"></script>
 
 <style>
         button {
@@ -13,12 +12,29 @@
 }
 body {
     width: 260px;
-	height:275px;
+	height:291px;
+	font-size: 1.6ch;
 }
 textarea {
     width:-webkit-fill-available;
     min-width:-webkit-fill-available;
 }
+input[type="color" i]{
+	border-radius: 4px;
+}
+		</style>
+		
+		<style id="isC">
+		input[type="color" i]::-webkit-color-swatch{
+		border-color: #9043cc;
+		}
+		</style>
+
+		<style id="isC2">
+		input[type="color" i]{
+			background-color: #9043cc;
+			border-color: buttonface;
+		}
 		</style>
 
 <body>
@@ -29,11 +45,11 @@ textarea {
         <button id="delSte" title="Delete site from history" style="font-weight:bolder">&#x1F5D1;</button>
 
         <br><br>
-        <input type="checkbox" id="visCol" style="transform: scale(1.4);" checked="true">Colour visited links differently</input>
+        <input type="checkbox" id="visCol" style="transform: scale(1.4);" checked="true"> Colour visited links differently</input>
         <br>
-        <a id="eg" class="jscolor" style="color:#9043cc; text-decoration: underline;">http://www.example.com/</a>
-        <br>
-        <input type="text" id="vis" class="jscolor" value="#9043cc" />
+        <a id="eg" style="color:#9043cc; text-decoration: underline;">http://www.example.com/</a>
+        <br><br>
+        <input type="color" id="vis" value="#9043cc" /><label id="visL" for="vis"> #9043cc</label>
         <br><br>
         <span>Blacklisted sites (Separate with commas; use asterisks with slashes):</span>
         <textarea id="bklst"></textarea>
