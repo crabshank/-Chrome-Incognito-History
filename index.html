@@ -22,6 +22,11 @@ textarea {
 input[type="color" i]{
 	border-radius: 4px;
 }
+span{
+    margin-left: 2px;
+    border: outset;
+    border-color: transparent;
+}
 		</style>
 		
 		<style id="isC">
@@ -49,7 +54,7 @@ input[type="color" i]{
         <br>
         <a id="eg" style="color:#9043cc; text-decoration: underline;">http://www.example.com/</a>
         <br><br>
-        <input type="color" id="vis" value="#9043cc" /><label id="visL" for="vis"> #9043cc</label>
+        <input type="color" id="vis" value="#9043cc" /><span contenteditable id="visL" for="vis">#9043cc</span>
         <br><br>
         <span>Blacklisted sites (Separate with commas; use asterisks with slashes):</span>
         <textarea id="bklst"></textarea>

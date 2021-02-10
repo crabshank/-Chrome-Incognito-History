@@ -21,14 +21,27 @@ function removeChar(c, array) {
 	return array;
 }
 
+function chgCol(col){
+s1.innerText='input[type="color" i]::-webkit-color-swatch{\nborder-color:'+visC.value;+'\n}'
+s2.innerText='input[type="color" i]{\nbackground-color:'+col+';\nborder:'+col+';\n}'
+exmp.style.color=col;
+}
+
 let rec = true;
 recBtn();
 
+
+
+
 visC.oninput= ()=>{
-	s1.innerText='input[type="color" i]::-webkit-color-swatch{\nborder-color:'+visC.value;+'\n}'
-	s2.innerText='input[type="color" i]{\nbackground-color:'+visC.value;+'\nborder:'+visC.value+';\n}'
-	vsL.innerText=' '+visC.value;	
-	exmp.style.color=visC.value;
+vsL.innerText=visC.value;	
+chgCol(visC.value);
+
+}
+
+vsL.oninput= ()=>{
+visC.value=vsL.innerText
+chgCol(visC.value);
 }
 
 chrome.storage.local.get(null, function(items) {
@@ -36,10 +49,8 @@ console.log(items);
 if(Object.keys(items).length>0){
 visColour.checked = items.cgVisCol;
 visC.value = items.col;
-	s1.innerText='input[type="color" i]::-webkit-color-swatch{\nborder-color:'+visC.value;+'\n}'
-	s2.innerText='input[type="color" i]{\nbackground-color:'+visC.value;+'\nborder:'+visC.value+';\n}'
-	vsL.innerText=' '+visC.value;	
-	exmp.style.color=visC.value;
+	vsL.innerText=visC.value;	
+chgCol(visC.value);
 	
 if(items.bklist.length>0){
 blklist.value = items.bklist.join(",\n");
