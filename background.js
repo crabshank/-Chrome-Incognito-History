@@ -1,5 +1,5 @@
 try {
-ctxM=0;
+var ctxM=0;
 var blacklist = [];
 var tmpURLBlacklist = []
 var tabStatus = []; //[{'tabId':_,'status': 'r'/'s'/'a'/'i'}]
