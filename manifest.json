@@ -1,7 +1,7 @@
 {
-  "manifest_version": 2,
+  "manifest_version": 3,
   "name": "Incognito history",
-  "version": "1.0",
+  "version": "2021.03",
  
   "content_scripts": [
     {
@@ -13,12 +13,11 @@
     }
   ],
    "background": {
-    "scripts": ["background.js"],
-    "persistent": true
+     "service_worker": "background.js"
   },
-     "permissions": ["contextMenus","history", "tabs", "activeTab", "https://*/", "http://*/", "storage"],
+     "permissions": ["contextMenus","history", "tabs", "activeTab", "storage"],
 
-  "browser_action": {
+  "action": {
     "default_icon": "ih.png",
     "default_popup": "index.html",
 	   "default_title": "Record history (selectively) in Incognito Mode"

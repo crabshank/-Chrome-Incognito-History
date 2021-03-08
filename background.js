@@ -1,3 +1,5 @@
+try {
+ctxM=0;
 var blacklist = [];
 var tmpURLBlacklist = []
 var tabStatus = []; //[{'tabId':_,'status': 'r'/'s'/'a'/'i'}]
@@ -227,22 +229,22 @@ function tabSet(d) {
 			//console.log(tabStatus);
 			switch (tabStatus[i].status) {
 				case "r":
-					chrome.browserAction.setIcon({
+					chrome.action.setIcon({
 						path: "rec.png"
 					});
 					break;
 				case "s":
-					chrome.browserAction.setIcon({
+					chrome.action.setIcon({
 						path: "stop.png"
 					});
 					break;
 				case "a":
-					chrome.browserAction.setIcon({
+					chrome.action.setIcon({
 						path: "recAdd.png"
 					});
 					break;
 				case "i":
-					chrome.browserAction.setIcon({
+					chrome.action.setIcon({
 						path: "ih.png"
 					});
 					break;
@@ -258,7 +260,13 @@ let contexts = ["link", "image"];
 chrome.contextMenus.create({
 	"title": "⏹ Open in unrecorded incognito tab",
 	"contexts": contexts,
-	"onclick": function(info, tab) {
+	"id": ctxM.toString()
+},function(response) {
+	//	console.log(response);
+	ctxM++;
+	});
+	
+	chrome.contextMenus.onClicked.addListener((info, tab) => {
 		//console.log(tab);
 		let to_url=(typeof info.linkUrl === 'undefined')?info.srcUrl:info.linkUrl;
 		if (tab.incognito) {
@@ -298,9 +306,7 @@ chrome.contextMenus.create({
 				}
 			});
 		}
-	}
-});
-
+	});
 
 function activate(tab) {
 	let tId = null;
@@ -311,7 +317,7 @@ function activate(tab) {
 	}
 
 
-	chrome.browserAction.setBadgeText({
+	chrome.action.setBadgeText({
 		'text': tId.toString()
 	});
 	tabSet(tId);
@@ -966,3 +972,7 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 			break;
 	}
 });
+}
+catch (e) {	
+  console.error(e);
+}
