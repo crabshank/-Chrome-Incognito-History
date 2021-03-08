@@ -1,5 +1,4 @@
 try {
-var ctxM=0;
 var blacklist = [];
 var tmpURLBlacklist = []
 var tabStatus = []; //[{'tabId':_,'status': 'r'/'s'/'a'/'i'}]
@@ -260,13 +259,13 @@ let contexts = ["link", "image"];
 chrome.contextMenus.create({
 	"title": "⏹ Open in unrecorded incognito tab",
 	"contexts": contexts,
-	"id": ctxM.toString()
+	"id": "unrec"
 },function(response) {
 	//	console.log(response);
-	ctxM++;
 	});
 	
 	chrome.contextMenus.onClicked.addListener((info, tab) => {
+		if(info.menuItemId=="unrec"){
 		//console.log(tab);
 		let to_url=(typeof info.linkUrl === 'undefined')?info.srcUrl:info.linkUrl;
 		if (tab.incognito) {
@@ -306,6 +305,7 @@ chrome.contextMenus.create({
 				}
 			});
 		}
+	}
 	});
 
 function activate(tab) {
