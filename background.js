@@ -272,6 +272,7 @@ chrome.contextMenus.create({
 			chrome.tabs.create({
 				"url": to_url,
 				"windowId": tab.windowId,
+				"index": (tab.index+1),
 				"active": false
 			}, function(tab) {
 				tabBlacklist.push(tab.id);
