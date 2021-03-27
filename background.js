@@ -529,7 +529,7 @@ function visited(tab) {
 	if (tab_url.split('://')[0] !== 'chrome') {
 			chrome.storage.local.get("cgVisCol", function(item) {
 			if (item!=""){
-			chrome.tabs.executeScript(tab.id, {
+			chrome.scripting.executeScript(tab.id, {
 				allFrames: true,
 				file: 'content.js'
 			});
