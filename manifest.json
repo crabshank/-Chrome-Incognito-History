@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Incognito history",
-  "version": "2021.04",
+  "version": "2021.05",
  
   "content_scripts": [
     {
