@@ -224,7 +224,7 @@ chrome.storage.local.get(null, function(items) {
 });
 				
 				
-
+return true;
 
                                 break;
 
@@ -233,21 +233,24 @@ case "VISITED":
 
 getLinks();
 arrangeShade(request, document.getElementsByTagName('a'));
-
+return true;
 break;
 
  case "PGDELETED":
 initialise();
+return true;
 break;
 
 case "STDELETED":
 initialise();
+return true;
 break;
 
                         default:
                                 //console.log(request);
+												return true;
                                 break;
 
                 }
-				return true;
+
         });

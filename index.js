@@ -403,13 +403,13 @@ function(request, sender, sendResponse) {
 					shwDels();
 				}
 
-		
+		return true;
 break;
 
  case "TBUPDATE":
 					hdeDels();
 					  start();
-					
+		return true;			
 break;
 
 case "NEWACTIVE":
@@ -417,15 +417,16 @@ case "NEWACTIVE":
 					hdeDels();
 					  start();
 					
-			
+	return true;		
 break;
  
 default:
 	console.log(request);
+	return true;
 break;
 
 
 
 				}
-				return true;
+
 });

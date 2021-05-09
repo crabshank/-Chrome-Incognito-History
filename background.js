@@ -970,9 +970,10 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 			break;
 		default:
 			/*console.log(request)*/;
+				return true;
 			break;
 	}
-	return true;
+
 });
 }
 catch (e) {	
