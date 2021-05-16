@@ -733,7 +733,6 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 				//console.log(request);
 			}
 			//console.log(tabBlacklist);
-			return true;
 			break;
 		case "SETTINGS":
 			chrome.storage.local.get(null, function(items) {
@@ -748,7 +747,6 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 			});
 
 			});
-			return true;
 			break;
 		case "DELETE_PG":
 			console.log('Page (' + request.url + ') deletion request received');
@@ -845,7 +843,6 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 				});
 				return done;
 			}
-			return true;
 			break;
 		case "DELETE_STE":
 			chrome.history.search({
@@ -913,7 +910,6 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 					console.log("Deleting all pages from site " + request.url + " failed, please try again!");
 				}
 			});
-			return true;
 			break;
 
 		case "PG_LINKS":
@@ -967,14 +963,12 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 				});
 			}
 			});
-			return true;
 			break;
 		default:
 			/*console.log(request)*/;
-				return true;
 			break;
 	}
-
+				return true;
 });
 }
 catch (e) {	
