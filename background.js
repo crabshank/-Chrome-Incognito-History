@@ -929,14 +929,14 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 					for (var k = 0; k < hist.length; k++) {
 						hstchk.push(hist[k].url);
 					}
-				});
-				for (var i = 0; i < request.b.length; i++) {
+									for (var i = 0; i < request.b.length; i++) {
 					for (var m = 0; m < hstchk.length; m++) {
 						if (hstchk[m] == request.b[i]) {
 							visitd.push(request.b[i]);
 						}
 					}
 				}
+				
 				let uniq = Array.from(new Set(visitd));
 
 
@@ -964,6 +964,7 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 				console.log('Sent visited links to be coloured');
 				visitd = [];
 				hstchk = [];
+				});
 			}
 			});
 			return true;
