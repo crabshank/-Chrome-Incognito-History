@@ -1,7 +1,7 @@
 	var timer;
         var links = [];
 		var innHT=[];
-		
+		var inProgress=false;
 		function removeEls(d, array) {
 	var newArray = [];
 	for (let i = 0; i < array.length; i++) {
@@ -41,7 +41,7 @@ chrome.storage.local.set({"cgVisCol":"true"}, function(){
         send(links);
 });
 
-
+inProgress=false;
 }
  
 
@@ -134,7 +134,12 @@ const observer = new MutationObserver( (mutations) => {
   if (timer) {clearTimeout(timer);}
   timer = setTimeout(() => {
 	//  console.log('Rescan page links')
-initialise();
+ 				if(!inProgress){
+					inProgress=true;
+		getLinks();
+        send(links);
+		inProgress=false;
+				}
   }, 1000);
 });
 
@@ -161,7 +166,6 @@ function send(b) {
                 type: "PG_LINKS",
                 b:b
         }, function(response) {}); 
-
 }
 
 
@@ -212,7 +216,8 @@ chrome.runtime.onMessage.addListener(
                 switch (request.type) {
 
                         case "URL":
-				
+				if(!inProgress){
+					inProgress=true;
 chrome.storage.local.get(null, function(items) {
 	if (Object.keys(items).length == 0) {
 	chrome.storage.local.set({"col":"#9043cc"}, function(){
@@ -222,33 +227,52 @@ chrome.storage.local.get(null, function(items) {
 	shaderef(request.url, items.col);
 	}
 });
-
+inProgress=false;
+				}
 break;
 
 
 case "VISITED":
-
+				if(!inProgress){
+					inProgress=true;
 getLinks();
 arrangeShade(request, document.getElementsByTagName('a'));
+inProgress=false;
+				}
 break;
 
  case "PGDELETED":
+ 				if(!inProgress){
+					inProgress=true;
 		getLinks();
         send(links);
+		inProgress=false;
+				}
 break;
 
 case "STDELETED":
+				if(!inProgress){
+					inProgress=true;
 		getLinks();
         send(links);
+				inProgress=false;
+				}
 break;
 
 case "NEWACTIVE_t":
+				if(!inProgress){
+					inProgress=true;
 		getLinks();
         send(links);
+		inProgress=false;
+				}
 break;
 
 case "NWSETTINGS":
+if(!inProgress){
+					inProgress=true;
 initialise();
+}
 break;
 
                         default:
