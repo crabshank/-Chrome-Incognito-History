@@ -329,6 +329,12 @@ function activate(tab) {
 	}, function(response) {
 	//	console.log(response);
 	});
+	
+chrome.tabs.sendMessage(tId, {
+type: "NEWACTIVE_t"
+}, function(response) {
+//console.log(response);
+});
 
 
 }
@@ -821,12 +827,23 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 								url: url
 							});
 
-			chrome.runtime.sendMessage({
+			/*chrome.runtime.sendMessage({
 				type: "PGDELETED"
 			}, function(response) {
 				//console.log(response);
-			});
+			});*/
 
+
+				chrome.tabs.query({
+		active: true,
+		currentWindow: true
+	}, function(tabs) {
+		for (let t = 0; t < tabs.length; t++) {
+			chrome.tabs.sendMessage(tabs[t].id, {
+				type: "PGDELETED"
+			}, function(response) {});
+		}
+	});
 
 						} else {
 							//console.log(hist);
@@ -845,7 +862,7 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 			}
 			break;
 		case "DELETE_STE":
-			chrome.history.search({
+			chrome.history.search({	
 				text: "",
 				startTime: 0,
 				maxResults: 0
@@ -893,11 +910,23 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 					console.log("All pages from site " + request.url + " have been deleted from history!");
 					
 					
-			chrome.runtime.sendMessage({
+			/*chrome.runtime.sendMessage({
 				type: "STDELETED"
 			}, function(response) {
 				//console.log(response);
-			});
+			});*/
+			
+				chrome.tabs.query({
+		active: true,
+		currentWindow: true
+	}, function(tabs) {
+		for (let t = 0; t < tabs.length; t++) {
+			chrome.tabs.sendMessage(tabs[t].id, {
+				type: "STDELETED"
+			}, function(response) {});
+		}
+	});
+			
 					
 				}
 				if (nthgFnd == 0) {

@@ -291,6 +291,18 @@ alert(lstChk[i]+' is invalid');
                 items
         }, function(response) {
                 if(response.type == "SET") {
+					
+		chrome.tabs.query({
+		active: true,
+		currentWindow: true
+	}, function(tabs) {
+		for (let t = 0; t < tabs.length; t++) {
+			chrome.tabs.sendMessage(tabs[t].id, {
+				type: "NWSETTINGS"
+			}, function(response) {});
+		}
+	});
+					
                         console.log(response.settings);
                         alert("Current settings saved!")
                 }

@@ -222,35 +222,39 @@ chrome.storage.local.get(null, function(items) {
 	shaderef(request.url, items.col);
 	}
 });
-				
-				
-return true;
 
-                                break;
+break;
 
 
 case "VISITED":
 
 getLinks();
 arrangeShade(request, document.getElementsByTagName('a'));
-return true;
 break;
 
  case "PGDELETED":
-initialise();
-return true;
+		getLinks();
+        send(links);
 break;
 
 case "STDELETED":
+		getLinks();
+        send(links);
+break;
+
+case "NEWACTIVE_t":
+		getLinks();
+        send(links);
+break;
+
+case "NWSETTINGS":
 initialise();
-return true;
 break;
 
                         default:
                                 //console.log(request);
-												return true;
                                 break;
 
                 }
-
+												return true;
         });
