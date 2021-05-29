@@ -216,8 +216,6 @@ chrome.runtime.onMessage.addListener(
                 switch (request.type) {
 
                         case "URL":
-				if(!inProgress){
-					inProgress=true;
 chrome.storage.local.get(null, function(items) {
 	if (Object.keys(items).length == 0) {
 	chrome.storage.local.set({"col":"#9043cc"}, function(){
@@ -227,18 +225,13 @@ chrome.storage.local.get(null, function(items) {
 	shaderef(request.url, items.col);
 	}
 });
-inProgress=false;
-				}
+
 break;
 
 
 case "VISITED":
-				if(!inProgress){
-					inProgress=true;
 getLinks();
 arrangeShade(request, document.getElementsByTagName('a'));
-inProgress=false;
-				}
 break;
 
  case "PGDELETED":
