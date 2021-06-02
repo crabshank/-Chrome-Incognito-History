@@ -878,7 +878,7 @@ async function siteDel() {
 				}, function(){
 					resolve('Success!');
 				});
-			}).then((value) => {;});
+			}).then((result) => {;});
 		}
 	}
 }
