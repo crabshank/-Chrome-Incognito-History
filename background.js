@@ -868,14 +868,23 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 				maxResults: 0
 			}, function(hist) {
 				//console.log(hist);
-				for (let i = 0; i < hist.length; i++) {
-					if (hist[i].url.indexOf(request.url) >= 0) {
-						chrome.history.deleteUrl({
-							url: hist[i].url
-						})
-					}
-				}
-			});
+
+async function siteDel() {
+	for (let i=0; i<hist.length; i++) {
+		if (hist[i].url.indexOf(request.url) >= 0) {
+			new Promise(function(resolve, reject) {
+				chrome.history.deleteUrl({
+				url: hist[i].url
+				}, function(){
+					resolve('Success!');
+				});
+			}).then((value) => {;});
+		}
+	}
+}
+
+siteDel();
+
 			chrome.history.search({
 				text: "",
 				startTime: 0,
@@ -938,6 +947,8 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 					});
 					console.log("Deleting all pages from site " + request.url + " failed, please try again!");
 				}
+			});
+
 			});
 			break;
 
