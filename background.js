@@ -869,21 +869,30 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 			}, function(hist) {
 				//console.log(hist);
 
-async function siteDel() {
-	for (let i=0; i<hist.length; i++) {
-		if (hist[i].url.indexOf(request.url) >= 0) {
-			new Promise(function(resolve, reject) {
-				chrome.history.deleteUrl({
-				url: hist[i].url
-				}, function(){
-					resolve('Success!');
-				});
-			}).then((result) => {;});
-		}
-	}
-}
+				async function siteDel() {
+					var toDel=[]; 
+					for (let i=0; i<hist.length; i++) {
+						if (hist[i].url.indexOf(request.url) >= 0) {
+							toDel.push(hist[i]);
+						}
+					}
+					
+					await new Promise(function(resolve, reject) {
+						var count=0;
+						for (let i=0; i<toDel.length; i++) {
+								chrome.history.deleteUrl({
+								url: hist[i].url
+								}, function(){
+									count++;
+									if(count==toDel.length){
+									resolve();
+									}
+								});
+						}
+				}).then((result) => {;});
+				}
 
-siteDel();
+				siteDel();
 
 			chrome.history.search({
 				text: "",
