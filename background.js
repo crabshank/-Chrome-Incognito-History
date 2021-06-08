@@ -881,7 +881,7 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 						var count=0;
 						for (let i=0; i<toDel.length; i++) {
 								chrome.history.deleteUrl({
-								url: hist[i].url
+								url: toDel[i].url
 								}, function(){
 									count++;
 									if(count==toDel.length){
