@@ -889,6 +889,7 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 									}
 								});
 						}
+						setTimeout(() => reject(), 15000);
 				}).then((result) => {;});
 				}
 
