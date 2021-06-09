@@ -870,27 +870,29 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 				//console.log(hist);
 
 				async function siteDel() {
-					var toDel=[]; 
-					for (let i=0; i<hist.length; i++) {
-						if (hist[i].url.indexOf(request.url) >= 0) {
-							toDel.push(hist[i]);
+						var toDel=[]; 
+						for (let i=0; i<hist.length; i++) {
+							if (hist[i].url.indexOf(request.url) >= 0) {
+								toDel.push(hist[i]);
+							}
 						}
+						
+						if(toDel.length>0){
+						await new Promise(function(resolve, reject) {
+							var count=0;
+							for (let i=0; i<toDel.length; i++) {
+									chrome.history.deleteUrl({
+									url: toDel[i].url
+									}, function(){
+										count++;
+										if(count==toDel.length){
+										resolve();
+										}
+									});
+							}
+							setTimeout(() => reject(), 15000);
+					}).then((result) => {;});
 					}
-					
-					await new Promise(function(resolve, reject) {
-						var count=0;
-						for (let i=0; i<toDel.length; i++) {
-								chrome.history.deleteUrl({
-								url: toDel[i].url
-								}, function(){
-									count++;
-									if(count==toDel.length){
-									resolve();
-									}
-								});
-						}
-						setTimeout(() => reject(), 15000);
-				}).then((result) => {;});
 				}
 
 				siteDel();
