@@ -1,6 +1,4 @@
 try {
-async function execut(){
-	return new Promise((resolve,reject)=>{
 	var blacklist = [];
 	var tmpURLBlacklist = []
 	var tabStatus = []; //[{'tabId':_,'status': 'r'/'s'/'a'/'i'}]
@@ -43,7 +41,6 @@ async function execut(){
 
 		});
 
-
 		chrome.tabs.query({
 			active: true,
 			currentWindow: true
@@ -51,9 +48,7 @@ async function execut(){
 			activate(tabs[0]);
 		});
 
-
 	}
-
 
 	function removeChar(c, array) {
 		for (let i = 0; i < array.length; i++) {
@@ -108,7 +103,6 @@ async function execut(){
 
 					spl_mt.push(spl_m);
 
-
 				}
 
 				found = true;
@@ -153,8 +147,6 @@ async function execut(){
 			return false;
 		} else {
 
-
-
 			var pg = t.split('://')[1].split('?')[0];
 			for (let i = 0; i < array.length; i++) {
 				if (array[i].indexOf("://") >= 0) {
@@ -169,8 +161,6 @@ async function execut(){
 			}
 		}
 	}
-
-
 
 	function tbSt(d, t) {
 		let foundTS = 0;
@@ -324,7 +314,6 @@ async function execut(){
 			tId = tab.id;
 		}
 
-
 		chrome.action.setBadgeText({
 			'text': tId.toString()
 		});
@@ -343,7 +332,6 @@ async function execut(){
 			//console.log(response);
 		});
 
-
 	}
 
 	start();
@@ -360,20 +348,13 @@ async function execut(){
 			active: true
 		}, function(tabs) {
 
-
 			tabs.forEach(function(tb) {
 				console.log('Switched to tab ' + tb.id);
 				activate(tb);
 			});
 
-
-
-
 		});
 	});
-
-
-
 
 	chrome.tabs.onRemoved.addListener(function(tabId, removeInfo) {
 		console.log('Tab ' + tabId + ' removed');
@@ -405,7 +386,6 @@ async function execut(){
 		//console.log(tabBlacklist);
 
 	});
-
 
 	chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
 		//console.log('Tab ' + tabId + ' updated');
@@ -448,7 +428,6 @@ async function execut(){
 			visited(tab);
 			if ((tabBlacklist.includes(tabId) == false) && (blacklistMatch(blacklist, tab_url) == false)) {
 
-
 				tbSt(tabId, 'r');
 				if (tab.active) {
 					tabSet(tabId);
@@ -462,7 +441,6 @@ async function execut(){
 				}, function(response) {
 					// console.log(response);
 				});
-
 
 				/* 		chrome.tabs.query({}, function(tabs) {
 
@@ -483,19 +461,13 @@ async function execut(){
 					tabSet(tabId);
 				}
 
-
-
 			}
-
 
 		}
 
 		console.log(tabStatus);
 
 	});
-
-
-
 
 	//  when tab is created
 	chrome.tabs.onCreated.addListener(function(tab) {
@@ -512,16 +484,12 @@ async function execut(){
 		//	if ((tabBlacklist.includes(tab.id) == false) && (blacklistMatch(blacklist, tab.url) == false) && (blacklistMatch(tmpURLBlacklist, tab.url) == false)) {
 		//	console.log('Going to add ' + tab.id + ' to history!');
 
-
-
 		tbSt(tab.id, 'r');
 		if (tab.active) {
 			tabSet(tab.id);
 		}
 		let tab_url = getUrl(tab);
 		addhist(tab_url);
-
-
 
 		/* 	console.log(tmpHistAdd);
 			tmpHistAdd.push(tab.id);
@@ -604,14 +572,12 @@ async function execut(){
 		}
 	}
 
-
 	var visitd = [];
 	var hstchk = [];
 	chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 		switch (request.type) {
 			case "TAB_ID":
 				if (request.recording == "stop") {
-
 
 					let inHsty = 'false';
 					chrome.history.search({
@@ -651,8 +617,6 @@ async function execut(){
 					tabBlacklist = Array.from(new Set(tabBlacklist));
 					console.log("Won't record tab " + request.send_id + " from now on.");
 				} else if (request.recording == "rec") {
-
-
 
 					let inHsty = 'false';
 					chrome.history.search({
@@ -705,8 +669,6 @@ async function execut(){
 				} else if (request.recording == "ask") {
 					let inHistry = 'false';
 
-
-
 					chrome.history.search({
 						text: "",
 						startTime: 0,
@@ -732,9 +694,6 @@ async function execut(){
 						});
 
 					});
-
-
-
 
 				} else {
 					//console.log(request);
@@ -811,7 +770,6 @@ async function execut(){
 									tabs.forEach(function(tb) {
 										if (tb.url == url) {
 
-
 											tbSt(tb.id, 's');
 											if (tb.active) {
 												tabSet(tb.id);
@@ -820,8 +778,6 @@ async function execut(){
 										}
 									});
 								});
-
-
 
 								sendResponse({
 									type: "DELETED_PAGE",
@@ -835,7 +791,6 @@ async function execut(){
 								}, function(response) {
 									//console.log(response);
 								});*/
-
 
 								chrome.tabs.query({
 									active: true,
@@ -937,7 +892,6 @@ async function execut(){
 							});
 							console.log("All pages from site " + request.url + " have been deleted from history!");
 
-
 							/*chrome.runtime.sendMessage({
 								type: "STDELETED"
 							}, function(response) {
@@ -954,7 +908,6 @@ async function execut(){
 									}, function(response) {});
 								}
 							});
-
 
 						}
 						if (nthgFnd == 0) {
@@ -994,7 +947,6 @@ async function execut(){
 
 							let uniq = Array.from(new Set(visitd));
 
-
 							/* 				sendResponse({
 												type: "VISITED",
 												uniq,
@@ -1030,10 +982,6 @@ async function execut(){
 		}
 		return true;
 	});
-	resolve();
-	});
-}
-execut();
 } catch (e) {
 	console.error(e);
 }
