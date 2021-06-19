@@ -1,4 +1,6 @@
 try {
+async function execut(){
+	return new Promise((resolve,reject)=>{
 	var blacklist = [];
 	var tmpURLBlacklist = []
 	var tabStatus = []; //[{'tabId':_,'status': 'r'/'s'/'a'/'i'}]
@@ -1028,6 +1030,9 @@ try {
 		}
 		return true;
 	});
+	});
+}
+execut();
 } catch (e) {
 	console.error(e);
 }
