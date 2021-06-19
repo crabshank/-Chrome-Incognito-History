@@ -1030,6 +1030,7 @@ async function execut(){
 		}
 		return true;
 	});
+	resolve();
 	});
 }
 execut();
