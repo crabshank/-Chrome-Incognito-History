@@ -133,7 +133,7 @@ try {
 	function caseInsMatch(array, t) { //Term (partially) in array element?
 		var found = false;
 		for (let i = 0; i < array.length; i++) {
-			if (array[i].toLocaleLowerCase().indexOf(t.toLocaleLowerCase()) == 0) { //full, then part
+			if (array[i].toLocaleLowerCase().indexOf(t.toLocaleLowerCase()) >= 0) { //full, then part
 				//console.log(array[i]);
 				found = true;
 			}
