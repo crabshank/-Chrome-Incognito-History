@@ -53,7 +53,6 @@ async function retryOnTabUpdate3(tabId, removeInfo) {
 }catch(e){;}
 
 try {
-
 	var blacklist = [];
 	var tmpURLBlacklist = []
 	var tabStatus = []; //[{'tabId':_,'status': 'r'/'s'/'a'/'i'}]
@@ -402,12 +401,12 @@ try {
 			currentWindow: true,
 			active: true
 		}, function(tabs) {
-		try{
+try{
 			tabs.forEach(function(tb) {
 				console.log('Switched to tab ' + tb.id);
 				activate(tb);
 			});
-			}catch(e){;}
+		}catch(e){;}
 		});
 	});
 
@@ -563,11 +562,11 @@ try {
 		let tab_url = getUrl(tab);
 		if (tab_url.split('://')[0] !== 'chrome') {
 			chrome.storage.local.get("cgVisCol", function(item) {
-				if (item === "true") {
-					chrome.scripting.executeScript(tab.id, {
-						allFrames: true,
-						file: ['content.js']
-					});
+				if (item != "") {
+							chrome.scripting.executeScript({
+								  target: {tabId: tab.id, allFrames: true},
+								  files: ['content.js'],
+								}, () => {});
 				}
 			});
 		}
