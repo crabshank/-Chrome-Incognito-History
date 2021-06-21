@@ -16,7 +16,7 @@
      "service_worker": "background.js"
   },
      "permissions": ["contextMenus","history", "tabs", "activeTab", "storage","scripting"],
-
+  "host_permissions": ["<all_urls>"],
   "action": {
     "default_icon": "ih.png",
     "default_popup": "index.html",
