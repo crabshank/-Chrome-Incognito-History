@@ -562,7 +562,7 @@ try{
 		let tab_url = getUrl(tab);
 		if (tab_url.split('://')[0] !== 'chrome') {
 			chrome.storage.local.get("cgVisCol", function(item) {
-				if (item != "") {
+				if (item === "true") {
 							chrome.scripting.executeScript({
 								  target: {tabId: tab.id, allFrames: true},
 								  files: ['content.js'],
@@ -597,14 +597,21 @@ try{
 				console.log(url + " added to history!");
 
 				tmpTbUrl = [url];
+					
+										chrome.tabs.query({}, function(tabs) {
+								    try {
+								for (let t = 0; t < tabs.length; t++) {
+									chrome.tabs.sendMessage(tabs[t].id, {
+										type: "VISITED",
+										tmpTbUrl
+									}, function(response) {
 
-				chrome.runtime.sendMessage({
-					type: "VISITED",
-					tmpTbUrl
-				}, function(response) {
-					//console.log(response);
-				});
-
+									});
+								}
+									}catch(e){;}
+							});
+					
+					
 				chrome.tabs.query({}, function(tabs) {
 					tabs.forEach(function(tb) {
 						if (tb.url == url) {
@@ -1008,9 +1015,10 @@ try{
 											});
 											 */
 
-							chrome.tabs.query({
-								active: true
-							}, function(tabs) {
+
+
+					chrome.tabs.query({}, function(tabs) {
+								    try {
 								for (let t = 0; t < tabs.length; t++) {
 									chrome.tabs.sendMessage(tabs[t].id, {
 										type: "VISITED",
@@ -1020,6 +1028,7 @@ try{
 
 									});
 								}
+									}catch(e){;}
 							});
 
 							console.log('Sent visited links to be coloured');

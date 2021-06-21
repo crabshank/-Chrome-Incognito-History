@@ -5,7 +5,6 @@ var inProgress = false;
 var firstAct=false;
 
 function newGetSend(skipInit){
-	
 	if((skipInit) || (!skipInit && firstAct)){
 			if (!inProgress) {
 				inProgress = true;
@@ -18,6 +17,7 @@ function newGetSend(skipInit){
 	}
 	
 }
+
 
 function removeEls(d, array) {
 	var newArray = [];
