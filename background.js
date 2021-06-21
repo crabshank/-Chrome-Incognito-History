@@ -95,10 +95,7 @@ try {
 
 		});
 
-		chrome.tabs.query({
-			active: true,
-			currentWindow: true
-		}, function(tabs) {
+		chrome.tabs.query({}, function(tabs) {
 			activate(tabs[0]);
 		});
 
@@ -397,10 +394,7 @@ try {
 	});
 
 	chrome.windows.onFocusChanged.addListener(function(windowId) {
-		chrome.tabs.query({
-			currentWindow: true,
-			active: true
-		}, function(tabs) {
+		chrome.tabs.query({}, function(tabs) {
 try{
 			tabs.forEach(function(tb) {
 				console.log('Switched to tab ' + tb.id);
@@ -453,9 +447,7 @@ try{
 					tabSet(tabId);
 				}
 				inhist(tab);
-				chrome.tabs.query({
-					active: true
-				}, function(tabs) {
+				chrome.tabs.query({}, function(tabs) {
 					tabs.forEach(function(tb) {
 						sendURL(tb.url);
 					});
@@ -573,9 +565,7 @@ try{
 	}
 
 	function sendURL(url) {
-		chrome.tabs.query({
-			active: true
-		}, function(tabs) {
+		chrome.tabs.query({}, function(tabs) {
 			for (let t = 0; t < tabs.length; t++) {
 				chrome.tabs.sendMessage(tabs[t].id, {
 					type: "URL",
@@ -853,10 +843,7 @@ try{
 									//console.log(response);
 								});*/
 
-								chrome.tabs.query({
-									active: true,
-									currentWindow: true
-								}, function(tabs) {
+								chrome.tabs.query({}, function(tabs) {
 									for (let t = 0; t < tabs.length; t++) {
 										chrome.tabs.sendMessage(tabs[t].id, {
 											type: "PGDELETED"
@@ -959,10 +946,7 @@ try{
 								//console.log(response);
 							});*/
 
-							chrome.tabs.query({
-								active: true,
-								currentWindow: true
-							}, function(tabs) {
+							chrome.tabs.query({}, function(tabs) {
 								for (let t = 0; t < tabs.length; t++) {
 									chrome.tabs.sendMessage(tabs[t].id, {
 										type: "STDELETED"
