@@ -9,7 +9,7 @@
       "matches": [
         "<all_urls>"
       ],
-      "js": ["content.js"]
+      "js": ["content.js","port_connect.js"]
     }
   ],
    "background": {
