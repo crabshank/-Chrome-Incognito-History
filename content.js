@@ -168,7 +168,7 @@ function arrangeShade(request, lnks) {
 		toShade.arr=request.uniq;
 				toShade.full=true
 	}else if (typeof request.addedHist!=='undefined'){
-		toShade.arr=addedHist;
+		toShade.arr=request.addedHist;
 	}
 	
 if (!!toShade.arr && typeof request.uniq!=='undefined' && request.uniq.length>0 && lnks.length>0){
