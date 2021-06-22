@@ -144,7 +144,9 @@ function removeEls(d, array) {
                 active: true,
                 currentWindow: true
         }, function(tabs) {
-                 currentTab = tabs[0]; // there will be only one in this array
+			   if (!chrome.runtime.lastError) {
+       currentTab = tabs[0]; // there will be only one in this array
+    }    
 			});	  
 				
                 sendId('ask');
@@ -159,6 +161,7 @@ function sendId(a) {
                 active: true,
                 currentWindow: true
         }, function(tabs) {
+						   if (!chrome.runtime.lastError) {
                  currentTab = tabs[0]; // there will be only one in this array
                 let send_id = currentTab.id;
 				let send_url=currentTab.url;
@@ -184,6 +187,8 @@ function sendId(a) {
                 }
 
         });
+		
+		}
 });
 }
 
@@ -296,11 +301,13 @@ alert(lstChk[i]+' is invalid');
 		active: true,
 		currentWindow: true
 	}, function(tabs) {
+					   if (!chrome.runtime.lastError) {
 		for (let t = 0; t < tabs.length; t++) {
 			chrome.tabs.sendMessage(tabs[t].id, {
 				type: "NWSETTINGS"
 			}, function(response) {});
 		}
+	}
 	});
 					
                         console.log(response.settings);
@@ -329,6 +336,7 @@ delPage.addEventListener('click', function() {
                 active: true,
                 currentWindow: true
         }, function(tabs) {
+						   if (!chrome.runtime.lastError) {
                  currentTab = tabs[0]; // there will be only one in this array
 
 				 
@@ -346,7 +354,7 @@ delPage.addEventListener('click', function() {
                                 console.log(response.msg);
                         }
                 });
-
+		}
         });
 
 }, false)
@@ -357,6 +365,7 @@ delSite.addEventListener('click', function() {
                 active: true,
                 currentWindow: true
         }, function(tabs) {
+						   if (!chrome.runtime.lastError) {
                  currentTab = tabs[0]; // there will  be only one in this array
                 let se = currentTab.url.split('/')[2];
                 let cm = "Are you sure you want to delete all visits to " + se + "?";
@@ -378,7 +387,7 @@ delSite.addEventListener('click', function() {
 						}
                         });
                 }
-
+		}
         });
 
 }, false)
@@ -408,7 +417,9 @@ function(request, sender, sendResponse) {
                 active: true,
                 currentWindow: true
         }, function(tabs) {
+						   if (!chrome.runtime.lastError) {
            	currentTab = tabs[0]; 
+		}
 					});	
 				if (request.id==currentTab.id){
 					console.log('URL in history now, can be deleted.');

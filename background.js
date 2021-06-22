@@ -18,23 +18,38 @@ function keepAliveForced() {
 }
 
 async function keepAlive() {
- if (!!lifeline) return;
-  for (var tab of await chrome.tabs.query({ url:"<all_urls>"})) {
-    try {
-							chrome.scripting.executeScript({
-								  target: {tabId: tab.id},
+	await new Promise((resolve, reject)=>{
+	
+ if (!!lifeline){
+	 resolve();
+ }else{
+ var count=0;
+ 		chrome.tabs.query({}, function(tabs) {
+						   if (!chrome.runtime.lastError) {
+			for (let i = 0; i < tabs.length; i++) {
+				if(!tabs[i].url.startsWith('chrome://') && !tabs[i].url.startsWith('chrome-extension://')){
+												chrome.scripting.executeScript({
+								  target: {tabId: tabs[i].id},
 								  files: ['port_connect.js'],
 								}, () => {});
-	  console.log(lifeline);
-      chrome.tabs.onUpdated.removeListener(retryOnTabUpdate);
-	  chrome.tabs.onReplaced.addListener(retryOnTabUpdate2);
-	  chrome.tabs.onRemoved.addListener(retryOnTabUpdate3);
-      return;
-    } catch (e) {;}
-  }
+								count++;
+								break;
+				}
+			}
+		}
+		});
+ 
+if(count>0){
   chrome.tabs.onUpdated.addListener(retryOnTabUpdate);
 	  chrome.tabs.onReplaced.addListener(retryOnTabUpdate2);
 	  chrome.tabs.onRemoved.addListener(retryOnTabUpdate3);
+	  resolve();
+}else{
+	reject();
+}
+}
+}).then((response) => {;}).catch((e) => {;});
+
 }
 
 async function retryOnTabUpdate(tabId, info, tab) {
@@ -86,17 +101,20 @@ try {
 		});
 
 		chrome.tabs.query({}, function(tabs) {
+						   if (!chrome.runtime.lastError) {
 			for (let t = 0; t < tabs.length; t++) {
 				tabStatus.push({
 					'tabId': tabs[t].id,
 					'status': 'i'
 				});
 			}
-
+		}
 		});
 
 		chrome.tabs.query({}, function(tabs) {
+						   if (!chrome.runtime.lastError) {
 			activate(tabs[0]);
+		}
 		});
 
 	}
@@ -395,12 +413,13 @@ try {
 
 	chrome.windows.onFocusChanged.addListener(function(windowId) {
 		chrome.tabs.query({}, function(tabs) {
-try{
+						   if (!chrome.runtime.lastError) {
 			tabs.forEach(function(tb) {
 				console.log('Switched to tab ' + tb.id);
 				activate(tb);
 			});
-		}catch(e){;}
+
+		}
 		});
 	});
 
@@ -423,12 +442,14 @@ try{
 		tabBlacklist = replaceEls(newTabId, oldTabId, tabBlacklist);
 
 		chrome.tabs.query({}, function(tabs) {
+						   if (!chrome.runtime.lastError) {
 			for (let i = 0; i < tabs.length; i++) {
 				if (tabs[i].id == addedTabId) {
 					visited(tabs[i]);
 					i = tabs.length - 1;
 				}
 			}
+		}
 		});
 
 		//console.log(tabBlacklist);
@@ -448,9 +469,11 @@ try{
 				}
 				inhist(tab);
 				chrome.tabs.query({}, function(tabs) {
+								   if (!chrome.runtime.lastError) {
 					tabs.forEach(function(tb) {
 						sendURL(tb.url);
 					});
+				}
 				});
 			} else {
 				tbSt(tabId, 's');
@@ -566,12 +589,14 @@ try{
 
 	function sendURL(url) {
 		chrome.tabs.query({}, function(tabs) {
+						   if (!chrome.runtime.lastError) {
 			for (let t = 0; t < tabs.length; t++) {
 				chrome.tabs.sendMessage(tabs[t].id, {
 					type: "URL",
 					url: url
 				}, function(response) {});
 			}
+		}
 		});
 	}
 
@@ -589,7 +614,7 @@ try{
 				tmpTbUrl = [url];
 					
 										chrome.tabs.query({}, function(tabs) {
-								    try {
+			   if (!chrome.runtime.lastError) {
 								for (let t = 0; t < tabs.length; t++) {
 									chrome.tabs.sendMessage(tabs[t].id, {
 										type: "VISITED",
@@ -598,11 +623,12 @@ try{
 
 									});
 								}
-									}catch(e){;}
+										}
 							});
 					
 					
 				chrome.tabs.query({}, function(tabs) {
+								   if (!chrome.runtime.lastError) {
 					tabs.forEach(function(tb) {
 						if (tb.url == url) {
 							tbSt(tb.id, 'a');
@@ -617,6 +643,7 @@ try{
 							});
 						}
 					});
+				}
 				});
 				sendURL(url);
 			});
@@ -650,6 +677,7 @@ try{
 
 							tbSt(request.send_id, 's');
 							chrome.tabs.query({}, function(tabs) {
+											   if (!chrome.runtime.lastError) {
 								for (let i = 0; i < tabs.length; i++) {
 									if (tabs[i].id == request.send_id) {
 										if (tabs[i].active) {
@@ -659,6 +687,7 @@ try{
 										i = tabs.length - 1;
 									}
 								}
+							}
 							});
 						}
 
@@ -690,6 +719,7 @@ try{
 							tbSt(request.send_id, 'r');
 
 							chrome.tabs.query({}, function(tabs) {
+											   if (!chrome.runtime.lastError) {
 								for (let i = 0; i < tabs.length; i++) {
 									if (tabs[i].id == request.send_id) {
 										if (tabs[i].active) {
@@ -699,6 +729,7 @@ try{
 										i = tabs.length - 1;
 									}
 								}
+							}
 							});
 
 						}
@@ -770,6 +801,7 @@ try{
 			case "DELETE_PG":
 				console.log('Page (' + request.url + ') deletion request received');
 				chrome.tabs.query({}, function(tabs) {
+								   if (!chrome.runtime.lastError) {
 					let tmpCanDel = 0;
 					for (let t = 0; t < tabs.length; t++) {
 						if (tabs[t].url == request.url) {
@@ -794,6 +826,7 @@ try{
 							url: request.url
 						});
 					}
+				}
 				});
 
 				function delPg(url) {
@@ -818,6 +851,7 @@ try{
 								console.log(url + " deleted from history!");
 
 								chrome.tabs.query({}, function(tabs) {
+												   if (!chrome.runtime.lastError) {
 									tabs.forEach(function(tb) {
 										if (tb.url == url) {
 
@@ -828,6 +862,7 @@ try{
 
 										}
 									});
+								}
 								});
 
 								sendResponse({
@@ -844,11 +879,13 @@ try{
 								});*/
 
 								chrome.tabs.query({}, function(tabs) {
+												   if (!chrome.runtime.lastError) {
 									for (let t = 0; t < tabs.length; t++) {
 										chrome.tabs.sendMessage(tabs[t].id, {
 											type: "PGDELETED"
 										}, function(response) {});
 									}
+								}
 								});
 
 							} else {
@@ -923,6 +960,7 @@ try{
 						if (nthgFnd == 1) {
 
 							chrome.tabs.query({}, function(tabs) {
+											   if (!chrome.runtime.lastError) {
 								tabs.forEach(function(tb) {
 									if (tb.url.indexOf(request.url) >= 0) {
 										tbSt(tb.id, 's');
@@ -931,6 +969,7 @@ try{
 										}
 									}
 								});
+							}
 							});
 							sendResponse({
 								type: "DELETED_SITE",
@@ -947,11 +986,13 @@ try{
 							});*/
 
 							chrome.tabs.query({}, function(tabs) {
+											   if (!chrome.runtime.lastError) {
 								for (let t = 0; t < tabs.length; t++) {
 									chrome.tabs.sendMessage(tabs[t].id, {
 										type: "STDELETED"
 									}, function(response) {});
 								}
+							}
 							});
 
 						}
@@ -1002,7 +1043,7 @@ try{
 
 
 					chrome.tabs.query({}, function(tabs) {
-								    try {
+			   if (!chrome.runtime.lastError) {
 								for (let t = 0; t < tabs.length; t++) {
 									chrome.tabs.sendMessage(tabs[t].id, {
 										type: "VISITED",
@@ -1012,7 +1053,7 @@ try{
 
 									});
 								}
-									}catch(e){;}
+					}
 							});
 
 							console.log('Sent visited links to be coloured');
