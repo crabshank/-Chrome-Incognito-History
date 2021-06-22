@@ -73,7 +73,8 @@ function initialise() {
 function getLinks() {
 
 	var lk = [...document.getElementsByTagName('a')];
-
+links = [];
+innTx = [];
 	for (let i = 0; i < lk.length; i++) {
 
 		if (lk[i].href !== "") {
