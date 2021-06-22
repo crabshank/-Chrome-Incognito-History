@@ -73,7 +73,6 @@ try {
 	var tabStatus = []; //[{'tabId':_,'status': 'r'/'s'/'a'/'i'}]
 	var unrcTb_done = [];
 	var tabBlacklist = [];
-	var tmpTbUrl = [];
 
 	function start() {
 
@@ -611,14 +610,14 @@ try {
 			}, function() {
 				console.log(url + " added to history!");
 
-				tmpTbUrl = [url];
+				let uniq = [url];
 					
 										chrome.tabs.query({}, function(tabs) {
 			   if (!chrome.runtime.lastError) {
 								for (let t = 0; t < tabs.length; t++) {
 									chrome.tabs.sendMessage(tabs[t].id, {
 										type: "VISITED",
-										tmpTbUrl
+										uniq
 									}, function(response) {
 
 									});

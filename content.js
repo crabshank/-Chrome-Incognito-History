@@ -95,28 +95,27 @@ function getLinks() {
 window.addEventListener('load',initialise);
 //initialise();
 
-function shaderef(u, c) {
-	var lk = [...document.getElementsByTagName('a')];
-
-	for (let i = 0; i < lk.length; i++) {
-
-		if (u == lk[i].href) {
-
-
-			if ((!lk[i].getAttribute('incog_hist_marked')) || (lk[i].getAttribute('incog_hist_marked') == "false")) {
-				lk[i].style.color = c;
-				lk[i].innerText = "▶" + lk[i].innerText;
-				lk[i].setAttribute('incog_hist_marked', true);
-				console.groupCollapsed(lk[i].href + " coloured: ");
-				console.log(lk[i]);
-				console.dir(lk[i]);
+function shaderef(u, c) { //(array of urls to shade, links array ['A'])
+	let toShade=[];
+	for (let i = 0; i < c.length; i++) {
+		if(u.includes(c[i].href)){
+			toShade.push(c[i]);
+		}
+	}
+		for (let i = 0; i < toShade.length; i++) {
+			if ((!toShade[i].getAttribute('incog_hist_marked')) || (toShade[i].getAttribute('incog_hist_marked') == "false")) {
+				toShade[i].style.color = c;
+				toShade[i].innerText =(toShade[i].innerText==='')?toShade[i].innerText: "▶" + toShade[i].innerText;
+				toShade[i].setAttribute('incog_hist_marked', true);
+				console.groupCollapsed(toShade[i].href + " coloured: ");
+				console.log(toShade[i]);
+				console.dir(toShade[i]);
 				console.groupEnd();
 			}
 		}
-	}
-}
+		}
 
-function deShadeRef(u) { //u is an 'A' tag
+/*function deShadeRef(u) { //u is an 'A' tag
 	for (let j = 0; j < innTx.length; j++) { //OG innerTexts
 
 			if ((u.innerText.charAt(0) === '▶') && ((u.getAttribute('incog_hist_marked') == "true"))) {
@@ -134,7 +133,7 @@ function deShadeRef(u) { //u is an 'A' tag
 			}
 
 	}
-}
+}*/
 
 if ((typeof observer !== "undefined") && (!(observer))) {
 	const observer = new MutationObserver((mutations) => {
@@ -164,18 +163,15 @@ function send(b) {
 }
 
 function arrangeShade(request, lnks) {
-
-	chrome.storage.local.set({
-		"col": request.items.col
-	}, function() {
-var tmpLinks = lnks.filter((lk)=>{return request.uniq.includes(lk.href)});
-		for (let m = 0; m < tmpLinks.length; m++) {
-			deShadeRef(tmpLinks[m]);
-		}
-
+if (typeof request.uniq!=='undefined' && request.uniq.length>0 && lnks.length>0){
+	if (typeof request.items!=='undefined'){
+chrome.storage.local.set({"col": request.items.col},()=>{
+		shaderef(request.uniq,lnks);
 	});
-
-
+}else{
+			shaderef(request.uniq,lnks);
+}
+}
 }
 
 
@@ -190,11 +186,11 @@ chrome.runtime.onMessage.addListener(
 						chrome.storage.local.set({
 							"col": "#9043cc"
 						}, function() {
-							shaderef(request.url, "#9043cc");
+							shaderef([request.url], "#9043cc");
 						});
 					}
 					else {
-						shaderef(request.url, items.col);
+						shaderef([request.url], items.col);
 					}
 				});
 
