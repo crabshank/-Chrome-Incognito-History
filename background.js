@@ -485,7 +485,7 @@ try {
 
 		}
 
-		if ((changeInfo.url) && (unrcTb_done.includes(tabId) == false)) {
+		if ((!!changeInfo.url) && (unrcTb_done.includes(tabId) == false)) {
 			console.log('Tab ' + tabId + ' updated with new page');
 			/* tmpHistAdd.push(tab.id);
 			tmpHistAdd = Array.from(new Set(tmpHistAdd));
