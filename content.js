@@ -80,8 +80,8 @@ function getLinks() {
 			links.push(lk[i].href);
 		}
 
-		if ((lk[i].innerHTML !== "") && (!lk[i].getAttribute('incog_hist_marked'))) {
-			innHT.push(lk[i].innerHTML);
+		if ((lk[i].innerText !== "") && (!lk[i].getAttribute('incog_hist_marked'))) {
+			innHT.push(lk[i].innerText);
 		}
 	}
 
@@ -105,7 +105,7 @@ function shaderef(u, c) {
 
 			if ((!lk[i].getAttribute('incog_hist_marked')) || (lk[i].getAttribute('incog_hist_marked') == "false")) {
 				lk[i].style.color = c;
-				lk[i].innerHTML = "▶" + lk[i].innerHTML;
+				lk[i].innerText = "▶" + lk[i].innerText;
 				lk[i].setAttribute('incog_hist_marked', true);
 				console.groupCollapsed(lk[i].href + " coloured: ");
 				console.log(lk[i]);
@@ -118,18 +118,18 @@ function shaderef(u, c) {
 
 function deShadeRef(u) {
 	for (let j = 0; j < innHT.length; j++) {
-		if (u.innerHTML) {
+		if (u.innerText) {
 
-			if ((u.innerHTML.charAt(0) === '▶') && ((u.getAttribute('incog_hist_marked') == "true"))) {
-				var origIH = u.innerHTML.slice(1);
+			if ((u.innerText.charAt(0) === '▶') && ((u.getAttribute('incog_hist_marked') == "true"))) {
+				var origIH = u.innerText.slice(1);
 			}
 			else {
-				var origIH = u.innerHTML;
+				var origIH = u.innerText;
 			}
 
 			if ((innHT[j] == origIH) && ((u.getAttribute('incog_hist_marked') == "true"))) {
 				u.setAttribute('incog_hist_marked', false);
-				u.innerHTML = innHT[j];
+				u.innerText = innHT[j];
 				u.style.color = 'initial';
 
 			}
