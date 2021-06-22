@@ -95,11 +95,11 @@ function getLinks() {
 window.addEventListener('load',initialise);
 //initialise();
 
-function shaderef(u, c) { //(array of urls to shade, links array ['A'])
+function shaderef(u, a,c) { //(array of urls to shade, links array ['A'])
 	let toShade=[];
-	for (let i = 0; i < c.length; i++) {
-		if(u.includes(c[i].href)){
-			toShade.push(c[i]);
+	for (let i = 0; i < a.length; i++) {
+		if(u.includes(a[i].href)){
+			toShade.push(a[i]);
 		}
 	}
 		for (let i = 0; i < toShade.length; i++) {
@@ -115,7 +115,7 @@ function shaderef(u, c) { //(array of urls to shade, links array ['A'])
 		}
 		}
 
-/*function deShadeRef(u) { //u is an 'A' tag
+function deShadeRef(u) { //u is an 'A' tag
 	for (let j = 0; j < innTx.length; j++) { //OG innerTexts
 
 			if ((u.innerText.charAt(0) === '▶') && ((u.getAttribute('incog_hist_marked') == "true"))) {
@@ -133,7 +133,7 @@ function shaderef(u, c) { //(array of urls to shade, links array ['A'])
 			}
 
 	}
-}*/
+}
 
 if ((typeof observer !== "undefined") && (!(observer))) {
 	const observer = new MutationObserver((mutations) => {
@@ -163,13 +163,35 @@ function send(b) {
 }
 
 function arrangeShade(request, lnks) {
-if (typeof request.uniq!=='undefined' && request.uniq.length>0 && lnks.length>0){
+	let toShade={full:false, arr:null};
+	if (typeof request.uniq!=='undefined'){
+		toShade.arr=request.uniq;
+				toShade.full=true
+	}else if (typeof request.addedHist!=='undefined'){
+		toShade.arr=addedHist;
+	}
+	
+if (!!toShade.arr && typeof request.uniq!=='undefined' && request.uniq.length>0 && lnks.length>0){
 	if (typeof request.items!=='undefined'){
 chrome.storage.local.set({"col": request.items.col},()=>{
-		shaderef(request.uniq,lnks);
+shaderef(toShade.arr,lnks,request.items.col);
+	if(toShade.full){
+		for(let i=0; i<lnks.length; i++){
+			if(!toShade.arr.includes(lnks[i].href)){
+				deShadeRef(lnks[i]);
+			}
+		}
+	}
 	});
 }else{
-			shaderef(request.uniq,lnks);
+			shaderef(toShade.arr,lnks,"#9043cc");
+				if(toShade.full){
+					for(let i=0; i<lnks.length; i++){
+						if(!toShade.arr.includes(lnks[i].href)){
+						deShadeRef(lnks[i]);
+						}
+					}
+				}
 }
 }
 }
@@ -186,11 +208,10 @@ chrome.runtime.onMessage.addListener(
 						chrome.storage.local.set({
 							"col": "#9043cc"
 						}, function() {
-							shaderef([request.url], "#9043cc");
+							shaderef([request.url], [...document.getElementsByTagName('a')],"#9043cc");
 						});
-					}
-					else {
-						shaderef([request.url], items.col);
+					}else {
+						shaderef([request.url], [...document.getElementsByTagName('a')],items.col);
 					}
 				});
 

@@ -610,14 +610,14 @@ try {
 			}, function() {
 				console.log(url + " added to history!");
 
-				let uniq = [url];
+				let addedHist = [url];
 					
 										chrome.tabs.query({}, function(tabs) {
 			   if (!chrome.runtime.lastError) {
 								for (let t = 0; t < tabs.length; t++) {
 									chrome.tabs.sendMessage(tabs[t].id, {
 										type: "VISITED",
-										uniq
+										addedHist
 									}, function(response) {
 
 									});
