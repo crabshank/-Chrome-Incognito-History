@@ -164,14 +164,14 @@ function send(b) {
 
 function arrangeShade(request, lnks) {
 	let toShade={full:false, arr:null};
-	if (typeof request.uniq!=='undefined'){
+	if (typeof request.uniq!=='undefined' && request.uniq.length>0){
 		toShade.arr=request.uniq;
 				toShade.full=true
-	}else if (typeof request.addedHist!=='undefined'){
+	}else if (typeof request.addedHist!=='undefined' && request.addedHist.length>0){
 		toShade.arr=request.addedHist;
 	}
 	
-if (!!toShade.arr && typeof request.uniq!=='undefined' && request.uniq.length>0 && lnks.length>0){
+if (!!toShade.arr && lnks.length>0){
 	if (typeof request.items!=='undefined'){
 chrome.storage.local.set({"col": request.items.col},()=>{
 shaderef(toShade.arr,lnks,request.items.col);
