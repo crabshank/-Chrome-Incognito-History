@@ -1,6 +1,6 @@
 var timer;
 var links = [];
-var innHT = [];
+var innTx = [];
 var inProgress = false;
 var firstAct=false;
 
@@ -81,12 +81,12 @@ function getLinks() {
 		}
 
 		if ((lk[i].innerText !== "") && (!lk[i].getAttribute('incog_hist_marked'))) {
-			innHT.push(lk[i].innerText);
+			innTx.push(lk[i].innerText);
 		}
 	}
 
 	links = Array.from(new Set(links));
-	innHT = Array.from(new Set(innHT));
+	innTx = Array.from(new Set(innTx));
 
 
 }
@@ -116,24 +116,23 @@ function shaderef(u, c) {
 	}
 }
 
-function deShadeRef(u) {
-	for (let j = 0; j < innHT.length; j++) {
-		if (u.innerText) {
+function deShadeRef(u) { //u is an 'A' tag
+	for (let j = 0; j < innTx.length; j++) { //OG innerTexts
 
 			if ((u.innerText.charAt(0) === '▶') && ((u.getAttribute('incog_hist_marked') == "true"))) {
-				var origIH = u.innerText.slice(1);
+				var origITx = u.innerText.slice(1);
 			}
 			else {
-				var origIH = u.innerText;
+				var origITx = u.innerText;
 			}
 
-			if ((innHT[j] == origIH) && ((u.getAttribute('incog_hist_marked') == "true"))) {
+			if ((innTx[j] == origITx) && ((u.getAttribute('incog_hist_marked') == "true"))) {
 				u.setAttribute('incog_hist_marked', false);
-				u.innerText = innHT[j];
+				u.innerText = innTx[j];
 				u.style.color = 'initial';
 
 			}
-		}
+
 	}
 }
 
@@ -169,17 +168,7 @@ function arrangeShade(request, lnks) {
 	chrome.storage.local.set({
 		"col": request.items.col
 	}, function() {
-		var tmpLinks = [];
-		for (let k = 0; k < lnks.length; k++) {
-			tmpLinks.push(lnks[k].href);
-			for (let j = 0; j < request.uniq.length; j++) {
-				if (request.uniq[j] == lnks[k].href) {
-					shaderef(lnks[k].href, request.items.col);
-					tmpLinks = removeEls(lnks[k].href, tmpLinks);
-				}
-			}
-		}
-
+var tmpLinks = lnks.filter((lk)=>{return request.uniq.includes(lk.href)});
 		for (let m = 0; m < tmpLinks.length; m++) {
 			deShadeRef(tmpLinks[m]);
 		}
