@@ -1,6 +1,5 @@
 var timer;
 var links = [];
-var innTx = [];
 var inProgress = false;
 var firstAct=false;
 
@@ -73,22 +72,13 @@ function initialise() {
 function getLinks() {
 
 	var lk = [...document.getElementsByTagName('a')];
-links = [];
-innTx = [];
-	for (let i = 0; i < lk.length; i++) {
-
-		if (lk[i].href !== "") {
-			links.push(lk[i].href);
-		}
-
-		if ((lk[i].innerText !== "") && (!lk[i].getAttribute('incog_hist_marked'))) {
-			innTx.push(lk[i].innerText);
-		}
-	}
+links = lk.filter((lnk)=>{
+	return (!!lnk.href && typeof lnk.href!=='undefined' && typeof lnk.href!=='');
+}).map(function(lnk) {
+      return lnk.href;
+});
 
 	links = Array.from(new Set(links));
-	innTx = Array.from(new Set(innTx));
-
 
 }
 
@@ -96,17 +86,21 @@ innTx = [];
 window.addEventListener('load',initialise);
 //initialise();
 
-function shaderef(u, a,c) { //(array of urls to shade, links array ['A'])
-	let toShade=[];
-	for (let i = 0; i < a.length; i++) {
-		if(u.includes(a[i].href)){
-			toShade.push(a[i]);
-		}
-	}
-		for (let i = 0; i < toShade.length; i++) {
-			if ((!toShade[i].getAttribute('incog_hist_marked')) || (toShade[i].getAttribute('incog_hist_marked') == "false")) {
-				toShade[i].style.color = c;
-				toShade[i].innerText =(toShade[i].innerText==='')?toShade[i].innerText: "▶" + toShade[i].innerText;
+function shaderef(u, a,c) { //(array of urls to shade, links array ['A'], color)
+
+	let toShade=a.filter((lnk)=>{
+		return u.includes(lnk.href);
+	});
+
+
+			for (let i = 0; i < toShade.length; i++) {
+			if ((!toShade[i].getAttribute('incog_hist_marked')) || (toShade[i].getAttribute('incog_hist_marked') === "false")) {
+			toShade[i].style.setProperty('outline-color', c, 'important');
+			toShade[i].style.setProperty('outline-width', '1px', 'important');
+			toShade[i].style.setProperty('outline-style', 'outset', 'important');
+						toShade[i].style.setProperty('color', c, 'important');
+			//toShade[i].style.setProperty('background-color', c, 'important');
+			//toShade[i].style.setProperty('background-clip', 'content-box', 'important');
 				toShade[i].setAttribute('incog_hist_marked', true);
 				console.groupCollapsed(toShade[i].href + " coloured: ");
 				console.log(toShade[i]);
@@ -114,26 +108,28 @@ function shaderef(u, a,c) { //(array of urls to shade, links array ['A'])
 				console.groupEnd();
 			}
 		}
+	
+
+
+
+/*
+
+
+		*/
 		}
 
 function deShadeRef(u) { //u is an 'A' tag
-	for (let j = 0; j < innTx.length; j++) { //OG innerTexts
 
-			if ((u.innerText.charAt(0) === '▶') && ((u.getAttribute('incog_hist_marked') == "true"))) {
-				var origITx = u.innerText.slice(1);
+			if (u.getAttribute('incog_hist_marked') == "true") {
+			u.setAttribute('incog_hist_marked', false);
+
+			u.style.setProperty('outline-color','initial');
+			u.style.setProperty('outline-width', 'initial');
+			u.style.setProperty('outline-style','initial');
+			u.style.setProperty('color','initial');
+			//u.style.setProperty('background-color','initial');
+			//u.style.setProperty('background-clip','initial');
 			}
-			else {
-				var origITx = u.innerText;
-			}
-
-			if ((innTx[j] == origITx) && ((u.getAttribute('incog_hist_marked') == "true"))) {
-				u.setAttribute('incog_hist_marked', false);
-				u.innerText = innTx[j];
-				u.style.color = 'initial';
-
-			}
-
-	}
 }
 
 if ((typeof observer !== "undefined") && (!(observer))) {
