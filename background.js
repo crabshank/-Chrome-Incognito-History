@@ -110,11 +110,11 @@ try {
 		}
 		});
 
-		chrome.tabs.query({}, function(tabs) {
+/*		chrome.tabs.query({}, function(tabs) {
 						   if (!chrome.runtime.lastError) {
 			activate(tabs[0]);
 		}
-		});
+		});*/
 
 	}
 
@@ -374,31 +374,37 @@ try {
 		}
 	});
 
-	function activate(tab) {
-		let tId = null;
+function activate(tab) {
+				let tId = null;
 		if (tab.tabId) {
 			tId = tab.tabId;
 		} else if (tab.id) {
 			tId = tab.id;
 		}
+		
 
-		chrome.action.setBadgeText({
-			'text': tId.toString()
-		});
-		tabSet(tId);
+if(!!tId){
+									chrome.action.setBadgeText({
+									'text': tId.toString()
+									},()=>{});
+
+					tabSet(tId);
 		console.log('Switched to tab ' + tId);
 		chrome.runtime.sendMessage({
 			type: "NEWACTIVE",
 			id: tId
 		}, function(response) {
 			//	console.log(response);
-		});
+		});	
+
 
 		chrome.tabs.sendMessage(tId, {
 			type: "NEWACTIVE_t"
 		}, function(response) {
 			//console.log(response);
 		});
+			
+}
 
 	}
 
@@ -410,7 +416,7 @@ try {
 		//console.log(tmpHistDelPg);
 	});
 
-	chrome.windows.onFocusChanged.addListener(function(windowId) {
+	/*chrome.windows.onFocusChanged.addListener(function(windowId) {
 		chrome.tabs.query({}, function(tabs) {
 						   if (!chrome.runtime.lastError) {
 			tabs.forEach(function(tb) {
@@ -420,7 +426,7 @@ try {
 
 		}
 		});
-	});
+	});*/
 
 	chrome.tabs.onRemoved.addListener(function(tabId, removeInfo) {
 		console.log('Tab ' + tabId + ' removed');
@@ -487,6 +493,11 @@ try {
 
 		if ((!!changeInfo.url) && (unrcTb_done.includes(tabId) == false)) {
 			console.log('Tab ' + tabId + ' updated with new page');
+			
+				if(tab.active){
+					activate(tabId);
+				}
+			
 			/* tmpHistAdd.push(tab.id);
 			tmpHistAdd = Array.from(new Set(tmpHistAdd));
 			console.log(tmpHistAdd);
@@ -539,6 +550,7 @@ try {
 
 	//  when tab is created
 	chrome.tabs.onCreated.addListener(function(tab) {
+
 		tbSt(tab.id, 'i');
 		if (tab.active) {
 			tabSet(tab.id);
@@ -610,7 +622,7 @@ try {
 			}, function() {
 				console.log(url + " added to history!");
 
-				let addedHist = [url];
+			/*	let addedHist = [url];
 					
 										chrome.tabs.query({}, function(tabs) {
 			   if (!chrome.runtime.lastError) {
@@ -643,7 +655,7 @@ try {
 						}
 					});
 				}
-				});
+				});*/
 				sendURL(url);
 			});
 		}
@@ -651,6 +663,88 @@ try {
 
 	var visitd = [];
 	var hstchk = [];
+	
+	chrome.history.onVisitRemoved.addListener(function(removed){
+		
+												chrome.tabs.query({}, function(tabs) {
+			   if (!chrome.runtime.lastError) {
+								for (let t = 0; t < tabs.length; t++) {
+									chrome.tabs.sendMessage(tabs[t].id, {
+										type: "PGDELETED"
+									}, function(response) {
+
+									});
+									
+									if(!!removed.allHistory){
+											tbSt(tabs[t].id, 's');
+											if (tabs[t].active) {
+												tabSet(tabs[t].id);
+											}
+											chrome.runtime.sendMessage({
+												type: "NOTINHISTORY",
+												id: tabs[t].id
+											}, function(response) {
+												//console.log(response);
+											});
+									}else{
+											for (let k = 0; k < removed.urls.length; k++) {
+												if (tabs[t].url ===  removed.urls[k]) {
+												tbSt(tabs[t].id, 's');
+												if (tabs[t].active) {
+												tabSet(tabs[t].id);
+												}
+												chrome.runtime.sendMessage({
+												type: "NOTINHISTORY",
+												id: tabs[t].id
+												}, function(response) {
+												//console.log(response);
+												});
+												}
+											}
+
+									}
+									
+								}
+			   }
+												}); 
+
+	});
+	
+	chrome.history.onVisited.addListener(function(Historyitem){
+		
+		let addedHist = [Historyitem.url];
+					
+										chrome.tabs.query({}, function(tabs) {
+			   if (!chrome.runtime.lastError) {
+								for (let t = 0; t < tabs.length; t++) {
+									chrome.tabs.sendMessage(tabs[t].id, {
+										type: "VISITED",
+										addedHist
+									}, function(response) {
+
+									});
+									
+						if (tabs[t].url === Historyitem.url) {
+							tbSt(tabs[t].id, 'a');
+							if (tabs[t].active) {
+								tabSet(tabs[t].id);
+							}
+							chrome.runtime.sendMessage({
+								type: "ISINHISTORY",
+								id: tabs[t].id
+							}, function(response) {
+								//console.log(response);
+							});
+						}
+	
+								}
+										}
+										
+							});
+
+
+	});
+	
 	chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 		switch (request.type) {
 			case "TAB_ID":
@@ -877,7 +971,7 @@ try {
 									//console.log(response);
 								});*/
 
-								chrome.tabs.query({}, function(tabs) {
+								/*chrome.tabs.query({}, function(tabs) {
 												   if (!chrome.runtime.lastError) {
 									for (let t = 0; t < tabs.length; t++) {
 										chrome.tabs.sendMessage(tabs[t].id, {
@@ -885,7 +979,7 @@ try {
 										}, function(response) {});
 									}
 								}
-								});
+								});*/
 
 							} else {
 								//console.log(hist);
@@ -984,7 +1078,7 @@ try {
 								//console.log(response);
 							});*/
 
-							chrome.tabs.query({}, function(tabs) {
+							/*chrome.tabs.query({}, function(tabs) {
 											   if (!chrome.runtime.lastError) {
 								for (let t = 0; t < tabs.length; t++) {
 									chrome.tabs.sendMessage(tabs[t].id, {
@@ -992,7 +1086,7 @@ try {
 									}, function(response) {});
 								}
 							}
-							});
+							});*/
 
 						}
 						if (nthgFnd == 0) {

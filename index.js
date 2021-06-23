@@ -157,14 +157,13 @@ function removeEls(d, array) {
 
 
 function sendId(a) {
-        chrome.tabs.query({
-                active: true,
-                currentWindow: true
-        }, function(tabs) {
+        chrome.tabs.query({currentWindow: true}, function(tabs) {
 						   if (!chrome.runtime.lastError) {
-                 currentTab = tabs[0]; // there will be only one in this array
-                let send_id = currentTab.id;
-				let send_url=currentTab.url;
+							   for (let t=0; t<tabs.length; t++){
+
+							   if(!!tabs[t].active){
+                let send_id = tabs[t].id;
+				let send_url=tabs[t].url;
                 chrome.runtime.sendMessage({
                         type: "TAB_ID",
                         send_id,
@@ -187,7 +186,8 @@ function sendId(a) {
                 }
 
         });
-		
+						   }
+						   }
 		}
 });
 }
@@ -297,18 +297,19 @@ alert(lstChk[i]+' is invalid');
         }, function(response) {
                 if(response.type == "SET") {
 					
-		chrome.tabs.query({
-		active: true,
-		currentWindow: true
-	}, function(tabs) {
-					   if (!chrome.runtime.lastError) {
-		for (let t = 0; t < tabs.length; t++) {
-			chrome.tabs.sendMessage(tabs[t].id, {
-				type: "NWSETTINGS"
-			}, function(response) {});
-		}
-	}
-	});
+
+	        chrome.tabs.query({currentWindow: true}, function(tabs) {
+						   if (!chrome.runtime.lastError) {
+							   for (let t=0; t<tabs.length; t++){
+							   if(!!tabs[t].active){
+									chrome.tabs.sendMessage(tabs[t].id, {
+									type: "NWSETTINGS"
+									}, function(response) {});
+							   }
+							   }
+						   }
+			});
+	
 					
                         console.log(response.settings);
                         alert("Current settings saved!")
@@ -332,18 +333,17 @@ alert(lstChk[i]+' is invalid');
 
 delPage.addEventListener('click', function() {
 
-        chrome.tabs.query({
-                active: true,
-                currentWindow: true
-        }, function(tabs) {
-						   if (!chrome.runtime.lastError) {
-                 currentTab = tabs[0]; // there will be only one in this array
 
-				 
-				 console.log('Sending message to delete page.');
+	
+	        chrome.tabs.query({currentWindow: true}, function(tabs) {
+						   if (!chrome.runtime.lastError) {
+							   for (let t=0; t<tabs.length; t++){
+
+							   if(!!tabs[t].active){
+								   				 console.log('Sending message to delete page.');
                 chrome.runtime.sendMessage({
                         type: "DELETE_PG",
-                        url: currentTab.url
+                        url: tabs[t].url
                 }, function(response) {
                         if(response.type == "DELETED_PAGE") {
 							if(response.status == "successful"){
@@ -354,20 +354,24 @@ delPage.addEventListener('click', function() {
                                 console.log(response.msg);
                         }
                 });
-		}
-        });
+							   }
+							   }
+						   }
+			});
+
 
 }, false)
 
 delSite.addEventListener('click', function() {
 
-        chrome.tabs.query({
-                active: true,
-                currentWindow: true
-        }, function(tabs) {
+
+	
+	        chrome.tabs.query({currentWindow: true}, function(tabs) {
 						   if (!chrome.runtime.lastError) {
-                 currentTab = tabs[0]; // there will  be only one in this array
-                let se = currentTab.url.split('/')[2];
+							   for (let t=0; t<tabs.length; t++){
+
+							   if(!!tabs[t].active){
+                let se = tabs[t].url.split('/')[2];
                 let cm = "Are you sure you want to delete all visits to " + se + "?";
                 let sdc = confirm(cm);
                 if(sdc == true) {
@@ -384,12 +388,13 @@ delSite.addEventListener('click', function() {
 						
 
                                 alert(response.msg);
-						}
-                        });
-                }
-		}
-        });
-
+							   }
+							   });
+						   }
+						   }
+						   }
+						   }
+			});
 }, false)
 
 function shwDels(){
@@ -412,42 +417,53 @@ function(request, sender, sendResponse) {
     switch (request.type) {
 
         case "ISINHISTORY":
-
- chrome.tabs.query({
-                active: true,
-                currentWindow: true
-        }, function(tabs) {
+	        chrome.tabs.query({currentWindow: true}, function(tabs) {
 						   if (!chrome.runtime.lastError) {
-           	currentTab = tabs[0]; 
-		}
-					});	
-				if (request.id==currentTab.id){
-					console.log('URL in history now, can be deleted.');
-					shwDels();
-				}
+							   for (let t=0; t<tabs.length; t++){
 
-		return true;
+							   if(!!tabs[t].active){
+									if (request.id==tabs[t].id){
+									console.log('URL in history now, can be deleted.');
+									shwDels();
+									}
+							   }
+							   }
+						   }
+			});
 break;
 
- case "TBUPDATE":
+ case "NOTINHISTORY":
+	        chrome.tabs.query({currentWindow: true}, function(tabs) {
+						   if (!chrome.runtime.lastError) {
+							   for (let t=0; t<tabs.length; t++){
+									if(!!tabs[t].active){
+									if (request.id==tabs[t].id){
+									console.log('URL not in history.');
+									hdeDels();
+									}
+							   }
+							   }
+						   }
+			});		
+break; 
+
+case "TBUPDATE":
 					hdeDels();
 					  start();
-		return true;			
 break;
 
 case "NEWACTIVE":
 
 					hdeDels();
 					  start();
-					
-	return true;		
+							
 break;
  
 default:
 	console.log(request);
-	return true;
-break;
 
+break;
+	return true;
 
 
 				}

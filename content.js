@@ -228,9 +228,9 @@ chrome.runtime.onMessage.addListener(
 				 newGetSend(true);
 			break;
 
-			case "STDELETED":
+			/*case "STDELETED":
 				newGetSend(true);
-			break;
+			break;*/
 
 			case "NEWACTIVE_t":
 				newGetSend(false);
