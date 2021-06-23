@@ -416,17 +416,18 @@ if(!!tId){
 		//console.log(tmpHistDelPg);
 	});
 
-	/*chrome.windows.onFocusChanged.addListener(function(windowId) {
-		chrome.tabs.query({}, function(tabs) {
+	chrome.windows.onFocusChanged.addListener(function(windowId) {
+		chrome.tabs.query({windowId: windowId}, function(tabs) {
 						   if (!chrome.runtime.lastError) {
-			tabs.forEach(function(tb) {
-				console.log('Switched to tab ' + tb.id);
-				activate(tb);
-			});
-
+							   for (let t=0; t<tabs.length; t++){
+									if(!!tabs[t].active){
+										console.log('Switched to tab ' + tabs[t].id);
+										activate(tabs[t]);
+							   }
+						   }
 		}
 		});
-	});*/
+	});
 
 	chrome.tabs.onRemoved.addListener(function(tabId, removeInfo) {
 		console.log('Tab ' + tabId + ' removed');
