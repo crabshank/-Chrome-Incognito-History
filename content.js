@@ -99,6 +99,13 @@ if(!!u && typeof u!=='undefined' && !!a && typeof a!=='undefined'){
 						toShade[i].style.setProperty('color', c, 'important');
 			//toShade[i].style.setProperty('background-color', c, 'important');
 			//toShade[i].style.setProperty('background-clip', 'content-box', 'important');
+			
+			let toShadChld=[...toShade[i].children];
+			
+				for (let k = 0; k < toShadChld.length; k++) {
+					toShadChld[k].style.setProperty('color', c, 'important');
+				}
+			
 				toShade[i].setAttribute('incog_hist_marked', true);
 				console.groupCollapsed(toShade[i].href + " coloured: ");
 				console.log(toShade[i]);
@@ -121,6 +128,13 @@ function deShadeRef(u) { //u is an 'A' tag
 			u.style.setProperty('color','initial');
 			//u.style.setProperty('background-color','initial');
 			//u.style.setProperty('background-clip','initial');
+			
+						let uChld=[...u.children];
+			
+				for (let k = 0; k < uChld.length; k++) {
+					uChld[k].style.setProperty('color','initial');
+				}
+
 			}
 }
 
