@@ -366,10 +366,10 @@ try {
 					"incognito": true
 				}, function(newWindow) {
 					for (let i = 0; i < newWindow.tabs.length; i++) {
-						if (newWindow.getUrl(tabs[i]) == to_url) {
+						if (newWindow.getUrl(newWindow.tabs[i]) == to_url) {
 							tabBlacklist.push(newWindow.tabs[i].id);
 							tabBlacklist = Array.from(new Set(tabBlacklist));
-							tmpURLBlacklist.push(newWindow.getUrl(tabs[i]));
+							tmpURLBlacklist.push(newWindow.getUrl(newWindow.tabs[i]));
 							tmpURLBlacklist = Array.from(new Set(tmpURLBlacklist));
 							tbSt(newWindow.tabs[i].id, 's');
 							if (newWindow.tabs[i].active) {
