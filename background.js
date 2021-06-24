@@ -596,7 +596,7 @@ if(!!tId){
 			chrome.storage.local.get("cgVisCol", function(item) {
 				if (item === "true") {
 							chrome.scripting.executeScript({
-								  target: {tabId: tab.id},
+								  target: {tabId: tab.id, allFrames: true},
 								  files: ['content.js'],
 								}, () => {});
 				}
