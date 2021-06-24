@@ -1,3 +1,7 @@
+function getUrl(tab) {
+	return (tab.url == "" && !!tab.pendingUrl && typeof tab.pendingUrl !== 'undefined' && tab.pendingUrl != '') ? tab.pendingUrl : tab.url;
+}
+
 try{
 var lifeline;
 
@@ -27,7 +31,8 @@ async function keepAlive() {
  		chrome.tabs.query({}, function(tabs) {
 						   if (!chrome.runtime.lastError) {
 			for (let i = 0; i < tabs.length; i++) {
-				if(!tabs[i].url.startsWith('chrome://') && !tabs[i].url.startsWith('chrome-extension://')){
+				let tbURL=getUrl(tabs[i]);
+				if(!!tbURL && typeof tbURL!=='undefined' && !tbURL.startsWith('chrome://') && !tbURL.startsWith('chrome-extension://')){
 												chrome.scripting.executeScript({
 								  target: {tabId: tabs[i].id},
 								  files: ['port_connect.js'],
@@ -357,10 +362,10 @@ try {
 					"incognito": true
 				}, function(newWindow) {
 					for (let i = 0; i < newWindow.tabs.length; i++) {
-						if (newWindow.tabs[i].url == to_url) {
+						if (newWindow.getUrl(tabs[i]) == to_url) {
 							tabBlacklist.push(newWindow.tabs[i].id);
 							tabBlacklist = Array.from(new Set(tabBlacklist));
-							tmpURLBlacklist.push(newWindow.tabs[i].url);
+							tmpURLBlacklist.push(newWindow.getUrl(tabs[i]));
 							tmpURLBlacklist = Array.from(new Set(tmpURLBlacklist));
 							tbSt(newWindow.tabs[i].id, 's');
 							if (newWindow.tabs[i].active) {
@@ -562,7 +567,7 @@ if(!!tId){
 	});
 
 	function inhist(tab) {
-		//	if ((tabBlacklist.includes(tab.id) == false) && (blacklistMatch(blacklist, tab.url) == false) && (blacklistMatch(tmpURLBlacklist, tab.url) == false)) {
+		
 		//	console.log('Going to add ' + tab.id + ' to history!');
 
 		tbSt(tab.id, 'r');
@@ -610,10 +615,6 @@ if(!!tId){
 			}
 		}
 		});
-	}
-
-	function getUrl(tab) {
-		return (tab.url == "" && !!tab.pendingUrl && typeof tab.pendingUrl !== 'undefined' && tab.pendingUrl != '') ? tab.pendingUrl : tab.url;
 	}
 
 	function addhist(url) {
@@ -694,7 +695,7 @@ if(!!tId){
 									}else{
 											for (let k = 0; k < removed.urls.length; k++) {
 																								
-												if (tabs[t].url ===  removed.urls[k]) {
+												if (getUrl(tabs[t]) ===  removed.urls[k]) {
 												tbSt(tabs[t].id, 's');
 													if (tabs[t].active) {
 													tabSet(tabs[t].id);
@@ -740,7 +741,7 @@ if(!!tId){
 
 									});
 									
-						if (tabs[t].url === Historyitem.url) {
+						if (getUrl(tabs[t]) === Historyitem.url) {
 							tbSt(tabs[t].id, 'a');
 							if (tabs[t].active) {
 								tabSet(tabs[t].id);
@@ -913,7 +914,7 @@ if(!!tId){
 								   if (!chrome.runtime.lastError) {
 					let tmpCanDel = 0;
 					for (let t = 0; t < tabs.length; t++) {
-						if (tabs[t].url == request.url) {
+						if (getUrl(tabs[t]) == request.url) {
 							if (unrcTb_done.includes(tabs[t].id) == false) {
 								console.log('Page (' + request.url + ') about to be deleted');
 								tmpCanDel = 1;
