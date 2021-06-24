@@ -325,7 +325,11 @@ try {
 		}
 
 	}
-	let contexts = ["link", "image"];
+	
+	chrome.extension.isAllowedIncognitoAccess((isAllowedAccess)=>{
+		if(isAllowedAccess){
+			
+				let contexts = ["link", "image"];
 	chrome.contextMenus.create({
 		"title": "⏹ Open in unrecorded incognito tab",
 		"contexts": contexts,
@@ -378,6 +382,11 @@ try {
 			}
 		}
 	});
+
+		}
+	});
+
+
 
 function activate(tab) {
 				let tId = null;
