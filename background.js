@@ -700,7 +700,7 @@ if(!!tId){
 													if (tabs[t].active) {
 													tabSet(tabs[t].id);
 													}
-
+												}
 
 											chrome.tabs.sendMessage(tabs[t].id, {
 											type: "PGDELETED",
@@ -717,7 +717,7 @@ if(!!tId){
 												//console.log(response);
 												});
 												}
-											}
+											
 
 									}
 									
