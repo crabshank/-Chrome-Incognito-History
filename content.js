@@ -1,16 +1,13 @@
 var timer;
 var links = [];
-var inProgress = false;
+var linkTags= [];
 var firstAct=false;
 
 function newGetSend(skipInit){
 	if((skipInit) || (!skipInit && firstAct)){
-			if (!inProgress) {
-				inProgress = true;
 				getLinks();
 				send(links);
-				inProgress = false;
-			}
+
 	}else if (!skipInit && !firstAct){
 		initialise();
 	}
@@ -65,20 +62,22 @@ function initialise() {
 		send(links);
 	});
 
-	inProgress = false;
 }
 
 
-function getLinks() {
-
+async function getLinks() {
+await new Promise((resolve, reject)=>{
 	var lk = [...document.getElementsByTagName('a')];
+	linkTags=lk;
 links = lk.filter((lnk)=>{
-	return (!!lnk.href && typeof lnk.href!=='undefined' && typeof lnk.href!=='');
+	return (!!lnk.href && typeof lnk.href!=='undefined' && lnk.href!=='');
 }).map(function(lnk) {
       return lnk.href;
 });
 
 	links = Array.from(new Set(links));
+	resolve();
+}).then(()=>{;}).catch(()=>{;});
 
 }
 
@@ -86,12 +85,11 @@ links = lk.filter((lnk)=>{
 window.addEventListener('load',initialise);
 //initialise();
 
-function shaderef(u, a,c) { //(array of urls to shade, links array ['A'], color)
-
-	let toShade=a.filter((lnk)=>{
-		return u.includes(lnk.href);
+function shaderef(u, a,c) { //(array of urls to shade, link tags array ['A'], color)
+if(!!u && typeof u!=='undefined' && !!a && typeof a!=='undefined'){
+	let toShade=a.filter((lkTg)=>{
+		return u.includes(lkTg.href);
 	});
-
 
 			for (let i = 0; i < toShade.length; i++) {
 			if ((!toShade[i].getAttribute('incog_hist_marked')) || (toShade[i].getAttribute('incog_hist_marked') === "false")) {
@@ -109,18 +107,12 @@ function shaderef(u, a,c) { //(array of urls to shade, links array ['A'], color)
 			}
 		}
 	
-
-
-
-/*
-
-
-		*/
+}
 		}
 
 function deShadeRef(u) { //u is an 'A' tag
 
-			if (u.getAttribute('incog_hist_marked') == "true") {
+			if ((u.getAttribute('incog_hist_marked') == "true") || (!!u.getAttribute('incog_hist_marked'))) {
 			u.setAttribute('incog_hist_marked', false);
 
 			u.style.setProperty('outline-color','initial');
@@ -159,40 +151,41 @@ function send(b) {
 	}, function(response) {});
 }
 
-function arrangeShade(request, lnks) {
-	let toShade={full:false, arr:null};
+function arrangeShade(request, lnkTgs) {
+	
+		let toShade=null;
 	if (typeof request.uniq!=='undefined' && request.uniq.length>0){
-		toShade.arr=request.uniq;
-				toShade.full=true
+		toShade=request.uniq;
 	}else if (typeof request.addedHist!=='undefined' && request.addedHist.length>0){
-		toShade.arr=request.addedHist;
+		toShade=request.addedHist;
 	}
 	
-if (!!toShade.arr && lnks.length>0){
-	if (typeof request.items!=='undefined'){
+	if (!!toShade && lnkTgs.length>0){
+		
+			if (typeof request.items!=='undefined'){
 chrome.storage.local.set({"col": request.items.col},()=>{
-shaderef(toShade.arr,lnks,request.items.col);
-	if(toShade.full){
-		for(let i=0; i<lnks.length; i++){
-			if(!toShade.arr.includes(lnks[i].href)){
-				deShadeRef(lnks[i]);
-			}
-		}
-	}
+shaderef(toShade,lnkTgs,request.items.col);
 	});
-}else{
-			shaderef(toShade.arr,lnks,"#9043cc");
-				if(toShade.full){
-					for(let i=0; i<lnks.length; i++){
-						if(!toShade.arr.includes(lnks[i].href)){
-						deShadeRef(lnks[i]);
-						}
-					}
-				}
-}
-}
 }
 
+	}else{
+		shaderef(toShade,lnkTgs,"#9043cc");
+	}
+
+}
+
+function arrangeDeshade(request) {
+	if(request.all){
+		for (let i = 0; i < linkTags.length; i++) {
+		deShadeRef(linkTags[i]);
+		}
+	}else{
+		let reqLk=linkTags.filter((lnk)=>{return lnk.href===request.delLink});
+				for (let i = 0; i < reqLk.length; i++) {
+		deShadeRef(reqLk[i]);
+		}
+	}
+}
 
 chrome.runtime.onMessage.addListener(
 	function(request, sender, sendResponse) {
@@ -217,11 +210,13 @@ chrome.runtime.onMessage.addListener(
 
 			case "VISITED":
 				getLinks();
-				arrangeShade(request, [...document.getElementsByTagName('a')]);
+				arrangeShade(request, linkTags);
+				
 			break;
 
 			case "PGDELETED":
-				 newGetSend(true);
+				getLinks();
+				arrangeDeshade(request);
 			break;
 
 			/*case "STDELETED":
@@ -233,10 +228,7 @@ chrome.runtime.onMessage.addListener(
 			break;
 
 			case "NWSETTINGS":
-				if (!inProgress) {
-					inProgress = true;
 					initialise();
-				}
 			break;
 
 			default:

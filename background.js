@@ -670,17 +670,21 @@ if(!!tId){
 												chrome.tabs.query({}, function(tabs) {
 			   if (!chrome.runtime.lastError) {
 								for (let t = 0; t < tabs.length; t++) {
-									chrome.tabs.sendMessage(tabs[t].id, {
-										type: "PGDELETED"
-									}, function(response) {
-
-									});
 									
 									if(!!removed.allHistory){
 											tbSt(tabs[t].id, 's');
 											if (tabs[t].active) {
 												tabSet(tabs[t].id);
 											}
+											
+											chrome.tabs.sendMessage(tabs[t].id, {
+											type: "PGDELETED",
+											all: true,
+											delLink: null
+											}, function(response) {
+
+											});
+											
 											chrome.runtime.sendMessage({
 												type: "NOTINHISTORY",
 												id: tabs[t].id
@@ -689,11 +693,22 @@ if(!!tId){
 											});
 									}else{
 											for (let k = 0; k < removed.urls.length; k++) {
+																								
 												if (tabs[t].url ===  removed.urls[k]) {
 												tbSt(tabs[t].id, 's');
-												if (tabs[t].active) {
-												tabSet(tabs[t].id);
-												}
+													if (tabs[t].active) {
+													tabSet(tabs[t].id);
+													}
+
+
+											chrome.tabs.sendMessage(tabs[t].id, {
+											type: "PGDELETED",
+											all: false,
+											delLink: removed.urls[k]
+											}, function(response) {
+
+											});
+
 												chrome.runtime.sendMessage({
 												type: "NOTINHISTORY",
 												id: tabs[t].id
