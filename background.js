@@ -491,7 +491,7 @@ if(!!tId){
 				chrome.tabs.query({}, function(tabs) {
 								   if (!chrome.runtime.lastError) {
 					tabs.forEach(function(tb) {
-						sendURL(tb.url);
+						sendURL(getUrl(tb));
 					});
 				}
 				});
@@ -972,7 +972,7 @@ if(!!tId){
 								chrome.tabs.query({}, function(tabs) {
 												   if (!chrome.runtime.lastError) {
 									tabs.forEach(function(tb) {
-										if (tb.url == url) {
+										if (getUrl(tb) == url) {
 
 											tbSt(tb.id, 's');
 											if (tb.active) {
@@ -1081,7 +1081,7 @@ if(!!tId){
 							chrome.tabs.query({}, function(tabs) {
 											   if (!chrome.runtime.lastError) {
 								tabs.forEach(function(tb) {
-									if (tb.url.indexOf(request.url) >= 0) {
+									if (getUrl(tb).indexOf(request.url) >= 0) {
 										tbSt(tb.id, 's');
 										if (tb.active) {
 											tabSet(tb.id);
