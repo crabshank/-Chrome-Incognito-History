@@ -96,6 +96,7 @@ if(!!u && typeof u!=='undefined' && !!a && typeof a!=='undefined'){
 			toShade[i].style.setProperty('outline-color', c, 'important');
 			toShade[i].style.setProperty('outline-width', '1px', 'important');
 			toShade[i].style.setProperty('outline-style', 'outset', 'important');
+			toShade[i].style.setProperty('box-shadow', '0em 0em 8px 2px '+c, 'important');
 						toShade[i].style.setProperty('color', c, 'important');
 			//toShade[i].style.setProperty('background-color', c, 'important');
 			//toShade[i].style.setProperty('background-clip', 'content-box', 'important');
@@ -125,6 +126,7 @@ function deShadeRef(u) { //u is an 'A' tag
 			u.style.setProperty('outline-color','initial');
 			u.style.setProperty('outline-width', 'initial');
 			u.style.setProperty('outline-style','initial');
+			u.style.setProperty('box-shadow','initial');
 			u.style.setProperty('color','initial');
 			//u.style.setProperty('background-color','initial');
 			//u.style.setProperty('background-clip','initial');
