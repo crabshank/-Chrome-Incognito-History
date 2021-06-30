@@ -1,7 +1,7 @@
 function getUrl(tab) {
 	return (tab.url == "" && !!tab.pendingUrl && typeof tab.pendingUrl !== 'undefined' && tab.pendingUrl != '') ? tab.pendingUrl : tab.url;
 }
-self.addEventListener('fetch', event => {
+
 try {
 	var blacklist = [];
 	var tmpURLBlacklist = []
@@ -1122,4 +1122,3 @@ if(!!tId){
 } catch (e) {
 	console.error(e);
 }
-});
