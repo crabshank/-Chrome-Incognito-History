@@ -27,8 +27,7 @@ function removeEls(d, array) {
 
 function initialise() {
 
-	firstAct=(!firstAct)?true:firstAct;
-	
+
 	chrome.storage.local.get(null, function(items) {
 		if (Object.keys(items).length == 0) {
 
@@ -51,22 +50,26 @@ function initialise() {
 									console.log('Initial settings set!');
 								}
 							});
-
+							
 						});
 					});
 				});
 			});
 
 		}
-		getLinks();
-		send(links);
+
 	});
+
+firstAct=(!firstAct)?true:firstAct;
+
+getLinks();
+send(links);
 
 }
 
 
-async function getLinks() {
-await new Promise((resolve, reject)=>{
+function getLinks() {
+
 	var lk = [...document.getElementsByTagName('a')];
 	linkTags=lk;
 links = lk.filter((lnk)=>{
@@ -76,9 +79,6 @@ links = lk.filter((lnk)=>{
 });
 
 	links = Array.from(new Set(links));
-	resolve();
-}).then(()=>{;}).catch(()=>{;});
-
 }
 
 
@@ -182,12 +182,11 @@ function arrangeShade(request, lnkTgs) {
 chrome.storage.local.set({"col": request.items.col},()=>{
 shaderef(toShade,lnkTgs,request.items.col);
 	});
-}
-
-	}else{
+}else{
 		shaderef(toShade,lnkTgs,"#9043cc");
 	}
 
+}
 }
 
 function arrangeDeshade(request) {

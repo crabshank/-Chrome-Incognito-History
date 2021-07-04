@@ -562,10 +562,21 @@ if(!!tId){
 				url: url
 			}, function() {
 				console.log(url + " added to history!");
+				//sendURL(url);
+			});
+		}
+	}
 
-			/*	let addedHist = [url];
-					
-										chrome.tabs.query({}, function(tabs) {
+	var visitd = [];
+	var hstchk = [];
+	
+	
+	chrome.bookmarks.onCreated.addListener((id, bookmark) => {
+		
+		if (typeof bookmark.url!=='undefined'){
+		let addedHist = [bookmark.url];
+		
+												chrome.tabs.query({}, function(tabs) {
 			   if (!chrome.runtime.lastError) {
 								for (let t = 0; t < tabs.length; t++) {
 									chrome.tabs.sendMessage(tabs[t].id, {
@@ -574,36 +585,76 @@ if(!!tId){
 									}, function(response) {
 
 									});
-								}
-										}
-							});
-					
-					
-				chrome.tabs.query({}, function(tabs) {
-								   if (!chrome.runtime.lastError) {
-					tabs.forEach(function(tb) {
-						if (tb.url == url) {
-							tbSt(tb.id, 'a');
-							if (tb.active) {
-								tabSet(tb.id);
+									
+						if (getUrl(tabs[t]) === bookmark.url) {
+							tbSt(tabs[t].id, 'a');
+							if (tabs[t].active) {
+								tabSet(tabs[t].id);
 							}
 							chrome.runtime.sendMessage({
 								type: "ISINHISTORY",
-								id: tb.id
+								id: tabs[t].id
 							}, function(response) {
 								//console.log(response);
 							});
 						}
-					});
-				}
-				});*/
-				sendURL(url);
-			});
-		}
-	}
+	
+								}
+										}
+										
+							});
 
-	var visitd = [];
-	var hstchk = [];
+		
+		}
+});
+	
+	
+	chrome.bookmarks.onRemoved.addListener((id, removeInfo) => {
+		if (typeof removeInfo.node.url!=='undefined'){
+	chrome.history.search({
+						text: "",
+						startTime: 0,
+						maxResults: 0
+					}, function(hist) {
+						let hist_URLs=hist.map((entry)=>{return entry.url});
+						if (!hist_URLs.includes(removeInfo.node.url)){
+																			chrome.tabs.query({}, function(tabs) {
+			   if (!chrome.runtime.lastError) {
+								for (let t = 0; t < tabs.length; t++) {
+																			if (getUrl(tabs[t]) ===  removeInfo.node.url) {
+												tbSt(tabs[t].id, 's');
+													if (tabs[t].active) {
+													tabSet(tabs[t].id);
+													}
+												}
+
+											chrome.tabs.sendMessage(tabs[t].id, {
+											type: "PGDELETED",
+											all: false,
+											delLink: removeInfo.node.url
+											}, function(response) {
+
+											});
+
+												chrome.runtime.sendMessage({
+												type: "NOTINHISTORY",
+												id: tabs[t].id
+												}, function(response) {
+												//console.log(response);
+												});
+								}
+			   }
+																			});
+												
+						}
+						
+					});
+			
+		}
+		});
+	
+	
+	
 	
 	chrome.history.onVisitRemoved.addListener(function(removed){
 		
@@ -1064,50 +1115,49 @@ if(!!tId){
 
 				chrome.storage.local.get(null, function(items) {
 					if (items.cgVisCol != "") {
+							var urls=[];
+							var urls2=[];
+							var visitd=[];
 						chrome.history.search({
 							text: "",
 							startTime: 0,
 							maxResults: 0
 						}, function(hist) {
-							for (var k = 0; k < hist.length; k++) {
-								hstchk.push(hist[k].url);
-							}
-							for (var i = 0; i < request.b.length; i++) {
-								for (var m = 0; m < hstchk.length; m++) {
-									if (hstchk[m] == request.b[i]) {
-										visitd.push(request.b[i]);
+							
+								urls=hist.map((entry)=>{return entry.url});
+								chrome.bookmarks.search({}, function(bookmarks) {
+										urls2=bookmarks.map((bookmark)=>{return bookmark.url});
+										urls= Array.from(new Set(urls.concat(urls2)));
+
+								for (var i = 0; i < request.b.length; i++) {
+									for (var m = 0; m < urls.length; m++) {
+										if (urls[m] == request.b[i]) {
+											visitd.push(request.b[i]);
+										}
 									}
 								}
-							}
-
-							let uniq = Array.from(new Set(visitd));
-
-							/* 				sendResponse({
+									let uniq = Array.from(new Set(visitd));
+									
+									chrome.tabs.query({}, function(tabs) {
+										if (!chrome.runtime.lastError) {
+										for (let t = 0; t < tabs.length; t++) {
+											chrome.tabs.sendMessage(tabs[t].id, {
 												type: "VISITED",
 												uniq,
-												localStorage
+												items
+											}, function(response) {
+
 											});
-											 */
-
-
-
-					chrome.tabs.query({}, function(tabs) {
-			   if (!chrome.runtime.lastError) {
-								for (let t = 0; t < tabs.length; t++) {
-									chrome.tabs.sendMessage(tabs[t].id, {
-										type: "VISITED",
-										uniq,
-										items
-									}, function(response) {
-
-									});
-								}
-					}
+										}
+									}
 							});
 
 							console.log('Sent visited links to be coloured');
 							visitd = [];
 							hstchk = [];
+
+								});
+
 						});
 					}
 				});

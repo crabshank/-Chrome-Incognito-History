@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Incognito history",
-  "version": "2021.6",
+  "version": "2021.7",
  
   "content_scripts": [
     {
@@ -15,7 +15,7 @@
    "background": {
      "service_worker": "background.js"
   },
-     "permissions": ["contextMenus","history", "tabs", "activeTab", "storage","scripting"],
+     "permissions": ["contextMenus","history", "tabs", "activeTab", "storage","scripting","bookmarks"],
   "action": {
     "default_icon": "ih.png",
     "default_popup": "index.html",
