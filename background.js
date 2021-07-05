@@ -418,13 +418,6 @@ if(!!tId){
 					tabSet(tabId);
 				}
 				inhist(tab);
-				chrome.tabs.query({}, function(tabs) {
-								   if (!chrome.runtime.lastError) {
-					tabs.forEach(function(tb) {
-						sendURL(getUrl(tb));
-					});
-				}
-				});
 			} else {
 				tbSt(tabId, 's');
 				if (tab.active) {
@@ -465,17 +458,6 @@ if(!!tId){
 				}, function(response) {
 					// console.log(response);
 				});
-
-				/* 		chrome.tabs.query({}, function(tabs) {
-
-						tabs.forEach(function(tb) {
-							if ((tmpUpdAdd == 1) && (tb.active == true)) {
-								sendURL(tb.url);
-							}
-						});
-						
-									}		
-					);	 */
 
 			} else {
 

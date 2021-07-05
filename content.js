@@ -206,23 +206,7 @@ chrome.runtime.onMessage.addListener(
 	function(request, sender, sendResponse) {
 
 		switch (request.type) {
-
-			case "URL":
-				chrome.storage.local.get(null, function(items) {
-					if (Object.keys(items).length == 0) {
-						chrome.storage.local.set({
-							"col": "#9043cc"
-						}, function() {
-							shaderef([request.url], [...document.getElementsByTagName('a')],"#9043cc");
-						});
-					}else {
-						shaderef([request.url], [...document.getElementsByTagName('a')],items.col);
-					}
-				});
-
-				break;
-
-
+			
 			case "VISITED":
 				getLinks();
 				arrangeShade(request, linkTags);
