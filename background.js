@@ -363,12 +363,12 @@ if(!!tId){
 	chrome.windows.onFocusChanged.addListener(function(windowId) {
 		chrome.tabs.query({windowId: windowId}, function(tabs) {
 						   if (!chrome.runtime.lastError) {
-							   for (let t=0; t<tabs.length; t++){
-									if(!!tabs[t].active){
-										console.log('Switched to tab ' + tabs[t].id);
-										activate(tabs[t]);
+							   let tabsAct=tabs.filter((tb)=>{return tb.active});
+							   if(tabsAct.length>0){
+								   let acTab=tabsAct[tabsAct.length-1];
+								   console.log('Switched to tab ' + acTab.id);
+										activate(acTab);
 							   }
-						   }
 		}
 		});
 	});
