@@ -371,8 +371,9 @@ delSite.addEventListener('click', function() {
 							   for (let t=0; t<tabs.length; t++){
 
 							   if(!!tabs[t].active){
-                let se = tabs[t].url.split('/')[2];
-                let cm = "Are you sure you want to delete all visits to " + se + "?";
+                let se = (tabs[t].url.startsWith('file:///'))?'file:///':tabs[t].url.split('/')[2];
+				if(se!==''){
+                let cm = "Are you sure you want to delete all visits to " + ((se==='file:///')?'file:///*':se) + "?";
                 let sdc = confirm(cm);
                 if(sdc == true) {
 
@@ -390,6 +391,7 @@ delSite.addEventListener('click', function() {
                                 alert(response.msg);
 							   }
 							   });
+						   }
 						   }
 						   }
 						   }
