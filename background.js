@@ -1056,10 +1056,10 @@ if(!!tId){
 							sendResponse({
 								type: "DELETED_SITE",
 								status: 'successful',
-								msg: "All pages from site " + request.url + " have been deleted from history!",
+								msg: "All pages from site " + ((request.url.endsWith('///'))?request.url+'*':request.url) + " have been deleted from history!",
 								url: request.url
 							});
-							console.log("All pages from site " + request.url + " have been deleted from history!");
+							console.log("All pages from site " +  ((request.url.endsWith('///'))?request.url+'*':request.url) + " have been deleted from history!");
 
 							/*chrome.runtime.sendMessage({
 								type: "STDELETED"
