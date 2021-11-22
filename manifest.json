@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Incognito history",
-  "version": "2021.10",
+  "version": "2021.11",
  
   "content_scripts": [
     {
@@ -12,6 +12,10 @@
       "js": ["content.js"]
     }
   ],
+	"web_accessible_resources": [{
+	  "resources": ["content.js"],
+	  "matches": ["<all_urls>"]
+	}],
    "background": {
      "service_worker": "background.js"
   },
