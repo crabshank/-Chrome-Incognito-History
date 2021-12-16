@@ -402,12 +402,18 @@ delSite.addEventListener('click', function() {
 
 function shwDels(){
 	console.log('Showing page delete button.');
-					delPage.style.display="initial";
+	chrome.action.setIcon({
+		path: "recAdd.png"
+	});
+	delPage.style.display="initial";
 }
 
 function hdeDels(){
 		console.log('Hiding page delete button.');
-					delPage.style.display="none";
+		chrome.action.setIcon({
+			path: "stop.png"
+		});
+		delPage.style.display="none";
 }
 
 
