@@ -184,11 +184,9 @@ try {
 	}
 
 	function tbRd(d) {
-		let foundTbS = 0;
 		let rdTS = null;
 		for (let i = 0; i < tabStatus.length; i++) {
 			if (tabStatus[i].tabId == d) {
-				foundTbS = 1;
 				rdTS = tabStatus[i].status;
 				i = tabStatus.length - 1;
 			}
@@ -221,39 +219,62 @@ try {
 	}
 
 	function tabSet(d) {
-		let foundTb = 0;
-		for (let i = 0; i < tabStatus.length; i++) {
-			if (tabStatus[i].tabId == d) {
-				foundTb = 1;
-				//console.log(tabStatus);
-				switch (tabStatus[i].status) {
-					case "r":
-						chrome.action.setIcon({
-							path: "rec.png"
-						});
-						break;
-					case "s":
-						chrome.action.setIcon({
-							path: "stop.png"
-						});
-						break;
-					case "a":
-						chrome.action.setIcon({
-							path: "recAdd.png"
-						});
-						break;
-					case "i":
-						chrome.action.setIcon({
-							path: "ih.png"
-						});
-						break;
-					default:
-						console.log("Couldn't set icon for tab " + d);
+		let mtch=tabStatus.filter((t)=>{return t.tabId == d});
+		let sts;
+		if(mtch.length>=0){
+			for (let i = 0; i < mtch.length; i++) {
+				 let tId=tabStatus[tabStatus.indexOf(mtch[i])].tabId;
+				 let tSts=tabStatus[tabStatus.indexOf(mtch[i])].status;
+				 
+				 chrome.tabs.query({}, function(tabs) {
+					if (!chrome.runtime.lastError) {
+						let t=tabs.filter((b)=>{return b.id == d});
+						if(t.length>=0){
+						for (let k= 0; k < t.length; k++) {
+								chrome.history.search({
+								text: t[k].url,
+								startTime: 0,
+								maxResults: 0
+							}, function(hist) {
+										if(hist.length>=0){
+											sts='a';
+											tbSt(tId,sts);
+										}else{
+											sts=tSts;
+										}
+								//console.log(tabStatus);
+								switch (sts) {
+									case "r":
+										chrome.action.setIcon({
+											path: "rec.png"
+										});
+										break;
+									case "s":
+										chrome.action.setIcon({
+											path: "stop.png"
+										});
+										break;
+									case "a":
+										chrome.action.setIcon({
+											path: "recAdd.png"
+										});
+										break;
+									case "i":
+										chrome.action.setIcon({
+											path: "ih.png"
+										});
+										break;
+									default:
+										console.log("Couldn't set icon for tab " + d);
+								}
+									});
 				}
-				i = tabStatus.length - 1;
-			}
+					}
+					}
+				});
+				
 		}
-
+	}
 	}
 	
 	chrome.extension.isAllowedIncognitoAccess((isAllowedAccess)=>{
