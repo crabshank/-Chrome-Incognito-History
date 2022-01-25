@@ -218,8 +218,13 @@ try {
 		}
 	}
 
+function cleanTabStatus(currTabs){
+		let ids=currTabs.map((t)=>{return t.id;});
+		tabStatus=tabStatus.filter((t)=>{return ids.includes(t.tabId);});
+}
+
 	function tabSet(d) {
-		let mtch=tabStatus.filter((t)=>{return t.tabId == d});
+		let mtch=tabStatus.filter((t)=>{return t.tabId == d;});
 		let sts;
 		if(mtch.length>=0){
 			for (let i = 0; i < mtch.length; i++) {
@@ -228,6 +233,7 @@ try {
 				 
 				 chrome.tabs.query({}, function(tabs) {
 					if (!chrome.runtime.lastError) {
+						cleanTabStatus(tabs);
 						let t=tabs.filter((b)=>{return b.id == d});
 						if(t.length>=0){
 						for (let k= 0; k < t.length; k++) {
