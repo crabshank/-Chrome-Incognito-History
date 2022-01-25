@@ -236,7 +236,7 @@ try {
 								startTime: 0,
 								maxResults: 0
 							}, function(hist) {
-										if(hist.length>=0){
+										if(hist.length>0){
 											sts='a';
 											tbSt(tId,sts);
 										}else{
