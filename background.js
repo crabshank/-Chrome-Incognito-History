@@ -242,17 +242,18 @@ function cleanTabStatus(currTabs){
 								startTime: 0,
 								maxResults: 0
 							}, function(hist) {
-										if(hist.length>0){
-											sts='a';
+											sts=(hist.length>0)?'a':'s';
 											tbSt(tId,sts);
-										}else{
-											sts=tSts;
-										}
 								//console.log(tabStatus);
 								switch (sts) {
-									case "r":
+									/*case "r":
 										chrome.action.setIcon({
 											path: "rec.png"
+										});
+										break;*/
+									case "a":
+										chrome.action.setIcon({
+											path: "recAdd.png"
 										});
 										break;
 									case "s":
@@ -260,16 +261,11 @@ function cleanTabStatus(currTabs){
 											path: "stop.png"
 										});
 										break;
-									case "a":
-										chrome.action.setIcon({
-											path: "recAdd.png"
-										});
-										break;
-									case "i":
+									/*case "i":
 										chrome.action.setIcon({
 											path: "ih.png"
 										});
-										break;
+										break;*/
 									default:
 										console.log("Couldn't set icon for tab " + d);
 								}
