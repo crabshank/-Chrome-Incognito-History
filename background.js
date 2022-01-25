@@ -357,8 +357,8 @@ function activate(tab) {
 if(!!tId){
 									chrome.action.setBadgeText({
 									'text': tId.toString()
-									},()=>{});
-
+									},()=>{	
+										
 					tabSet(tId);
 		console.log('Switched to tab ' + tId);
 		chrome.runtime.sendMessage({
@@ -374,7 +374,9 @@ if(!!tId){
 		}, function(response) {
 			//console.log(response);
 		});
-			
+					
+									});
+
 }
 
 	}
