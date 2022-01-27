@@ -234,9 +234,8 @@ function cleanTabStatus(currTabs){
 				 chrome.tabs.query({}, function(tabs) {
 					if (!chrome.runtime.lastError) {
 						cleanTabStatus(tabs);
-						let t=tabs.filter((b)=>{return b.id == d});
-						let ta=tabs.filter((b)=>{return b.active && b==d});
-						if(t.length>0 && ta.length>0){
+						let t=tabs.filter((b)=>{return b.active && b.id==d});
+						if(t.length>0){
 						for (let k= 0; k < t.length; k++) {
 								chrome.history.search({
 								text: t[k].url,
