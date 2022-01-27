@@ -342,6 +342,8 @@ function cleanTabStatus(currTabs){
 
 
 function activate(tab) {
+	let tb_url=getUrl(tab);
+	if(typeof tb_url==='undefined' || !tb_url.startsWith('chrome-extension://')){
 				let tId = null;
 		if (tab.tabId) {
 			tId = tab.tabId;
@@ -374,7 +376,7 @@ if(!!tId){
 									});
 
 }
-
+}
 	}
 
 	start();
