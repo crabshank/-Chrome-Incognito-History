@@ -226,7 +226,7 @@ function cleanTabStatus(currTabs){
 	function tabSet(d) {
 		let mtch=tabStatus.filter((t)=>{return t.tabId == d;});
 		let sts;
-		if(mtch.length>=0){
+		if(mtch.length>0){
 			for (let i = 0; i < mtch.length; i++) {
 				 let tId=tabStatus[tabStatus.indexOf(mtch[i])].tabId;
 				 let tSts=tabStatus[tabStatus.indexOf(mtch[i])].status;
@@ -235,7 +235,8 @@ function cleanTabStatus(currTabs){
 					if (!chrome.runtime.lastError) {
 						cleanTabStatus(tabs);
 						let t=tabs.filter((b)=>{return b.id == d});
-						if(t.length>=0){
+						let ta=tabs.filter((b)=>{return b.active && b==d});
+						if(t.length>0 && ta.length>0){
 						for (let k= 0; k < t.length; k++) {
 								chrome.history.search({
 								text: t[k].url,
