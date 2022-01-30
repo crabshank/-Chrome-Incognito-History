@@ -6,7 +6,6 @@ try {
 	var blacklist = [];
 	var tmpURLBlacklist = []
 	var tabStatus = []; //[{'tabId':_,'status': 'r'/'s'/'a'/'i'}]
-	var unrcTb_done = [];
 	var tabBlacklist = [];
 
 	function start() {
@@ -231,7 +230,7 @@ function cleanTabStatus(currTabs){
 				 let tId=tabStatus[tabStatus.indexOf(mtch[i])].tabId;
 				 let tSts=tabStatus[tabStatus.indexOf(mtch[i])].status;
 				 
-				 chrome.tabs.query({}, function(tabs) {
+				 chrome.tabs.query({currentWindow: true}, function(tabs) {
 					if (!chrome.runtime.lastError) {
 						cleanTabStatus(tabs);
 						let t=tabs.filter((b)=>{return b.active && b.id==d});
@@ -311,7 +310,7 @@ function cleanTabStatus(currTabs){
 					if (tab.active) {
 						tabSet(tab.id);
 					}
-					unrcTb_done = removeEls(tab.id, unrcTb_done);
+
 				});
 			} else {
 				chrome.windows.create({
@@ -328,7 +327,7 @@ function cleanTabStatus(currTabs){
 							if (newWindow.tabs[i].active) {
 								tabSet(newWindow.tabs[i].id);
 							}
-							unrcTb_done = removeEls(newWindow.tabs[i].id, unrcTb_done);
+
 						}
 					}
 				});
@@ -451,12 +450,9 @@ if(!!tId){
 					tabSet(tabId);
 				}
 			}
-
-			unrcTb_done = removeEls(tabId, unrcTb_done);
-
 		}
 
-		if ((!!changeInfo.url) && (unrcTb_done.includes(tabId) == false)) {
+		if (!!changeInfo.url) {
 			console.log('Tab ' + tabId + ' updated with new page');
 			
 				if(tab.active){
@@ -509,8 +505,6 @@ if(!!tId){
 		if (tab.active) {
 			tabSet(tab.id);
 		}
-		unrcTb_done.push(tab.id);
-		unrcTb_done = Array.from(new Set(unrcTb_done));
 		console.log('Tab ' + tab.id + ' created');
 	});
 
@@ -914,7 +908,6 @@ if(!!tId){
 					let tmpCanDel = 0;
 					for (let t = 0; t < tabs.length; t++) {
 						if (getUrl(tabs[t]) == request.url) {
-							if (unrcTb_done.includes(tabs[t].id) == false) {
 								console.log('Page (' + request.url + ') about to be deleted');
 								tmpCanDel = 1;
 								if (delPg(request.url) == true) {
@@ -924,7 +917,6 @@ if(!!tId){
 									}
 								};
 								t = tabs.length - 1;
-							}
 						}
 					}
 					if (tmpCanDel == 0) {
