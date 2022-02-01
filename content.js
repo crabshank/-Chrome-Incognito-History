@@ -123,18 +123,18 @@ function deShadeRef(u) { //u is an 'A' tag
 			if ((u.getAttribute('incog_hist_marked') == "true") || (!!u.getAttribute('incog_hist_marked'))) {
 			u.setAttribute('incog_hist_marked', false);
 
-			u.style.setProperty('outline-color','initial');
-			u.style.setProperty('outline-width', 'initial');
-			u.style.setProperty('outline-style','initial');
-			u.style.setProperty('box-shadow','initial');
-			u.style.setProperty('color','initial');
-			//u.style.setProperty('background-color','initial');
-			//u.style.setProperty('background-clip','initial');
+			u.style.setProperty('outline-color','unset');
+			u.style.setProperty('outline-width', 'unset');
+			u.style.setProperty('outline-style','unset');
+			u.style.setProperty('box-shadow','unset');
+			u.style.setProperty('color','unset');
+			//u.style.setProperty('background-color','unset');
+			//u.style.setProperty('background-clip','unset');
 			
 						let uChld=[...u.children];
 			
 				for (let k = 0; k < uChld.length; k++) {
-					uChld[k].style.setProperty('color','initial');
+					uChld[k].style.setProperty('color','unset');
 				}
 
 			}
