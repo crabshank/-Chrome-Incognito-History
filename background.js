@@ -387,11 +387,11 @@ if(!!tId){
 	});
 
 	chrome.windows.onFocusChanged.addListener(function(windowId) {
-		chrome.tabs.query({windowId: windowId}, function(tabs) {
+		chrome.tabs.query({currentWindow: true}, function(tabs) {
 						   if (!chrome.runtime.lastError) {
 							   let tabsAct=tabs.filter((tb)=>{return tb.active});
 							   if(tabsAct.length>0){
-								   let acTab=tabsAct[tabsAct.length-1];
+								   let acTab=tabsAct[0];
 								   console.log('Switched to tab ' + acTab.id);
 										activate(acTab);
 							   }
