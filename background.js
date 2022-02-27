@@ -222,15 +222,9 @@ function cleanTabStatus(currTabs){
 		tabStatus=tabStatus.filter((t)=>{return ids.includes(t.tabId);});
 }
 
-	function tabSet(d) {
-		let mtch=tabStatus.filter((t)=>{return t.tabId == d;});
-		let sts;
-		if(mtch.length>0){
-			for (let i = 0; i < mtch.length; i++) {
-				 let tId=tabStatus[tabStatus.indexOf(mtch[i])].tabId;
-				 let tSts=tabStatus[tabStatus.indexOf(mtch[i])].status;
-				 
-				 chrome.tabs.query({currentWindow: true}, function(tabs) {
+
+function  tabSet(d){
+					 chrome.tabs.query({currentWindow: true}, function(tabs) {
 					if (!chrome.runtime.lastError) {
 						cleanTabStatus(tabs);
 						let t=tabs.filter((b)=>{return b.active && b.id==d});
@@ -242,7 +236,7 @@ function cleanTabStatus(currTabs){
 								maxResults: 0
 							}, function(hist) {
 											sts=(hist.length>0)?'a':'s';
-											tbSt(tId,sts);
+											tbSt(t.id,sts);
 								//console.log(tabStatus);
 								switch (sts) {
 									/*case "r":
@@ -273,11 +267,8 @@ function cleanTabStatus(currTabs){
 					}
 					}
 				});
-				
-		}
-	}
-	}
-	
+}
+
 	chrome.extension.isAllowedIncognitoAccess((isAllowedAccess)=>{
 		if(isAllowedAccess){
 			
