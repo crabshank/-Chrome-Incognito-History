@@ -3,6 +3,43 @@ var links = [];
 var linkTags= [];
 var firstAct=false;
 
+function getTagNameShadow(docm, tgn){
+	var shrc=[];
+	var out=[];
+	
+		let allNodes=[...docm.querySelectorAll('*')];
+		let srCnt=0;
+		
+		while(srCnt<allNodes.length){ //1st round
+			if(!!allNodes[srCnt] && typeof allNodes[srCnt] !=='undefined' && allNodes[srCnt].tagName===tgn){
+				out.push(allNodes[srCnt]);
+			}
+			
+			if(!!allNodes[srCnt].shadowRoot && typeof allNodes[srCnt].shadowRoot !=='undefined'){
+				let c=allNodes[srCnt].shadowRoot.children;
+				shrc.push(...c);
+			}
+			srCnt++;
+		}
+		
+		srCnt=0;
+		let srCnt_l=shrc.length;
+		
+		while(srCnt<srCnt_l){ //2nd round
+			if(!!shrc[srCnt].shadowRoot && typeof shrc[srCnt].shadowRoot !=='undefined'){
+				let c=shrc[srCnt].shadowRoot.children;
+				shrc.push(...c);
+				srCnt_l+=c.length;
+			}
+			srCnt++;
+		}
+	
+	let srv=shrc.filter((c)=>{return c.tagName===tgn;});
+	out.push(...srv);
+	
+	return out;
+}
+
 function newGetSend(skipInit){
 	if((skipInit) || (!skipInit && firstAct)){
 				getLinks();
@@ -70,7 +107,7 @@ send(links);
 
 function getLinks() {
 
-	var lk = [...document.getElementsByTagName('a')];
+	var lk = getTagNameShadow(document,'A');
 	linkTags=lk;
 links = lk.filter((lnk)=>{
 	return (!!lnk.href && typeof lnk.href!=='undefined' && lnk.href!=='');
