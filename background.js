@@ -1161,6 +1161,19 @@ if(!!tId){
 		}
 		return true;
 	});
+	
+chrome.declarativeNetRequest.onRuleMatchedDebug.addListener((info)=>{
+	if(info.request.tabId>=0){
+		chrome.webNavigation.getFrame({
+		tabId: info.request.tabId,
+		frameId: info.request.frameId
+		}, function (frameInfo){
+				  chrome.tabs.sendMessage(info.request.tabId, {type: "nav", url:frameInfo.url, f_id: info.request.frameId});
+		});
+	}
+
+});
+
 } catch (e) {
 	console.error(e);
 }

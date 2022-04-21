@@ -15,11 +15,20 @@
 	"web_accessible_resources": [{
 	  "resources": ["content.js"],
 	  "matches": ["<all_urls>"]
-	}],
+	}],  
+	"declarative_net_request": {
+    "rule_resources": [
+      {
+        "id": "1",
+        "enabled": true,
+        "path": "rules.json"
+      }
+    ]
+  },
    "background": {
      "service_worker": "background.js"
   },
-     "permissions": ["contextMenus","history", "tabs", "activeTab", "storage","scripting","bookmarks"],
+     "permissions": ["contextMenus","history", "tabs", "activeTab", "storage","scripting","bookmarks","declarativeNetRequest","declarativeNetRequestFeedback","webNavigation"],
   "action": {
     "default_icon": "ih.png",
     "default_popup": "index.html",

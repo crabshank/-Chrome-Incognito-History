@@ -167,24 +167,6 @@ function deShadeRef(u) { //u is an 'A' tag
 			}
 }
 
-if ((typeof observer !== "undefined") && (!(observer))) {
-	const observer = new MutationObserver((mutations) => {
-		if (timer) {
-			clearTimeout(timer);
-		}
-		timer = setTimeout(() => {
-			//  console.log('Rescan page links')
-			newGetSend(false);
-		}, 1000);
-	});
-
-
-	observer.observe(document, {
-		attributes: true,
-		childList: true,
-		subtree: true
-	});
-}
 
 function send(b) {
 	// Send message to background:
@@ -250,6 +232,7 @@ chrome.runtime.onMessage.addListener(
 			break;*/
 
 			case "NEWACTIVE_t":
+			case "nav":
 				newGetSend(false);
 			break;
 
