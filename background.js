@@ -7,6 +7,7 @@ try {
 	var tmpURLBlacklist = []
 	var tabStatus = []; //[{'tabId':_,'status': 'r'/'s'/'a'/'i'}]
 	var tabBlacklist = [];
+	var windowBlacklist = [];
 
 	function start() {
 
@@ -280,12 +281,19 @@ function  tabSet(d){
 	}, function(response) {
 		//	console.log(response);
 	});
+	chrome.contextMenus.create({
+		"title": "⊠ Open in unrecorded incognito window",
+		"contexts": contexts,
+		"id": "unrec_w"
+	}, function(response) {
+		//	console.log(response);
+	});
 
 	chrome.contextMenus.onClicked.addListener((info, tab) => {
-		if (info.menuItemId == "unrec") {
+		if (info.menuItemId.startsWith("unrec")) {
 			//console.log(tab);
 			let to_url = (typeof info.linkUrl === 'undefined') ? info.srcUrl : info.linkUrl;
-			if (tab.incognito) {
+			if (tab.incognito && info.menuItemId==='unrec') {
 				chrome.tabs.create({
 					"url": to_url,
 					"windowId": tab.windowId,
@@ -308,22 +316,34 @@ function  tabSet(d){
 					"url": to_url,
 					"incognito": true
 				}, function(newWindow) {
+					 if (info.menuItemId==='unrec_w') {
+								windowBlacklist.push(newWindow.id);
+								windowBlacklist = Array.from(new Set(windowBlacklist));
+					 }
+					
 					for (let i = 0; i < newWindow.tabs.length; i++) {
 						if (getUrl(newWindow.tabs[i]) == to_url) {
-							tabBlacklist.push(newWindow.tabs[i].id);
-							tabBlacklist = Array.from(new Set(tabBlacklist));
+							if (info.menuItemId==='unrec') {
+								tabBlacklist.push(newWindow.tabs[i].id);
+								tabBlacklist = Array.from(new Set(tabBlacklist));
+							}
+							
 							tmpURLBlacklist.push(getUrl(newWindow.tabs[i]));
 							tmpURLBlacklist = Array.from(new Set(tmpURLBlacklist));
-							tbSt(newWindow.tabs[i].id, 's');
-							if (newWindow.tabs[i].active) {
-								tabSet(newWindow.tabs[i].id);
+						
+						if (info.menuItemId==='unrec') {
+								tbSt(newWindow.tabs[i].id, 's');
+								if (newWindow.tabs[i].active) {
+									tabSet(newWindow.tabs[i].id);
+								}
 							}
 
 						}
 					}
-				});
-			}
+			});
 		}
+		}
+		
 	});
 
 		}
@@ -390,6 +410,11 @@ if(!!tId){
 		});
 	});
 
+	chrome.windows.onRemoved.addListener(function(windowId) {
+		console.log('Window ' + windowId + ' removed');
+		windowBlacklist = removeEls(windowId, windowBlacklist);
+	});	
+	
 	chrome.tabs.onRemoved.addListener(function(tabId, removeInfo) {
 		console.log('Tab ' + tabId + ' removed');
 
@@ -429,7 +454,7 @@ if(!!tId){
 		if (tbRd(tabId) == 'i') {
 			let tab_url = getUrl(tab);
 			visited(tab);
-			if ((tabBlacklist.includes(tabId) == false) && (blacklistMatch(blacklist, tab_url) == false) && (pageBlMatch(tmpURLBlacklist, tab_url) == false)) { //&& (tmpHistDelPg.includes(tab.tabId) == false) 
+			if ((tabBlacklist.includes(tabId) == false) && (windowBlacklist.includes(tab.windowId) == false) && (blacklistMatch(blacklist, tab_url) == false) && (pageBlMatch(tmpURLBlacklist, tab_url) == false)) { //&& (tmpHistDelPg.includes(tab.tabId) == false) 
 				tbSt(tabId, 'r');
 				if (tab.active) {
 					tabSet(tabId);
@@ -457,7 +482,73 @@ if(!!tId){
 			console.log(tmpHistDelPg); */
 			let tab_url = getUrl(tab);
 			visited(tab);
-			if ((tabBlacklist.includes(tabId) == false) && (blacklistMatch(blacklist, tab_url) == false)) {
+			if ((tabBlacklist.includes(tabId) == false) && (windowBlacklist.includes(tab.windowId) == false) && (blacklistMatch(blacklist, tab_url) == false)) {
+
+				tbSt(tabId, 'r');
+				if (tab.active) {
+					tabSet(tabId);
+				}
+
+				inhist(tab);
+
+				chrome.runtime.sendMessage({
+					type: "TBUPDATE",
+					id: tabId
+				}, function(response) {
+					// console.log(response);
+				});
+
+			} else {
+
+				tbSt(tabId, 's');
+
+				if (tab.active) {
+					tabSet(tabId);
+				}
+
+			}
+
+		}
+
+		console.log(tabStatus);
+
+	});	
+	
+chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
+		//console.log('Tab ' + tabId + ' updated');
+
+		if (tbRd(tabId) == 'i') {
+			let tab_url = getUrl(tab);
+			visited(tab);
+			if ((tabBlacklist.includes(tabId) == false) && (windowBlacklist.includes(tab.windowId) == false) && (blacklistMatch(blacklist, tab_url) == false) && (pageBlMatch(tmpURLBlacklist, tab_url) == false)) { //&& (tmpHistDelPg.includes(tab.tabId) == false) 
+				tbSt(tabId, 'r');
+				if (tab.active) {
+					tabSet(tabId);
+				}
+				inhist(tab);
+			} else {
+				tbSt(tabId, 's');
+				if (tab.active) {
+					tabSet(tabId);
+				}
+			}
+		}
+
+		if (!!changeInfo.url) {
+			console.log('Tab ' + tabId + ' updated with new page');
+			
+				if(tab.active){
+					activate(tabId);
+				}
+			
+			/* tmpHistAdd.push(tab.id);
+			tmpHistAdd = Array.from(new Set(tmpHistAdd));
+			console.log(tmpHistAdd);
+			tmpHistDelPg = removeEls(tab.id, tmpHistDelPg)
+			console.log(tmpHistDelPg); */
+			let tab_url = getUrl(tab);
+			visited(tab);
+			if ((tabBlacklist.includes(tabId) == false) && (windowBlacklist.includes(tab.windowId) == false) && (blacklistMatch(blacklist, tab_url) == false)) {
 
 				tbSt(tabId, 'r');
 				if (tab.active) {
@@ -748,6 +839,36 @@ if(!!tId){
 	
 	chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 		switch (request.type) {
+			case "WINDOW_ID":
+				if (request.recording == "stop") {
+					windowBlacklist.push(request.wnd.id);
+					windowBlacklist = Array.from(new Set(windowBlacklist));
+				}else if (request.recording == "rec") {
+					windowBlacklist = removeEls(request.wnd.id, windowBlacklist);
+				}
+			break;
+			case "WINDOW_ID_HIST":
+					var inHsty = 'false';
+					chrome.history.search({
+						text: "",
+						startTime: 0,
+						maxResults: 0
+					}, function(hist) {
+
+						for (let i = 0; i < hist.length; i++) {
+							if (pageBlMatch([hist[i].url], request.send_url) == true) {
+								inHsty = 'true';
+								i = hist.length - 1;
+							}
+						}
+
+					sendResponse({
+							type: "WD_STUS",
+							inHstry: inHsty,
+							blWd: windowBlacklist.includes(request.send_id)
+						});
+					});
+			break;
 			case "TAB_ID":
 				if (request.recording == "stop") {
 

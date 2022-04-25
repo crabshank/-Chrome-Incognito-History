@@ -4,11 +4,11 @@
 </head>
 
 <style>
-        button {
-    background-color: #d8d8d8;
-    border-color: #d8d8d8;
-	    transform: scale(1.4);
-		    margin-left: 22px;
+button {
+	background-color: #d8d8d8;
+	border-color: #d8d8d8;
+	transform: scale(1.4);
+	margin-left: 22px;
 }
 body {
     width: 30.8ch;
@@ -45,14 +45,15 @@ span{
 <body>
 
         <br>
+        <button title="RECORDING WINDOW (Click to stop)" id="recStop_w" style="filter: invert(0) hue-rotate(147deg); background-color: #001fff; border-color: #0065b8; transform: scale(1.4) translateX(-3px); margin-left: 12px; color: #ffffff; font-weight: 1000;">&#x26DE;</button>
         <button title="RECORDING (Click to stop)" id="recStop" style="filter:  hue-rotate(147deg); background-color:#7097ff; border-color:#7097ff;  transform: scale(1.4); margin-left: 10px;">&#x23FA;</button>
-        <button id="delPg" title="Delete page from history" style="display: none">&#x1F6AE;</button>
-        <button id="delSte" title="Delete site from history" style="font-weight:bolder">&#x1F5D1;</button>
+        <button id="delPg" title="Delete page from history" style="display: none; margin-left: 17px;">&#x1F6AE;</button>
+        <button id="delSte" title="Delete site from history" style="font-weight:bolder;margin-left: 12px;">&#x1F5D1;</button>
 
         <br><br>
-        <input type="checkbox" id="visCol" style="transform: scale(1.4);" checked="true"> Colour visited links differently</input>
+        <input type="checkbox" id="visCol" style="transform: scale(1.4); margin-bottom: 9px;" checked="true"> Colour visited links differently</input>
         <br>
-        <a id="eg" style="color:#9043cc; text-decoration: underline;">http://www.example.com/</a>
+        <a id="eg" style="color:#9043cc; text-decoration: underline outline: #9043cc outset 1px !important; box-shadow: #9043cc 0em 0em 8px 2px !important; color: rgb(144, 67, 204) !important;">http://www.example.com/</a>
         <br><br>
         <input type="color" id="vis" value="#9043cc" /><span contenteditable id="visL" for="vis">#9043cc</span>
         <br><br>
@@ -60,8 +61,6 @@ span{
         <textarea id="bklst"></textarea>
         <br><br>
         <button id="save" title="Save settings">Save settings</button>
-
-
 
 </body>
 <script src="index.js"></script>
