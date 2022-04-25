@@ -358,8 +358,9 @@ delSite.addEventListener('click', function() {
         if (!chrome.runtime.lastError) {
             for (let t = 0; t < tabs.length; t++) {
                 if (!!tabs[t].active) {
-                    let chkSchm = getUrl(tabs[t]).split('///');
-                    let se = (chkSchm.length > 1) ? chkSchm[0] + '///' : getUrl(tabs[t]).split('/')[2];
+                    let u=getUrl(tabs[t]);
+                    let chkSchm = u.split('///');
+                    let se = (chkSchm.length > 1) ? chkSchm[0] + '///' : u.split('/')[2];
                     if (se !== '') {
                         let cm = "Are you sure you want to delete all visits to " + ((chkSchm.length > 1) ? se + '*' : se) + "?";
                         let sdc = confirm(cm);
