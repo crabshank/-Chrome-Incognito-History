@@ -28,7 +28,7 @@ function chgCol(col) {
     s2.innerText = 'input[type="color" i]{\nbackground-color:' + col + ';\nborder:' + col + ';\n}'
     exmp.style.color = col;
     exmp.style.outline = col + ' outset 1px';
-    exmp.style.boxShadow = col + ' 0em 0em 8px 2px	';
+    exmp.style.boxShadow = col + ' 0em 0em 8px 2px';
 }
 let rec = true;
 let rec_w = true;
