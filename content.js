@@ -120,11 +120,21 @@ if(!!u && typeof u!=='undefined' && !!a && typeof a!=='undefined'){
 
 			for (let i = 0; i < toShade.length; i++) {
 			if ((!toShade[i].getAttribute('incog_hist_marked')) || (toShade[i].getAttribute('incog_hist_marked') === "false")) {
+							let wcs=window.getComputedStyle(toShade[i]);
+			
+			toShade[i].setAttribute('og_outline-color', wcs['outline-color']);
+			toShade[i].setAttribute('og_outline-width', wcs['outline-width']);
+			toShade[i].setAttribute('og_outline-style', wcs['outline-style']);
+			toShade[i].setAttribute('og_box-shadowr', wcs['box-shadow']);
+			toShade[i].setAttribute('og_color', wcs['color']);
+			
 			toShade[i].style.setProperty('outline-color', c, 'important');
 			toShade[i].style.setProperty('outline-width', '1px', 'important');
 			toShade[i].style.setProperty('outline-style', 'outset', 'important');
 			toShade[i].style.setProperty('box-shadow', '0em 0em 8px 2px '+c, 'important');
-						toShade[i].style.setProperty('color', c, 'important');
+			toShade[i].style.setProperty('color', c, 'important');
+			
+			
 			//toShade[i].style.setProperty('background-color', c, 'important');
 			//toShade[i].style.setProperty('background-clip', 'content-box', 'important');
 			
@@ -150,11 +160,11 @@ function deShadeRef(u) { //u is an 'A' tag
 			if ((u.getAttribute('incog_hist_marked') == "true") || (!!u.getAttribute('incog_hist_marked'))) {
 			u.setAttribute('incog_hist_marked', false);
 
-			u.style.setProperty('outline-color','unset');
-			u.style.setProperty('outline-width', 'unset');
-			u.style.setProperty('outline-style','unset');
-			u.style.setProperty('box-shadow','unset');
-			u.style.setProperty('color','unset');
+			u.style.setProperty('outline-color',u.getAttribute('og_outline-color'));
+			u.style.setProperty('outline-width',u.getAttribute('og_outline-width'));
+			u.style.setProperty('outline-style',u.getAttribute('og_outline-style'));
+			u.style.setProperty('box-shadow',u.getAttribute('og_box-shadow'));
+			u.style.setProperty('color',u.getAttribute('og_color'));
 			//u.style.setProperty('background-color','unset');
 			//u.style.setProperty('background-clip','unset');
 			

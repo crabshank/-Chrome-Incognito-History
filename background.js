@@ -8,7 +8,8 @@ try {
 	var tabStatus = []; //[{'tabId':_,'status': 'r'/'s'/'a'/'i'}]
 	var tabBlacklist = [];
 	var windowBlacklist = [];
-
+	var ext_id=chrome.runtime.id;
+	
 	function start() {
 
 		chrome.storage.local.get(null, function(items) {
@@ -277,14 +278,14 @@ function  tabSet(d){
 	chrome.contextMenus.create({
 		"title": "⏹ Open in unrecorded incognito tab",
 		"contexts": contexts,
-		"id": "unrec"
+		"id": "unrec_"+ext_id
 	}, function(response) {
 		//	console.log(response);
 	});
 	chrome.contextMenus.create({
 		"title": "⊠ Open in unrecorded incognito window",
 		"contexts": contexts,
-		"id": "unrec_w"
+		"id": "unrec_w_"+ext_id
 	}, function(response) {
 		//	console.log(response);
 	});
@@ -293,7 +294,7 @@ function  tabSet(d){
 		if (info.menuItemId.startsWith("unrec")) {
 			//console.log(tab);
 			let to_url = (typeof info.linkUrl === 'undefined') ? info.srcUrl : info.linkUrl;
-			if (tab.incognito && info.menuItemId==='unrec') {
+			if (tab.incognito && info.menuItemId==="unrec_"+ext_id) {
 				chrome.tabs.create({
 					"url": to_url,
 					"windowId": tab.windowId,
@@ -316,14 +317,14 @@ function  tabSet(d){
 					"url": to_url,
 					"incognito": true
 				}, function(newWindow) {
-					 if (info.menuItemId==='unrec_w') {
+					 if (info.menuItemId==="unrec_w_"+ext_id) {
 								windowBlacklist.push(newWindow.id);
 								windowBlacklist = Array.from(new Set(windowBlacklist));
 					 }
 					
 					for (let i = 0; i < newWindow.tabs.length; i++) {
 						if (getUrl(newWindow.tabs[i]) == to_url) {
-							if (info.menuItemId==='unrec') {
+							if (info.menuItemId==="unrec_"+ext_id) {
 								tabBlacklist.push(newWindow.tabs[i].id);
 								tabBlacklist = Array.from(new Set(tabBlacklist));
 							}
@@ -331,7 +332,7 @@ function  tabSet(d){
 							tmpURLBlacklist.push(getUrl(newWindow.tabs[i]));
 							tmpURLBlacklist = Array.from(new Set(tmpURLBlacklist));
 						
-						if (info.menuItemId==='unrec') {
+						if (info.menuItemId==="unrec_"+ext_id) {
 								tbSt(newWindow.tabs[i].id, 's');
 								if (newWindow.tabs[i].active) {
 									tabSet(newWindow.tabs[i].id);

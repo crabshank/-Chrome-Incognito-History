@@ -28,7 +28,7 @@ function chgCol(col) {
     s2.innerText = 'input[type="color" i]{\nbackground-color:' + col + ';\nborder:' + col + ';\n}'
     exmp.style.color = col;
     exmp.style.outline = col + ' outset 1px';
-    exmp.style.boxShadow = col + ' 0em 0em 8px 2px';
+    exmp.style.boxShadow = col + ' 0em 0em 8px 2px	';
 }
 let rec = true;
 let rec_w = true;
@@ -199,7 +199,7 @@ function stopBtn_w() {
     console.log('Stopping recording, updating popup to reflect this.');
     rec_w = false;
     recStopper_w.innerHTML = '&#x22A0;';
-    recStopper_w.title = "NOT RECORDING (Click to record)";
+    recStopper_w.title = "NOT RECORDING WINDOW (Click to record)";
     recStopper_w.style.backgroundColor = "black";
     recStopper_w.style.color = "white";
     recStopper_w.style.borderColor = "#3951e4";
@@ -219,7 +219,7 @@ function stopBtn() {
     console.log('Stopping recording, updating popup to reflect this.');
     rec = false;
     recStopper.innerHTML = '&#x23F9;';
-    recStopper.title = "NOT RECORDING (Click to record)";
+    recStopper.title = "NOT RECORDING TAB (Click to record)";
     recStopper.style.filter = "invert(1) hue-rotate(206deg)";
     recStopper.style.backgroundColor = "";
     recStopper.style.borderColor = "";
@@ -229,7 +229,7 @@ function recBtn() {
     console.log('Recording, updating popup to reflect this');
     rec = true;
     recStopper.innerHTML = '&#x23FA;';
-    recStopper.title = "RECORDING (Click to stop)";
+    recStopper.title = "RECORDING TAB (Click to stop)";
     recStopper.style.backgroundColor = "#7097ff";
     recStopper.style.borderColor = "#7097ff";
     recStopper.style.filter = "invert(0) hue-rotate(147deg)";
@@ -358,9 +358,8 @@ delSite.addEventListener('click', function() {
         if (!chrome.runtime.lastError) {
             for (let t = 0; t < tabs.length; t++) {
                 if (!!tabs[t].active) {
-                    let u=getUrl(tabs[t]);
-                    let chkSchm = u.split('///');
-                    let se = (chkSchm.length > 1) ? chkSchm[0] + '///' : u.split('/')[2];
+                    let chkSchm = getUrl(tabs[t]).split('///');
+                    let se = (chkSchm.length > 1) ? chkSchm[0] + '///' : tabs[t].url.split('/')[2];
                     if (se !== '') {
                         let cm = "Are you sure you want to delete all visits to " + ((chkSchm.length > 1) ? se + '*' : se) + "?";
                         let sdc = confirm(cm);
