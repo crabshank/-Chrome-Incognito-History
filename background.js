@@ -1281,7 +1281,6 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
 				;
 				break;
 		}
-		Promise.resolve("").then(result => sendResponse(result));
 		return true;
 	});
 	
