@@ -342,7 +342,7 @@ delPage.addEventListener('click', function() {
                                 hdeDels();
                             }
                             console.log(response);
-                            alert(response.msg);
+                            //alert(response.msg);
                             console.log(response.msg);
                         }
                     });
@@ -373,7 +373,7 @@ delSite.addEventListener('click', function() {
                                     if (response.status == "successful") {
                                         hdeDels();
                                     }
-                                    alert(response.msg);
+                                    //alert(response.msg);
                                 }
                             });
                         }
