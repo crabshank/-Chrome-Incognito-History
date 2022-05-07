@@ -1138,14 +1138,21 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
 							await new Promise(function(resolve, reject) {
 								var count = 0;
 								for (let i = 0; i < toDel.length; i++) {
-									chrome.history.deleteUrl({
-										url: toDel[i].url
-									}, function() {
+									try{
+										chrome.history.deleteUrl({
+											url: toDel[i].url
+										}, function() {
+											count++;
+											if (count == toDel.length) {
+												resolve();
+											}
+										});
+									}catch(e){
 										count++;
 										if (count == toDel.length) {
 											resolve();
 										}
-									});
+									}
 								}
 								setTimeout(() => reject(), 15000);
 							}).then((result) => {
