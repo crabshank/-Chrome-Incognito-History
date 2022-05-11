@@ -1,4 +1,3 @@
-var timer;
 var links = [];
 var linkTags= [];
 var firstAct=false;
@@ -96,12 +95,11 @@ send(links);
 
 
 function getLinks() {
-
-	var lk = getTagNameShadow(document,'A');
-	linkTags=lk;
-links = lk.filter((lnk)=>{
+var lk = getTagNameShadow(document,'A');
+linkTags= lk.filter((lnk)=>{
 	return (!!lnk.href && typeof lnk.href!=='undefined' && lnk.href!=='');
-}).map(function(lnk) {
+});
+links = linkTags.map(function(lnk) {
       return lnk.href;
 });
 
@@ -179,11 +177,13 @@ function deShadeRef(u) { //u is an 'A' tag
 
 
 function send(b) {
-	// Send message to background:
-	chrome.runtime.sendMessage({
-		type: "PG_LINKS",
-		b: b
-	}, function(response) {});
+	if(b.length>0){
+		// Send message to background:
+		chrome.runtime.sendMessage({
+			type: "PG_LINKS",
+			b: b
+		}, function(response) {});
+	}
 }
 
 function arrangeShade(request, lnkTgs) {
@@ -195,17 +195,18 @@ function arrangeShade(request, lnkTgs) {
 		toShade=request.addedHist;
 	}
 	
-	if (!!toShade && lnkTgs.length>0){
+if (!!toShade && lnkTgs.length>0){
 		
-			if (typeof request.items!=='undefined'){
-chrome.storage.local.set({"col": request.items.col},()=>{
-shaderef(toShade,lnkTgs,request.items.col);
-	});
-}else{
-		shaderef(toShade,lnkTgs,"#9043cc");
+	if (typeof request.items!=='undefined'){
+		chrome.storage.local.set({"col": request.items.col},()=>{
+			shaderef(toShade,lnkTgs,request.items.col);
+		});
+	}else{
+			shaderef(toShade,lnkTgs,"#9043cc");
 	}
 
 }
+
 }
 
 function arrangeDeshade(request) {
@@ -256,4 +257,20 @@ chrome.runtime.onMessage.addListener(
 
 		}
 		return true;
-	});
+});
+
+
+if (typeof observer === "undefined") {
+
+const observer = new MutationObserver((mutations) => {
+		newGetSend(false);
+		
+		observer.observe(document, {
+			attributeFilter: ["href"],
+			childList: true,
+			subtree: true,
+			attributeOldValue: true
+		});
+});
+
+}
