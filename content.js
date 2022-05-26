@@ -1,6 +1,7 @@
 var links = [];
 var linkTags= [];
 var firstAct=false;
+var timer;
 
 function getTagNameShadow(docm, tgn){
 var shrc=[docm];
@@ -261,9 +262,13 @@ chrome.runtime.onMessage.addListener(
 
 
 if (typeof observer === "undefined") {
-
-const observer = new MutationObserver((mutations) => {
-		newGetSend(false);
+	const observer = new MutationObserver((mutations) => {
+	if (timer2) {
+		clearTimeout(timer2);
+	}
+	timer2 = setTimeout(() => {
+			newGetSend(false);
+	},150);
 });
 
 observer.observe(document, {
