@@ -264,13 +264,13 @@ if (typeof observer === "undefined") {
 
 const observer = new MutationObserver((mutations) => {
 		newGetSend(false);
-		
-		observer.observe(document, {
-			attributeFilter: ["href"],
-			childList: true,
-			subtree: true,
-			attributeOldValue: true
-		});
+});
+
+observer.observe(document, {
+	attributeFilter: ["href"],
+	childList: true,
+	subtree: true,
+	attributeOldValue: true
 });
 
 }
