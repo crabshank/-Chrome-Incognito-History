@@ -263,12 +263,19 @@ chrome.runtime.onMessage.addListener(
 
 if (typeof observer === "undefined") {
 	const observer = new MutationObserver((mutations) => {
-	if (timer2) {
+	
+	let ix=mutations.findIndex((m)=>{return m.target.tagName===('A');});
+			
+	if (timer2 || ix<0) {
 		clearTimeout(timer2);
 	}
-	timer2 = setTimeout(() => {
-			newGetSend(false);
-	},150);
+	
+	if(ix>=0){
+		timer2 = setTimeout(() => {
+				newGetSend(false);
+		},150);
+	}
+	
 });
 
 observer.observe(document, {
