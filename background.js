@@ -1288,7 +1288,7 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
 				;
 				break;
 		}
-		return true;
+		sendResponse({response: "Message received"});
 	});
 	
 chrome.declarativeNetRequest.onRuleMatchedDebug.addListener((info)=>{
