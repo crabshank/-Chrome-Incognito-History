@@ -257,7 +257,7 @@ chrome.runtime.onMessage.addListener(
 			break;
 
 		}
-		return true;
+		sendResponse({response: "Message received"});
 });
 
 
