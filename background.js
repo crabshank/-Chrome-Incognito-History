@@ -839,6 +839,7 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
 	});
 	
 	chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
+		let sr=true;
 		switch (request.type) {
 			case "WINDOW_ID":
 				if (request.recording == "stop") {
@@ -862,7 +863,7 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
 								i = hist.length - 1;
 							}
 						}
-
+					sr=false;
 					sendResponse({
 							type: "WD_STUS",
 							inHstry: inHsty,
@@ -984,6 +985,7 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
 						}
 
 						//console.log(inHistry);
+						sr=false;
 						sendResponse({
 							type: "TBSTUS",
 							inHstry: inHistry,
@@ -1006,6 +1008,7 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
 					chrome.storage.local.set({
 						"bklist": blacklist
 					}, function() {
+						sr=false;
 						sendResponse({
 							type: "SET",
 							settings: items
@@ -1034,6 +1037,7 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
 					}
 					if (tmpCanDel == 0) {
 						console.log("Please wait!");
+						sr=false;
 						sendResponse({
 							type: "DELETED_PAGE",
 							msg: "Please wait!",
@@ -1078,7 +1082,7 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
 									});
 								}
 								});
-
+								sr=false;
 								sendResponse({
 									type: "DELETED_PAGE",
 									status: 'successful',
@@ -1105,6 +1109,7 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
 							} else {
 								//console.log(hist);
 								console.log("Page delete failed");
+								sr=false;
 								sendResponse({
 									type: "DELETED_PAGE",
 									status: 'failed',
@@ -1192,6 +1197,7 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
 								});
 							}
 							});
+							sr=false;
 							sendResponse({
 								type: "DELETED_SITE",
 								status: 'successful',
@@ -1218,6 +1224,7 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
 
 						}
 						if (nthgFnd == 0) {
+							sr=false;
 							sendResponse({
 								type: "DELETED_SITE",
 								status: 'failed',
@@ -1288,7 +1295,9 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
 				;
 				break;
 		}
-		sendResponse({response: "Message received"});
+		if(sr){
+			sendResponse({response: "Message received"});
+		}
 	});
 	
 chrome.declarativeNetRequest.onRuleMatchedDebug.addListener((info)=>{
