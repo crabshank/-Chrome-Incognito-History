@@ -263,16 +263,8 @@ recStopper.addEventListener('click', rec_stop, false);
 recStopper_w.addEventListener('click', rec_stop_w, false);
 saver.addEventListener('click', saveSnd, false)
 
-function saveSnd() {
-	chrome.storage.local.remove(["cgVisCol","col","bklist"],function(){
-    chrome.storage.local.get(null, function(items) {
-        chrome.storage.local.set({
-            "cgVisCol": visColour.checked
-        }, function() {
-            chrome.storage.local.set({
-                "col": '#' + visC.value.replace(/#/g, '')
-            }, function() {
-                let lstChk = blklist.value.split(',');
+function saveSnd2(items){
+	                let lstChk = blklist.value.split(',');
                 let validate = true;
                 lstChk = removeEls("", lstChk);
                 lstChk = removeChar("\n", lstChk);
@@ -322,9 +314,21 @@ function saveSnd() {
                         });
                     });
                 }
+}
+
+function saveSnd() {
+	chrome.storage.local.remove(["cgVisCol","col"],function(){
+        chrome.storage.local.set({
+            "cgVisCol": visColour.checked
+        }, function() {
+            chrome.storage.local.set({
+                "col": '#' + visC.value.replace(/#/g, '')
+            }, function() {
+				 chrome.storage.local.get(null, function(items) {    
+					saveSnd2(items);
+				});
             });
         });
-    });
 });
 }
 delPage.addEventListener('click', function() {
