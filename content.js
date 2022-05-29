@@ -1,7 +1,7 @@
 var links = [];
 var linkTags= [];
 var firstAct=false;
-var timer;
+var timer2;
 
 function getTagNameShadow(docm, tgn){
 var shrc=[docm];
@@ -200,7 +200,7 @@ if (!!toShade && lnkTgs.length>0){
 		
 	if (typeof request.items!=='undefined'){
 		
-		chrome.local.remove("col",function(){
+		chrome.storage.local.remove("col",function(){
 			chrome.storage.local.set({"col": request.items.col},()=>{
 				shaderef(toShade,lnkTgs,request.items.col);
 			});
