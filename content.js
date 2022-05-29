@@ -200,11 +200,11 @@ if (!!toShade && lnkTgs.length>0){
 		
 	if (typeof request.items!=='undefined'){
 		
-		chrome.storage.local.remove("col",function(){
+		//chrome.storage.local.remove("col",function(){
 			chrome.storage.local.set({"col": request.items.col},()=>{
 				shaderef(toShade,lnkTgs,request.items.col);
 			});
-		});
+		//});
 	}else{
 			shaderef(toShade,lnkTgs,"#9043cc");
 	}

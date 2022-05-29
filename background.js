@@ -1003,7 +1003,7 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
 					blacklist = items.bklist;
 					blacklist = removeEls("", blacklist);
 					blacklist = removeChar("\n", blacklist);
-					chrome.storage.local.remove("bklist",function(){
+					//chrome.storage.local.remove("bklist",function(){
 							chrome.storage.local.set({
 							"bklist": blacklist
 						}, function() {
@@ -1012,7 +1012,7 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
 								settings: items
 							});
 						});
-					});
+					//});
 
 
 				});

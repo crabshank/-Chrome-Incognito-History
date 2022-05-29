@@ -44,7 +44,12 @@ vsL.oninput = () => {
 }
 chrome.storage.local.get(null, function(items) {
     console.log(items);
-    if (Object.keys(items).length > 0) {
+	
+	let ud=(typeof items.col==='undefined' || 
+	typeof items.cgVisCol==='undefined' || 
+	typeof items.bklist==='undefined')?true:false;
+	
+    if (Object.keys(items).length > 0 && !ud) {
         visColour.checked = items.cgVisCol;
         visC.value = items.col;
         vsL.innerText = visC.value;
@@ -56,6 +61,12 @@ chrome.storage.local.get(null, function(items) {
         let hgt1 = (hgt > blklist_h) ? hgt : blklist_h;
         blklist.style.height = hgt1 + "px";
     } else {
+		if(ud){
+			visColour.checked = true;
+			visC.value = "#9043cc";
+			chgCol(visC.value);
+            blklist.value = "";
+		}
         saveSnd();
     }
     start();
@@ -287,6 +298,7 @@ function saveSnd2(items){
                     }
                 }
                 if (validate) {
+					//chrome.storage.local.remove("bklist",function(){
                     chrome.storage.local.set({
                         "bklist": lstChk
                     }, function() {
@@ -313,23 +325,24 @@ function saveSnd2(items){
                             }
                         });
                     });
+				//});
                 }
 }
 
 function saveSnd() {
-	chrome.storage.local.remove(["cgVisCol","col"],function(){
+	//chrome.storage.local.remove(["cgVisCol","col"],function(){
         chrome.storage.local.set({
             "cgVisCol": visColour.checked
         }, function() {
             chrome.storage.local.set({
-                "col": '#' + visC.value.replace(/#/g, '')
+                "col": visC.value
             }, function() {
 				 chrome.storage.local.get(null, function(items) {    
 					saveSnd2(items);
 				});
             });
         });
-});
+//});
 }
 delPage.addEventListener('click', function() {
     chrome.tabs.query({
@@ -451,6 +464,6 @@ chrome.runtime.onMessage.addListener(
             default:
                 console.log(request);
                 break;
-                return true;
+				sendResponse({response: "Message received"});
         }
     });
