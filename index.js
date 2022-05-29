@@ -264,6 +264,7 @@ recStopper_w.addEventListener('click', rec_stop_w, false);
 saver.addEventListener('click', saveSnd, false)
 
 function saveSnd() {
+	chrome.storage.local.remove(["cgVisCol","col","bklist"],function(){
     chrome.storage.local.get(null, function(items) {
         chrome.storage.local.set({
             "cgVisCol": visColour.checked
@@ -324,6 +325,7 @@ function saveSnd() {
             });
         });
     });
+});
 }
 delPage.addEventListener('click', function() {
     chrome.tabs.query({
