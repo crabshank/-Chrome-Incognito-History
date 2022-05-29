@@ -445,6 +445,6 @@ chrome.runtime.onMessage.addListener(
             default:
                 console.log(request);
                 break;
-                sendResponse({response: "Message received"});
+                return true;
         }
     });

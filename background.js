@@ -847,7 +847,6 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
 				}else if (request.recording == "rec") {
 					windowBlacklist = removeEls(request.wnd.id, windowBlacklist);
 				}
-				sendResponse({response: "Message received"});
 			break;
 			case "WINDOW_ID_HIST":
 					var inHsty = 'false';
@@ -863,6 +862,7 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
 								i = hist.length - 1;
 							}
 						}
+
 					sendResponse({
 							type: "WD_STUS",
 							inHstry: inHsty,
@@ -993,9 +993,9 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
 
 					});
 
-				} /*else {
+				} else {
 					//console.log(request);
-				}*/
+				}
 				//console.log(tabBlacklist);
 				break;
 			case "SETTINGS":
@@ -1078,6 +1078,7 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
 									});
 								}
 								});
+
 								sendResponse({
 									type: "DELETED_PAGE",
 									status: 'successful',
@@ -1271,7 +1272,7 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
 										}
 									}
 							});
-							sendResponse({response: "Message received"});
+
 							console.log('Sent visited links to be coloured');
 							visitd = [];
 							hstchk = [];
@@ -1283,9 +1284,11 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
 				});
 				break;
 			default:
-				sendResponse({response: "Message received"});
+				/*console.log(request)*/
+				;
 				break;
 		}
+		return true;
 	});
 	
 chrome.declarativeNetRequest.onRuleMatchedDebug.addListener((info)=>{
