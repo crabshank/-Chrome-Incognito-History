@@ -270,13 +270,13 @@ if (typeof observer === "undefined") {
 	let ix=mutations.findIndex((m)=>{return m.target.tagName===('A');});
 		
 if(ix>=0){		
-	if (timer2) {
+/*	if (timer2) {
 		clearTimeout(timer2);
 	}
 	
 	timer2 = setTimeout(() => {
-			newGetSend(false);
-	},150);
+		*/	newGetSend(false);
+	/*},150);*/
 }
 	
 });
