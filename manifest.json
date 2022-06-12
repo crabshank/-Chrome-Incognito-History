@@ -1,9 +1,9 @@
 {
   "manifest_version": 3,
-  "name": "Incognito history",
-  "version": "2022.5",
- 
-  "content_scripts": [
+  "name": "Popup closer",
+  "version": "2022.6",
+    "options_page":  "options.html",
+      "content_scripts": [
     {
 	      "all_frames": true,
       "matches": [
@@ -13,11 +13,14 @@
       "js": ["content.js"]
     }
   ],
-	"web_accessible_resources": [{
-	  "resources": ["content.js"],
-	  "matches": ["<all_urls>"]
-	}],  
-	"declarative_net_request": {
+    "web_accessible_resources": [{
+  "resources": ["content.js"],
+  "matches": ["<all_urls>"]
+}],
+   "background": {
+ "service_worker": "background.js"
+  },
+  "declarative_net_request": {
     "rule_resources": [
       {
         "id": "1",
@@ -26,15 +29,11 @@
       }
     ]
   },
-   "background": {
-     "service_worker": "background.js"
-  },
-     "permissions": ["contextMenus","history", "tabs", "activeTab", "storage","scripting","bookmarks","declarativeNetRequest","declarativeNetRequestFeedback","webNavigation"],
+     "permissions": ["tabs", "activeTab","scripting","storage","declarativeNetRequest","declarativeNetRequestFeedback","webNavigation"],
   "action": {
-    "default_icon": "ih.png",
-    "default_popup": "index.html",
-	   "default_title": "Record history (selectively) in Incognito Mode"
+    "default_icon": "close.png",
+	   "default_title": "Close popup tabs/windows"
   },	"icons": {
-        "128": "ih.png"
+        "128": "close.png"
     }
 }
