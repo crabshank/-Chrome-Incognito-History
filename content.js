@@ -2,6 +2,7 @@ var links = [];
 var linkTags= [];
 var firstAct=false;
 var timer2;
+var incog_hist_marked=[];
 
 function getTagNameShadow(docm, tgn){
 var shrc=[docm];
@@ -39,17 +40,6 @@ function newGetSend(skipInit){
 		initialise();
 	}
 	
-}
-
-
-function removeEls(d, array) {
-	var newArray = [];
-	for (let i = 0; i < array.length; i++) {
-		if (array[i] != d) {
-			newArray.push(array[i]);
-		}
-	}
-	return newArray;
 }
 
 function initialise() {
@@ -114,14 +104,17 @@ if(!!u && typeof u!=='undefined' && !!a && typeof a!=='undefined'){
 	});
 
 			for (let i = 0; i < toShade.length; i++) {
-			if ((!toShade[i].getAttribute('incog_hist_marked')) || (toShade[i].getAttribute('incog_hist_marked') === "false")) {
+			if (!incog_hist_marked.map((a)=>{return a.el;}).includes(toShade[i])) {
 							let wcs=window.getComputedStyle(toShade[i]);
+							
+							let a_obj={el: toShade[i], chld:[]};
+							
 			
-			toShade[i].setAttribute('og_outline-color', wcs['outline-color']);
-			toShade[i].setAttribute('og_outline-width', wcs['outline-width']);
-			toShade[i].setAttribute('og_outline-style', wcs['outline-style']);
-			toShade[i].setAttribute('og_box-shadowr', wcs['box-shadow']);
-			toShade[i].setAttribute('og_color', wcs['color']);
+			a_obj['og_outline-color']=wcs['outline-color'];
+			a_obj['og_outline-width']=wcs['outline-width'];
+			a_obj['og_outline-style']=wcs['outline-style'];
+			a_obj['og_box-shadow']=wcs['box-shadow'];
+			a_obj['og_color']=wcs['color'];
 			
 			toShade[i].style.setProperty('outline-color', c, 'important');
 			toShade[i].style.setProperty('outline-width', '1px', 'important');
@@ -136,10 +129,12 @@ if(!!u && typeof u!=='undefined' && !!a && typeof a!=='undefined'){
 			let toShadChld=[...toShade[i].children];
 			
 				for (let k = 0; k < toShadChld.length; k++) {
+					wcsc=window.getComputedStyle(toShadChld[k]);
+					a_obj.chld.push({el: toShadChld[k], color: wcsc['color']})
 					toShadChld[k].style.setProperty('color', c, 'important');
 				}
 			
-				toShade[i].setAttribute('incog_hist_marked', true);
+				incog_hist_marked.push(a_obj);
 				console.groupCollapsed(toShade[i].href + " coloured: ");
 				console.log(toShade[i]);
 				console.dir(toShade[i]);
@@ -151,24 +146,27 @@ if(!!u && typeof u!=='undefined' && !!a && typeof a!=='undefined'){
 		}
 
 function deShadeRef(u) { //u is an 'A' tag
-
-			if ((u.getAttribute('incog_hist_marked') == "true") || (!!u.getAttribute('incog_hist_marked'))) {
-			u.setAttribute('incog_hist_marked', false);
-
-			u.style.setProperty('outline-color',u.getAttribute('og_outline-color'));
-			u.style.setProperty('outline-width',u.getAttribute('og_outline-width'));
-			u.style.setProperty('outline-style',u.getAttribute('og_outline-style'));
-			u.style.setProperty('box-shadow',u.getAttribute('og_box-shadow'));
-			u.style.setProperty('color',u.getAttribute('og_color'));
+			let ix=incog_hist_marked.findIndex((a)=>{return a.el===u;}); if (ix>=0) {
+				
+			let obj=incog_hist_marked[ix];
+			
+			u.style.setProperty('outline-color',obj['og_outline-color']);
+			u.style.setProperty('outline-width',obj['og_outline-width']);
+			u.style.setProperty('outline-style',obj['og_outline-style']);
+			u.style.setProperty('box-shadow',obj['og_box-shadow']);
+			u.style.setProperty('color',obj['og_color']);
 			//u.style.setProperty('background-color','unset');
 			//u.style.setProperty('background-clip','unset');
 			
 						let uChld=[...u.children];
 			
 				for (let k = 0; k < uChld.length; k++) {
-					uChld[k].style.setProperty('color','unset');
+					let ixc=obj.chld.findIndex((a)=>{return a.el===uChld[k];}); if (ixc>=0) {
+						uChld[k].style.setProperty('color',obj.chld[ixc]['color']);
+					}
 				}
 
+				incog_hist_marked=incog_hist_marked.filter((a)=>{return a.el!==u;});
 			}
 }
 
@@ -195,12 +193,7 @@ function arrangeShade(request, lnkTgs) {
 if (!!toShade && lnkTgs.length>0){
 		
 	if (typeof request.items!=='undefined'){
-		
-		//chrome.storage.local.remove("col",function(){
-			//chrome.storage.local.set({"col": request.items.col},()=>{
 				shaderef(toShade,lnkTgs,request.items.col);
-			//});
-		//});
 	}else{
 			shaderef(toShade,lnkTgs,"#9043cc");
 	}
@@ -286,13 +279,7 @@ if (typeof observer === "undefined") {
 	}
 		
 if(fnd){		
-/*	if (timer2) {
-		clearTimeout(timer2);
-	}
-	
-	timer2 = setTimeout(() => {
-		*/	newGetSend(false);
-	/*},150);*/
+	newGetSend(false);
 }
 	
 });
