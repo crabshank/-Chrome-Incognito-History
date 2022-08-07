@@ -271,7 +271,7 @@ if (typeof observer === "undefined") {
 	
 	for(let i=0, len=mutations.length; i<len;i++){
 		let t=mutations[i];
-		fnd=( t.tagName===('A') )?true:fnd;
+		fnd=( t.target.tagName==='A' )?true:fnd;
 		let d=[...t.addedNodes];
 		let ix=d.findIndex((n)=>{return n.tagName===('A');});
 		fnd=( ix>=0 )?true:fnd;
