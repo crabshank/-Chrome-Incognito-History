@@ -3,6 +3,11 @@ var linkTags= [];
 var firstAct=false;
 var timer2;
 var incog_hist_marked=[];
+var last_a=false;
+
+function isValid_A(el){
+	return ( (el.tagName==='A' && el.href!==null && typeof el.href!=='undefined' && el.href!=='')? true : false );
+}
 
 function getTagNameShadow(docm, tgn){
 var shrc=[docm];
@@ -267,28 +272,38 @@ if (
 if (typeof observer === "undefined") {
 	const observer = new MutationObserver((mutations) => {
 	
-	let fnd=false;
-	
-	for(let i=0, len=mutations.length; i<len;i++){
-		let t=mutations[i];
-		fnd=( t.target.tagName==='A' )?true:fnd;
-		let d=[...t.addedNodes];
-		let ix=d.findIndex((n)=>{return n.tagName===('A');});
-		fnd=( ix>=0 )?true:fnd;
-		i=(fnd)?len-1:i;
-	}
-		
-if(fnd){		
-	newGetSend(false);
-}
-	
-});
+		let fnd=false;
+			
+		for(let i=0, len=mutations.length; i<len;i++){
+			let t=mutations[i];
+			if(isValid_A(t.target)){
+				fnd=true;
+				last_a=true;
+				i=len-1;
+			}else{
+				let d=[...t.addedNodes];
+				let ix=d.findIndex((n)=>{return isValid_A(n); } ); if(ix>=0){
+					fnd=true;
+					last_a=true;
+					i=len-1;
+				}
+			}
+		}
+				
+		if(last_a){
+			newGetSend(false);
+			last_a=(!fnd)?false:last_a;
+		}
+			
+	});
 
-observer.observe(document, {
-	attributeFilter: ["href"],
-	childList: true,
-	subtree: true,
-	attributeOldValue: true
-});
+		observer.observe(document, {
+			subtree: true,
+			childList: true,
+			attributes: true,
+			attributeOldValue: true,
+			characterData: true,
+			characterDataOldValue: true
+		});
 
 }
