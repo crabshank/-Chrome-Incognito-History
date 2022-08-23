@@ -1130,6 +1130,7 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
 					//console.log(hist);
 
 					async function siteDel() {
+							return new Promise(function(resolve) {
 						var toDel = [];
 						for (let i = 0; i < hist.length; i++) {
 							if (hist[i].url.indexOf(request.url) >= 0) {
@@ -1138,7 +1139,6 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
 						}
 
 						if (toDel.length > 0) {
-							await new Promise(function(resolve, reject) {
 								var count = 0;
 								for (let i = 0; i < toDel.length; i++) {
 									try{
@@ -1157,16 +1157,13 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
 										}
 									}
 								}
-								setTimeout(() => reject(), 15000);
-							}).then((result) => {
-								;
-							}).catch((result) => {
-								;
-							});
+						}else{
+							resolve();
 						}
+							});
 					}
 
-					siteDel();
+					(async ()=>{ await siteDel(); })();
 
 					chrome.history.search({
 						text: "",
