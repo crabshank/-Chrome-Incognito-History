@@ -1,7 +1,6 @@
 var links = [];
 var linkTags= [];
 var firstAct=false;
-var timer2;
 var incog_hist_marked=[];
 var last_a=false;
 
