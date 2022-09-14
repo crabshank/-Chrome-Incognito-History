@@ -119,15 +119,12 @@ if(!!u && typeof u!=='undefined' && !!a && typeof a!=='undefined'){
 			a_obj['og_outline-style']=wcs['outline-style'];*/
 			a_obj['og_box-shadow']=wcs['box-shadow'];
 			a_obj['og_color']=wcs['color'];
-			a_obj['og_padding']=wcs['padding'];
 			a_obj['og_border']=wcs['border'];
 			
 			/*toShade[i].style.setProperty('outline-color', c, 'important');
 			toShade[i].style.setProperty('outline-width', '1px', 'important');
 			toShade[i].style.setProperty('outline-style', 'outset', 'important');*/
 			toShade[i].style.setProperty('box-shadow', '0em 0em 8px 2px '+c, 'important');
-			toShade[i].style.setProperty('color', c, 'important');
-			toShade[i].style.setProperty('padding', '1px', 'important');
 			toShade[i].style.setProperty('border', c+ ' 1px outset', 'important');
 			
 			let toShadChld=[...toShade[i].children];
@@ -159,7 +156,6 @@ function deShadeRef(u) { //u is an 'A' tag
 			u.style.setProperty('outline-style',obj['og_outline-style']);*/
 			u.style.setProperty('box-shadow',obj['og_box-shadow']);
 			u.style.setProperty('color',obj['og_color']);
-			u.style.setProperty('padding',a_obj['og_padding']);
 			u.style.setProperty('border',a_obj['og_border']);
 
 						let uChld=[...u.children];
