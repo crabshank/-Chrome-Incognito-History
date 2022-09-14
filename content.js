@@ -125,6 +125,7 @@ if(!!u && typeof u!=='undefined' && !!a && typeof a!=='undefined'){
 			toShade[i].style.setProperty('outline-width', '1px', 'important');
 			toShade[i].style.setProperty('outline-style', 'outset', 'important');*/
 			toShade[i].style.setProperty('box-shadow', '0em 0em 8px 2px '+c, 'important');
+			toShade[i].style.setProperty('color', c, 'important');
 			toShade[i].style.setProperty('border', c+ ' 1px outset', 'important');
 			
 			let toShadChld=[...toShade[i].children];
