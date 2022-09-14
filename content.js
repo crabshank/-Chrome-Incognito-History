@@ -119,17 +119,19 @@ if(!!u && typeof u!=='undefined' && !!a && typeof a!=='undefined'){
 			a_obj['og_outline-style']=wcs['outline-style'];
 			a_obj['og_box-shadow']=wcs['box-shadow'];
 			a_obj['og_color']=wcs['color'];
+			a_obj['og_padding']=wcs['padding'];
+			a_obj['og_background-color']=wcs['background-color'];
+			a_obj['og_background-clip']=wcs['background-clip'];
 			
 			toShade[i].style.setProperty('outline-color', c, 'important');
 			toShade[i].style.setProperty('outline-width', '1px', 'important');
 			toShade[i].style.setProperty('outline-style', 'outset', 'important');
 			toShade[i].style.setProperty('box-shadow', '0em 0em 8px 2px '+c, 'important');
 			toShade[i].style.setProperty('color', c, 'important');
-			
-			
-			//toShade[i].style.setProperty('background-color', c, 'important');
-			//toShade[i].style.setProperty('background-clip', 'content-box', 'important');
-			
+			toShade[i].style.setProperty('padding', '1px', 'important');
+			toShade[i].style.setProperty('background-color', c, 'important');
+			toShade[i].style.setProperty('background-clip', 'padding-box', 'important');
+
 			let toShadChld=[...toShade[i].children];
 			
 				for (let k = 0; k < toShadChld.length; k++) {
@@ -159,8 +161,9 @@ function deShadeRef(u) { //u is an 'A' tag
 			u.style.setProperty('outline-style',obj['og_outline-style']);
 			u.style.setProperty('box-shadow',obj['og_box-shadow']);
 			u.style.setProperty('color',obj['og_color']);
-			//u.style.setProperty('background-color','unset');
-			//u.style.setProperty('background-clip','unset');
+			u.style.setProperty('padding',a_obj['og_padding']);
+			u.style.setProperty('background-color',a_obj['og_background-color']);
+			u.style.setProperty('background-clip',a_obj['og_background-clip']);
 			
 						let uChld=[...u.children];
 			
