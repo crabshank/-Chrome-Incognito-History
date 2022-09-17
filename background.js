@@ -2,6 +2,10 @@ function getUrl(tab) {
 	return (tab.url == "" && !!tab.pendingUrl && typeof tab.pendingUrl !== 'undefined' && tab.pendingUrl != '') ? tab.pendingUrl : tab.url;
 }
 
+function isChrTab(tu) {
+	return ( tu.startsWith('chrome-extension://') )?true:false;
+}
+
 try {
 	var blacklist = [];
 	var tmpURLBlacklist = []
@@ -354,11 +358,11 @@ function  tabSet(d){
 
 function activate(tab) {
 	let tb_url=getUrl(tab);
-	if(typeof tb_url==='undefined' || !tb_url.startsWith('chrome-extension://')){
+	if(!isChrTab(tb_url)){
 				let tId = null;
-		if (tab.tabId) {
+		if (typeof tab.tabId !=='undefined') {
 			tId = tab.tabId;
-		} else if (tab.id) {
+		} else if (typeof tab.id !=='undefined') {
 			tId = tab.id;
 		}
 		
