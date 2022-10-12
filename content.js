@@ -2,11 +2,11 @@ var links = [];
 var linkTags= [];
 var firstAct=false;
 var incog_hist_marked=[];
-var last_a=false;
+//var last_a=false;
 
-function isValid_A(el){
+/*function isValid_A(el){
 	return ( (el.tagName==='A' && el.href!==null && typeof el.href!=='undefined' && el.href!=='')? true : false );
-}
+}*/
 
 function getTagNameShadow(docm, tgn){
 var shrc=[docm];
@@ -265,6 +265,44 @@ if (
 }
 
 
+	if(typeof observer ==="undefined" && typeof timer ==="undefined"){
+			var timer;
+			var timer_tm=null;
+		const observer = new MutationObserver((mutations) =>
+		{
+			if(timer){
+				clearTimeout(timer);
+				if(performance.now()-timer_tm>=500){
+					newGetSend(false);
+					timer_tm=performance.now();
+				}
+			}
+			
+			timer = setTimeout(() =>
+			{
+				newGetSend(false);
+				timer_tm=performance.now();
+			}, 100);
+			
+			if(timer_tm ===null){
+				timer_tm=performance.now();
+			}
+		});
+
+
+		observer.observe(document, {
+			subtree: true,
+			childList: true,
+			attributes: true,
+			attributeOldValue: true,
+			characterData: true,
+			characterDataOldValue: true
+		});
+	}
+
+/*
+Exhaustive:
+
 if (typeof observer === "undefined") {
 	const observer = new MutationObserver((mutations) => {
 	
@@ -302,4 +340,4 @@ if (typeof observer === "undefined") {
 			characterDataOldValue: true
 		});
 
-}
+}*/
