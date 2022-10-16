@@ -272,7 +272,7 @@ if (
 		{
 			if(timer){
 				clearTimeout(timer);
-				if(performance.now()-timer_tm>=500){
+				if(performance.now()-timer_tm>=200){
 					newGetSend(false);
 					timer_tm=performance.now();
 				}
