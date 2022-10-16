@@ -157,7 +157,7 @@ function deShadeRef(u) { //u is an 'A' tag
 			u.style.setProperty('outline-style',obj['og_outline-style']);*/
 			u.style.setProperty('box-shadow',obj['og_box-shadow']);
 			u.style.setProperty('color',obj['og_color']);
-			u.style.setProperty('border',a_obj['og_border']);
+			u.style.setProperty('border',obj['og_border']);
 
 						let uChld=[...u.children];
 			
