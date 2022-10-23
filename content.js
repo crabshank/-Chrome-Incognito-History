@@ -66,6 +66,17 @@ while(srCnt<shrc_l){
 return out;
 }
 
+function newGetSend(skipInit){
+	if((skipInit) || (!skipInit && firstAct)){
+				getLinks();
+				send(links);
+
+	}else if (!skipInit && !firstAct){
+		initialise();
+	}
+	
+}
+
 function initialise() {
 
 	if(!firstAct){
