@@ -168,7 +168,7 @@ if(!!u && typeof u!=='undefined' && !!a && typeof a!=='undefined'){
 		}
 
 function deShadeRef(u) { //u is an 'A' tag
-			let ix=incog_hist_marked.findIndex((a)=>{return a.el===u;}); if (ix>=0) {
+			let ix=incog_hist_marked.findIndex((a)=>{return a.el.isSameNode(u);}); if (ix>=0) {
 				
 			let obj=incog_hist_marked[ix];
 			
@@ -182,7 +182,7 @@ function deShadeRef(u) { //u is an 'A' tag
 						let uChld=[...u.children];
 			
 				for (let k = 0; k < uChld.length; k++) {
-					let ixc=obj.chld.findIndex((a)=>{return a.el===uChld[k];}); if (ixc>=0) {
+					let ixc=obj.chld.findIndex((a)=>{return a.el.isSameNode(uChld[k]);}); if (ixc>=0) {
 						uChld[k].style.setProperty('color',obj.chld[ixc]['color']);
 					}
 				}
