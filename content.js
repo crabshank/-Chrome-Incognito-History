@@ -8,42 +8,62 @@ var incog_hist_marked=[];
 	return ( (el.tagName==='A' && el.href!==null && typeof el.href!=='undefined' && el.href!=='')? true : false );
 }*/
 
-function getTagNameShadow(docm, tgn){
+function keepMatchesShadow(els,slc,isNodeName){
+   if(slc===false){
+      return els;
+   }else{
+      let out=[];
+   for(let i=0, len=els.length; i<len; i++){
+      let n=els[i];
+           if(isNodeName){
+	            if((n.nodeName.toLocaleLowerCase())===slc){
+	                out.push(n);
+	            }
+           }else{ //selector
+	               if(!!n.matches && typeof n.matches!=='undefined' && n.matches(slc)){
+	                  out.push(n);
+	               }
+           }
+   	}
+   	return out;
+   	}
+}
+
+function getMatchingNodesShadow(docm, slc, isNodeName, onlyShadowRoots){
+slc=(isNodeName && slc!==false)?(slc.toLocaleLowerCase()):slc;
 var shrc=[docm];
 var shrc_l=1;
-
+var out=[];
 let srCnt=0;
 
 while(srCnt<shrc_l){
-	allNodes=[shrc[srCnt],...shrc[srCnt].querySelectorAll('*')];
-	for(let i=0, len=allNodes.length; i<len; i++){
-		if(!!allNodes[i] && typeof allNodes[i] !=='undefined' && allNodes[i].tagName===tgn && i>0){
-			shrc.push(allNodes[i]);
-		}
-
-		if(!!allNodes[i].shadowRoot && typeof allNodes[i].shadowRoot !=='undefined'){
-			let c=allNodes[i].shadowRoot.children;
-			shrc.push(...c);
-		}
+	let curr=shrc[srCnt];
+	let sh=(!!curr.shadowRoot && typeof curr.shadowRoot !=='undefined')?true:false;
+	let nk=keepMatchesShadow([curr],slc,isNodeName);
+	let nk_l=nk.length;
+	
+	if( !onlyShadowRoots && nk_l>0){  
+		out.push(...nk);
 	}
+	
+	shrc.push(...curr.childNodes);
+	
+	if(sh){
+		   let cs=curr.shadowRoot;
+		   let csc=[...cs.childNodes];
+			   if(onlyShadowRoots){
+			      if(nk_l>0){
+			       out.push({root:nk[0], childNodes:csc});
+			      }
+			   }
+			   shrc.push(...csc);
+	}
+
 	srCnt++;
 	shrc_l=shrc.length;
 }
-	shrc=shrc.slice(1);
-	let out=shrc.filter((c)=>{return c.tagName===tgn;});
-	
-	return out;
-}
 
-function newGetSend(skipInit){
-	if((skipInit) || (!skipInit && firstAct)){
-				getLinks();
-				send(links);
-
-	}else if (!skipInit && !firstAct){
-		initialise();
-	}
-	
+return out;
 }
 
 function initialise() {
@@ -90,7 +110,7 @@ function initialise() {
 
 
 function getLinks() {
-var lk = getTagNameShadow(document,'A');
+var lk = getMatchingNodesShadow(document,'A',true,false);
 linkTags= lk.filter((lnk)=>{
 	return (!!lnk.href && typeof lnk.href!=='undefined' && lnk.href!=='');
 });

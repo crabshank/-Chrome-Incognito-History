@@ -64,7 +64,7 @@ try {
 	function removeEls(d, array) {
 		var newArray = [];
 		for (let i = 0; i < array.length; i++) {
-			if (array[i] != d) {
+			if (array[i] !== d) {
 				newArray.push(array[i]);
 			}
 		}
@@ -73,7 +73,7 @@ try {
 
 	function replaceEls(r, w, array) {
 		for (let i = 0; i < array.length; i++) {
-			if (array[i] == r) {
+			if (array[i] === r) {
 				array[i] = w;
 			}
 		}
