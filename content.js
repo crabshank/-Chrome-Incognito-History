@@ -2,10 +2,17 @@ var links = [];
 var linkTags= [];
 var firstAct=false;
 var incog_hist_marked=[];
-
+var logged=[];
 /*function isValid_A(el){
 	return ( (el.tagName==='A' && el.href!==null && typeof el.href!=='undefined' && el.href!=='')? true : false );
 }*/
+
+function force_recount(){
+	chrome.runtime.sendMessage({
+			type: "tb_rcnt"
+		}, function(response) {});
+}
+
 
 function keepMatchesShadow(els,slc,isNodeName){
    if(slc===false){
@@ -65,15 +72,10 @@ while(srCnt<shrc_l){
 return out;
 }
 
-function newGetSend(skipInit){
-	if((skipInit) || (!skipInit && firstAct)){
-				getLinks();
-				send(links);
-
-	}else if (!skipInit && !firstAct){
-		initialise();
-	}
-	
+function newGetSend(){
+		incog_hist_marked=[];
+		getLinks();
+		send(links);
 }
 
 function initialise() {
@@ -136,12 +138,7 @@ if(!!u && typeof u!=='undefined' && !!a && typeof a!=='undefined'){
 	let toShade=a.filter((lkTg)=>{
 		return u.includes(lkTg.href);
 	});
-			if(toShade.length===0){
-					chrome.runtime.sendMessage({
-					type: "shd_lks",
-					cnt: incog_hist_marked.length
-				}, function(response) {});
-			}else{
+
 			for (let i = 0; i < toShade.length; i++) {
 			if (!incog_hist_marked.map((a)=>{return a.el;}).includes(toShade[i])) {
 							let wcs=window.getComputedStyle(toShade[i]);
@@ -172,20 +169,19 @@ if(!!u && typeof u!=='undefined' && !!a && typeof a!=='undefined'){
 				}
 			
 				incog_hist_marked.push(a_obj);
-			chrome.runtime.sendMessage({
-				type: "shd_lks",
-				cnt: incog_hist_marked.length
-			}, function(response) {});
-			
-				console.groupCollapsed(toShade[i].href + " coloured: ");
-				console.log(toShade[i]);
-				console.dir(toShade[i]);
-				console.groupEnd();
+				let lgix=logged.findIndex((l)=>{return l===toShade[i];});
+				if(lgix<0){
+					logged.push(toShade[i]);
+					console.groupCollapsed(toShade[i].href + " coloured: ");
+					console.log(toShade[i]);
+					console.dir(toShade[i]);
+					console.groupEnd();
+				}
 			}
 		}
+
 }
-	
-}
+
 		}
 
 function deShadeRef(u) { //u is an 'A' tag
@@ -209,11 +205,7 @@ function deShadeRef(u) { //u is an 'A' tag
 				}
 
 				incog_hist_marked=incog_hist_marked.filter((a)=>{return a.el!==u;});
-				chrome.runtime.sendMessage({
-					type: "shd_lks",
-					cnt: incog_hist_marked.length
-				}, function(response) {});
-			
+
 			}
 }
 
@@ -246,7 +238,10 @@ if (!!toShade && lnkTgs.length>0){
 	}
 
 }
-
+			chrome.runtime.sendMessage({
+				type: "shd_lks",
+				cnt: incog_hist_marked.length
+			}, function(response) {});
 }
 
 function arrangeDeshade(request) {
@@ -260,6 +255,10 @@ function arrangeDeshade(request) {
 		deShadeRef(reqLk[i]);
 		}
 	}
+	chrome.runtime.sendMessage({
+				type: "shd_lks",
+				cnt: incog_hist_marked.length
+			}, function(response) {});
 }
 
 chrome.runtime.onMessage.addListener(
@@ -278,13 +277,9 @@ chrome.runtime.onMessage.addListener(
 				arrangeDeshade(request);
 			break;
 
-			/*case "STDELETED":
-				newGetSend(true);
-			break;*/
-
 			case "NEWACTIVE_t":
 			case "nav":
-				newGetSend(false);
+				newGetSend();
 			break;
 
 			case "NWSETTINGS":
@@ -293,9 +288,7 @@ chrome.runtime.onMessage.addListener(
 			break;
 			
 			case "chkLnkH": //forced recount
-				incog_hist_marked=[];
-				getLinks();
-				send(links);
+				newGetSend();
 			break;
 
 			default:
@@ -316,13 +309,7 @@ if (
   document.addEventListener("DOMContentLoaded", initialise);
 }
 
-function force_recount(){
-	chrome.runtime.sendMessage({
-			type: "tb_rcnt"
-		}, function(response) {});
-}
-
-	if(typeof observer ==="undefined" && typeof timer ==="undefined"){
+	if(typeof observer ==="undefined" && typeof timer ==="undefined" ){
 			var timer;
 			var timer_tm=null;
 		const observer = new MutationObserver((mutations) =>
@@ -330,16 +317,19 @@ function force_recount(){
 				let fnd=false;
 				for(let i=0, len=mutations.length; i<len;i++){
 					let t=mutations[i];
-					if( (t.target.nodeName==='IFRAME' || t.target.nodeName==='EMBED') && t.attributeName==='src'){
+					if(
+							(  (t.target.nodeName==='IFRAME' || t.target.nodeName==='EMBED') && t.attributeName==='src') ||
+							(  t.target.nodeName==='A' && t.attributeName==='href' ) 
+						){
 						fnd=true;
 					}else if(t.addedNodes.length>0){
 						let d=[...t.addedNodes];
-						let ix=d.findIndex((n)=>{return (n.nodeName==='IFRAME' ||  n.nodeName==='EMBED') ; } ); if(ix>=0){
+						let ix=d.findIndex((n)=>{return (n.nodeName==='A' || n.nodeName==='IFRAME' ||  n.nodeName==='EMBED') ; } ); if(ix>=0){
 							fnd=true;
 						}
 					}else if(t.removedNodes.length>0){
 						let d=[...t.removedNodes];
-						let ix=d.findIndex((n)=>{return (n.nodeName==='IFRAME' ||  n.nodeName==='EMBED') ; } ); if(ix>=0){
+						let ix=d.findIndex((n)=>{return (n.nodeName==='A' || n.nodeName==='IFRAME' ||  n.nodeName==='EMBED') ; } ); if(ix>=0){
 							fnd=true;
 						}
 					}
@@ -348,24 +338,6 @@ function force_recount(){
 						i=len-1;
 					}
 				}
-
-			if(timer){
-				clearTimeout(timer);
-				if(performance.now()-timer_tm>=200){
-					newGetSend(false);
-					timer_tm=performance.now();
-				}
-			}
-			
-			timer = setTimeout(() =>
-			{
-				newGetSend(false);
-				timer_tm=performance.now();
-			}, 100);
-			
-			if(timer_tm ===null){
-				timer_tm=performance.now();
-			}
 		});
 
 

@@ -9,12 +9,19 @@ try {
 	var tabBlacklist = [];
 	var windowBlacklist = [];
 	var ext_id=chrome.runtime.id;
-	
+	var bdgt=null;
 	
 	function setBadgeTxt(t){
+		let out=(typeof t==='string')? t : t.toString();
+		let c=(bdgt===null)?true:false;
+		let b=( !c && (bdgt!==out))?true:false;
+		bdgt=(b)?out:bdgt;
+		
+		if(c || b ){
 			chrome.action.setBadgeText({
-				'text': ( (typeof t==='string')? t : t.toString() )
+				'text': out
 			});
+		}
 	}
 	
 	function tabFrameShaded(tab_id,cnt,frame_id){
@@ -44,7 +51,7 @@ try {
 							'status': 'i',
 							'lk_cnts': []
 						});
-						setBadgeTxt(0);
+						setBadgeTxt('');
 					}
 		}
 	}	
@@ -53,7 +60,7 @@ try {
 		if(tab_id!==null && typeof tab_id!=='undefined'){
 					let tx=tabStatus.filter((t)=>{return t.tabId===tab_id}); if(tx.length>0){
 							tx[0].lk_cnts=[];
-							setBadgeTxt('');
+							//setBadgeTxt('');
 					}
 		}
 	}
