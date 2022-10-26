@@ -10,6 +10,54 @@ try {
 	var windowBlacklist = [];
 	var ext_id=chrome.runtime.id;
 	
+	
+	function setBadgeTxt(t){
+			chrome.action.setBadgeText({
+				'text': ( (typeof t==='string')? t : t.toString() )
+			});
+	}
+	
+	function tabFrameShaded(tab_id,cnt,frame_id){
+		if(tab_id!==null && typeof tab_id!=='undefined'){
+					let tx=tabStatus.filter((t)=>{return t.tabId===tab_id}); if(tx.length>0){
+						let tx0=tx[0];
+						console.log(tx0);
+						let lkc=tx0.lk_cnts;
+						
+						if(cnt>=0 && typeof frame_id!=='undefined'){
+							let fx=lkc.findIndex((f)=>{return f.frameId===frame_id}); if(fx>=0){
+								let lkl=lkc[fx];
+								lkl.lksh=cnt;
+							}else{
+								lkc.push({frameId:frame_id,lksh:cnt});
+							}
+						}
+						
+						let ct=0;
+						for(let c=0, len_c=lkc.length; c<len_c; c++){
+							ct+=lkc[c].lksh;
+						}
+						setBadgeTxt(ct);
+					}else{
+						tabStatus.push({
+							'tabId': tab_id,
+							'status': 'i',
+							'lk_cnts': []
+						});
+						setBadgeTxt(0);
+					}
+		}
+	}	
+	
+	function tabFrameShadedRc(tab_id){
+		if(tab_id!==null && typeof tab_id!=='undefined'){
+					let tx=tabStatus.filter((t)=>{return t.tabId===tab_id}); if(tx.length>0){
+							tx[0].lk_cnts=[];
+							setBadgeTxt('');
+					}
+		}
+	}
+	
 	function start() {
 
 		chrome.storage.local.get(null, function(items) {
@@ -40,7 +88,8 @@ try {
 			for (let t = 0; t < tabs.length; t++) {
 				tabStatus.push({
 					'tabId': tabs[t].id,
-					'status': 'i'
+					'status': 'i',
+					'lk_cnts': []
 				});
 			}
 		}
@@ -178,7 +227,8 @@ try {
 		if (foundTS == 0) {
 			tabStatus.push({
 				'tabId': d,
-				'status': t
+				'status': t,
+				'lk_cnts': []
 			});
 		}
 		//console.log(tabStatus);
@@ -364,11 +414,9 @@ function activate(tab) {
 		
 
 if(tId!==null){
-									chrome.action.setBadgeText({
-									'text': tId.toString()
-									},()=>{	
-										
-					tabSet(tId);
+
+		tabSet(tId);
+		tabFrameShaded(tId);
 		console.log('Switched to tab ' + tId);
 		chrome.runtime.sendMessage({
 			type: "NEWACTIVE",
@@ -384,8 +432,6 @@ if(tId!==null){
 			//console.log(response);
 		});
 					
-									});
-
 }
 }
 	}
@@ -1231,6 +1277,15 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
 				});
 				break;
 
+			case "tb_rcnt":
+				tabFrameShadedRc(sender.tab.id);
+				chrome.tabs.sendMessage(sender.tab.id, {
+					type: "chkLnkH"
+				});
+			break;
+			case "shd_lks":
+				tabFrameShaded(sender.tab.id,request.cnt,sender.frameId);
+			break;
 			case "PG_LINKS":
 				//console.log(request.chk);
 

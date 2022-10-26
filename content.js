@@ -2,7 +2,6 @@ var links = [];
 var linkTags= [];
 var firstAct=false;
 var incog_hist_marked=[];
-//var last_a=false;
 
 /*function isValid_A(el){
 	return ( (el.tagName==='A' && el.href!==null && typeof el.href!=='undefined' && el.href!=='')? true : false );
@@ -137,7 +136,12 @@ if(!!u && typeof u!=='undefined' && !!a && typeof a!=='undefined'){
 	let toShade=a.filter((lkTg)=>{
 		return u.includes(lkTg.href);
 	});
-
+			if(toShade.length===0){
+					chrome.runtime.sendMessage({
+					type: "shd_lks",
+					cnt: incog_hist_marked.length
+				}, function(response) {});
+			}else{
 			for (let i = 0; i < toShade.length; i++) {
 			if (!incog_hist_marked.map((a)=>{return a.el;}).includes(toShade[i])) {
 							let wcs=window.getComputedStyle(toShade[i]);
@@ -158,7 +162,7 @@ if(!!u && typeof u!=='undefined' && !!a && typeof a!=='undefined'){
 			toShade[i].style.setProperty('box-shadow', '0em 0em 8px 2px '+c, 'important');
 			toShade[i].style.setProperty('color', c, 'important');
 			toShade[i].style.setProperty('border', c+ ' 1px outset', 'important');
-			
+	
 			let toShadChld=[...toShade[i].children];
 			
 				for (let k = 0; k < toShadChld.length; k++) {
@@ -168,12 +172,18 @@ if(!!u && typeof u!=='undefined' && !!a && typeof a!=='undefined'){
 				}
 			
 				incog_hist_marked.push(a_obj);
+			chrome.runtime.sendMessage({
+				type: "shd_lks",
+				cnt: incog_hist_marked.length
+			}, function(response) {});
+			
 				console.groupCollapsed(toShade[i].href + " coloured: ");
 				console.log(toShade[i]);
 				console.dir(toShade[i]);
 				console.groupEnd();
 			}
 		}
+}
 	
 }
 		}
@@ -190,7 +200,7 @@ function deShadeRef(u) { //u is an 'A' tag
 			u.style.setProperty('color',obj['og_color']);
 			u.style.setProperty('border',obj['og_border']);
 
-						let uChld=[...u.children];
+				let uChld=[...u.children];
 			
 				for (let k = 0; k < uChld.length; k++) {
 					let ixc=obj.chld.findIndex((a)=>{return a.el.isSameNode(uChld[k]);}); if (ixc>=0) {
@@ -199,6 +209,11 @@ function deShadeRef(u) { //u is an 'A' tag
 				}
 
 				incog_hist_marked=incog_hist_marked.filter((a)=>{return a.el!==u;});
+				chrome.runtime.sendMessage({
+					type: "shd_lks",
+					cnt: incog_hist_marked.length
+				}, function(response) {});
+			
 			}
 }
 
@@ -276,6 +291,12 @@ chrome.runtime.onMessage.addListener(
 					firstAct=false;
 					initialise();
 			break;
+			
+			case "chkLnkH": //forced recount
+				incog_hist_marked=[];
+				getLinks();
+				send(links);
+			break;
 
 			default:
 				//console.log(request);
@@ -295,12 +316,39 @@ if (
   document.addEventListener("DOMContentLoaded", initialise);
 }
 
+function force_recount(){
+	chrome.runtime.sendMessage({
+			type: "tb_rcnt"
+		}, function(response) {});
+}
 
 	if(typeof observer ==="undefined" && typeof timer ==="undefined"){
 			var timer;
 			var timer_tm=null;
 		const observer = new MutationObserver((mutations) =>
 		{
+				let fnd=false;
+				for(let i=0, len=mutations.length; i<len;i++){
+					let t=mutations[i];
+					if( (t.target.nodeName==='IFRAME' || t.target.nodeName==='EMBED') && t.attributeName==='src'){
+						fnd=true;
+					}else if(t.addedNodes.length>0){
+						let d=[...t.addedNodes];
+						let ix=d.findIndex((n)=>{return (n.nodeName==='IFRAME' ||  n.nodeName==='EMBED') ; } ); if(ix>=0){
+							fnd=true;
+						}
+					}else if(t.removedNodes.length>0){
+						let d=[...t.removedNodes];
+						let ix=d.findIndex((n)=>{return (n.nodeName==='IFRAME' ||  n.nodeName==='EMBED') ; } ); if(ix>=0){
+							fnd=true;
+						}
+					}
+					if(fnd){
+						force_recount();
+						i=len-1;
+					}
+				}
+
 			if(timer){
 				clearTimeout(timer);
 				if(performance.now()-timer_tm>=200){
@@ -330,45 +378,3 @@ if (
 			characterDataOldValue: true
 		});
 	}
-
-/*
-Exhaustive:
-
-if (typeof observer === "undefined") {
-	const observer = new MutationObserver((mutations) => {
-	
-		let fnd=false;
-			
-		for(let i=0, len=mutations.length; i<len;i++){
-			let t=mutations[i];
-			if(isValid_A(t.target)){
-				fnd=true;
-				last_a=true;
-				i=len-1;
-			}else{
-				let d=[...t.addedNodes];
-				let ix=d.findIndex((n)=>{return isValid_A(n); } ); if(ix>=0){
-					fnd=true;
-					last_a=true;
-					i=len-1;
-				}
-			}
-		}
-				
-		if(last_a){
-			newGetSend(false);
-			last_a=(!fnd)?false:last_a;
-		}
-			
-	});
-
-		observer.observe(document, {
-			subtree: true,
-			childList: true,
-			attributes: true,
-			attributeOldValue: true,
-			characterData: true,
-			characterDataOldValue: true
-		});
-
-}*/
