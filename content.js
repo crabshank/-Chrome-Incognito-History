@@ -2,6 +2,7 @@ var links = [];
 var linkTags= [];
 var firstAct=false;
 var incog_hist_marked=[];
+var logged=[];
 var logged_hist=[];
 //var last_a=false;
 
@@ -169,18 +170,25 @@ if(!!u && typeof u!=='undefined' && !!a && typeof a!=='undefined'){
 				}
 			
 				incog_hist_marked.push(a_obj);
-				let lgix=logged_hist.findIndex((l)=>{return l===toShade[i];});
+				
+				let lgix=logged.findIndex((l)=>{return l===toShade[i];});
+				if(lgix<0){
+					logged.push(toShade[i]);
+					console.groupCollapsed(toShade[i].href + " coloured: ");
+					console.log(toShade[i]);
+					console.dir(toShade[i]);
+					console.groupEnd();
+				}	
+				
+				lgix=logged_hist.findIndex((l)=>{return l===toShade[i];});
 				if(lgix<0){
 					logged_hist.push(toShade[i]);
 					chrome.runtime.sendMessage({
 						type: "shd_lks",
 						cnt: logged_hist.length
 					}, function(response) {});
-					console.groupCollapsed(toShade[i].href + " coloured: ");
-					console.log(toShade[i]);
-					console.dir(toShade[i]);
-					console.groupEnd();
 				}
+				
 			}
 		}
 	
