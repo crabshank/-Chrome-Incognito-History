@@ -2,7 +2,7 @@ var links = [];
 var linkTags= [];
 var firstAct=false;
 var incog_hist_marked=[];
-var logged=[];
+var logged_hist=[];
 //var last_a=false;
 
 /*function isValid_A(el){
@@ -169,12 +169,12 @@ if(!!u && typeof u!=='undefined' && !!a && typeof a!=='undefined'){
 				}
 			
 				incog_hist_marked.push(a_obj);
-				let lgix=logged.findIndex((l)=>{return l===toShade[i];});
+				let lgix=logged_hist.findIndex((l)=>{return l===toShade[i];});
 				if(lgix<0){
-					logged.push(toShade[i]);
+					logged_hist.push(toShade[i]);
 					chrome.runtime.sendMessage({
 						type: "shd_lks",
-						cnt: logged.length
+						cnt: logged_hist.length
 					}, function(response) {});
 					console.groupCollapsed(toShade[i].href + " coloured: ");
 					console.log(toShade[i]);
@@ -208,6 +208,16 @@ function deShadeRef(u) { //u is an 'A' tag
 				}
 
 				incog_hist_marked=incog_hist_marked.filter((a)=>{return a.el!==u;});
+				let lhl=logged_hist.length;
+				logged_hist=logged_hist.filter((a)=>{return a!==u;});
+				
+				if(lhl!==logged_hist.length){
+					chrome.runtime.sendMessage({
+						type: "shd_lks",
+						cnt: logged_hist.length
+					}, function(response) {});
+				}
+				
 			}
 }
 
