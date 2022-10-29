@@ -216,16 +216,7 @@ function deShadeRef(u) { //u is an 'A' tag
 				}
 
 				incog_hist_marked=incog_hist_marked.filter((a)=>{return a.el!==u;});
-				let lhl=logged_hist.length;
-				logged_hist=logged_hist.filter((a)=>{return a!==u;});
-				
-				if(lhl!==logged_hist.length){
-					chrome.runtime.sendMessage({
-						type: "shd_lks",
-						cnt: logged_hist.length
-					}, function(response) {});
-				}
-				
+				logged_hist=logged_hist.filter((l)=>{return l!==u;});
 			}
 }
 
@@ -262,16 +253,24 @@ if (!!toShade && lnkTgs.length>0){
 }
 
 function arrangeDeshade(request) {
+	let lhl=logged_hist.length;
 	if(request.all){
 		for (let i = 0; i < linkTags.length; i++) {
-		deShadeRef(linkTags[i]);
+			deShadeRef(linkTags[i]);
 		}
 	}else{
 		let reqLk=linkTags.filter((lnk)=>{return lnk.href===request.delLink});
-				for (let i = 0; i < reqLk.length; i++) {
-		deShadeRef(reqLk[i]);
+		for (let i = 0; i < reqLk.length; i++) {
+			deShadeRef(reqLk[i]);
 		}
 	}
+					
+				if(lhl!==logged_hist.length){
+					chrome.runtime.sendMessage({
+						type: "shd_lks",
+						cnt: logged_hist.length
+					}, function(response) {});
+				}
 }
 
 chrome.runtime.onMessage.addListener(
