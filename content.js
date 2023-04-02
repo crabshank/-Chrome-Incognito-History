@@ -6,7 +6,8 @@ var logged=[];
 var logged_hist=[];
 var addrs=[];
 var slctrs=[];
-var tl={top:null, left:null, el:null, reset_scr:false, forceDisable:false};
+var extScroll=null;
+
 //var last_a=false;
 
 /*function isValid_A(el){
@@ -127,6 +128,8 @@ var isCurrentSiteBlacklisted = function()
 		return blacklistMatch(addrs, window.location.href);
 };
 
+var tl={};
+
 function keepMatchesShadow(els,slc,isNodeName){
    if(slc===false){
       return els;
@@ -243,6 +246,7 @@ function initialise() {
 								}, function(response) {
 									if (response.type == "SET") {
 										//console.log('Initial settings set!');
+										tl={top:null, left:null, el:null, forceDisable:false, isBl:isCurrentSiteBlacklisted(), lastConsole:null};
 									}
 								});
 							});
@@ -250,7 +254,6 @@ function initialise() {
 		});
 
 		firstAct=true;
-
 		getLinks();
 		send(links);
 	}
@@ -269,13 +272,62 @@ links = linkTags.map(function(lnk) {
 	links = Array.from(new Set(links));
 }
 
+window.addEventListener('scroll',(e)=>{
+	if(extScroll===true){
+		extScroll=false;
+	}else if(extScroll===false){
+		tl.forceDisable=true;
+	}
+});
+
+function scrollShade(){
+		let isNullEl=tl.el;
+		let tpl={top:tl.top, left: tl.left}
+		tl.top=null;
+		tl.left=null;
+		
+	for (let i = 0; i < incog_hist_marked.length; i++) {
+			let elm= incog_hist_marked[i].el;
+			if(tl.isBl[0] && elm.matches(tl.isBl[2]) && !tl.forceDisable){
+					let aRct=absBoundingClientRect(elm);
+					let asgn=false;
+					if(isNullEl===null){
+						asgn=true;
+					}else if(aRct.top<tpl.top && tpl.top!==null){
+						asgn=true;
+					}else if( aRct.top===tpl.top  && tpl.top!==null && aRct.left<tpl.left && tpl.left!==null){
+						asgn=true;
+					}
+					if(asgn){
+						tl.top=aRct.top;
+						tl.left=aRct.left;
+						tl.el=elm;
+						isNullEl=elm;
+					}
+					
+				}
+	}
+	
+		if(tl.el!==null && !tl.forceDisable){
+			extScroll=(!extScroll || extScroll==null)?true:extScroll;
+			tl.el.scrollIntoView({behavior: "auto", block: 'center', inline: "start"});
+			if(tl.el!==tl.lastConsole){
+				tl.lastConsole=tl.el;
+				console.group('Incognito History — CSS-matched link scrolled to:');
+					console.log('Scrolled to:');
+					console.log(tl.el);
+					console.dir(tl.el);
+				console.groupEnd();
+			}
+		}
+}
+
 function shaderef(u, a,c) { //(array of urls to shade, link tags array ['A'], color)
 if(!!u && typeof u!=='undefined' && !!a && typeof a!=='undefined'){
 	let toShade=a.filter((lkTg)=>{
 		return u.includes(lkTg.href);
 	});
 
-		let isBl=isCurrentSiteBlacklisted();
 		for (let i = 0; i < toShade.length; i++) {
 			if (!incog_hist_marked.map((a)=>{return a.el;}).includes(toShade[i])) {
 							let wcs=window.getComputedStyle(toShade[i]);
@@ -324,43 +376,10 @@ if(!!u && typeof u!=='undefined' && !!a && typeof a!=='undefined'){
 						cnt: logged_hist.length
 					}, function(response) {});
 				}
-				if(isBl[0] && toShade[i].matches(isBl[2])){// && !firstScrollDone){
-					let aRct=absBoundingClientRect(toShade[i]);
-					let asgn=false;
-					if(tl.top===null){
-						asgn=true;
-					}else if(aRct.top<tl.top){
-						asgn=true;
-					}else if(aRct.left<tl.left){
-						asgn=true;
-					}
-					if(tl.el===toShade[i]){
-						//asgn=false;
-						tl.reset_scr=false;
-					}else if(asgn){
-						tl.top=aRct.top;
-						tl.left=aRct.left;
-						tl.el=toShade[i];
-						tl.reset_scr=true;
-					}
-					
-				}
 			}
 		}
-		
-		if(tl.el!==null && tl.reset_scr && !tl.forceDisable){
-			tl.el.scrollIntoView({behavior: "auto", block: 'center', inline: "start"});
-			console.group('Incognito History — CSS-matched link scrolled to:');
-				console.log('Scrolled to:');
-				console.log(tl.el);
-				console.dir(tl.el);
-			console.groupEnd();
-			tl.reset_scr=false;
-		}
-		
-		
-	
 }
+	scrollShade();
 		}
 
 function deShadeRef(u) { //u is an 'A' tag
