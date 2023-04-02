@@ -4,11 +4,128 @@ var firstAct=false;
 var incog_hist_marked=[];
 var logged=[];
 var logged_hist=[];
+var addrs=[];
+var slctrs=[];
+var tl={top:null, left:null, el:null, reset_scr:false, forceDisable:false};
 //var last_a=false;
 
 /*function isValid_A(el){
 	return ( (el.tagName==='A' && el.href!==null && typeof el.href!=='undefined' && el.href!=='')? true : false );
 }*/
+
+function removeEls(d, arr) {
+    return arr.filter((a)=>{return a!==d});
+}
+
+function findIndexTotalInsens(string, substring, index) {
+    string = string.toLocaleLowerCase();
+    substring = substring.toLocaleLowerCase();
+    for (let i = 0; i < string.length ; i++) {
+        if ((string.includes(substring, i)) && (!(string.includes(substring, i + 1)))) {
+            index.push(i);
+            break;
+        }
+    }
+    return index;
+}
+
+function absBoundingClientRect(el){
+	let st = [window?.scrollY,
+					window?.pageYOffset,
+					el?.ownerDocument?.documentElement?.scrollTop,
+					document?.documentElement?.scrollTop,
+					document?.body?.parentNode?.scrollTop,
+					document?.body?.scrollTop,
+					document?.head?.scrollTop];
+					
+		let sl = [window?.scrollX,
+						window?.pageXOffset,
+						el?.ownerDocument?.documentElement?.scrollLeft,
+						document?.documentElement?.scrollLeft,
+						document?.body?.parentNode?.scrollLeft,
+						document?.body?.scrollLeft,
+						document?.head?.scrollLeft];
+						
+				let scrollTop=0;
+				for(let k=0; k<st.length; k++){
+					if(!!st[k] && typeof  st[k] !=='undefined' && st[k]>0){
+						scrollTop=(st[k]>scrollTop)?st[k]:scrollTop;
+					}
+				}			
+
+				let scrollLeft=0;
+				for(let k=0; k<sl.length; k++){
+					if(!!sl[k] && typeof  sl[k] !=='undefined' && sl[k]>0){
+						scrollLeft=(sl[k]>scrollLeft)?sl[k]:scrollLeft;
+					}
+				}
+	
+	const rct=el.getBoundingClientRect();
+	let r={};
+
+	r.left=rct.left+scrollLeft;
+	r.right=rct.right+scrollLeft;
+	r.top=rct.top+scrollTop;
+	r.bottom=rct.bottom+scrollTop;
+	r.height=rct.height;
+	r.width=rct.width;
+	
+	return r;
+}
+
+function blacklistMatch(arr, t) {
+    var found = false;
+	var blSite='';
+	var blSel='';
+    if (!((arr.length == 1 && arr[0] == "") || (arr.length == 0))) {
+        ts = t.toLocaleLowerCase();
+        for (var i = 0; i < arr.length; i++) {
+            let spl = arr[i].split('*');
+            spl = removeEls("", spl);
+
+            var spl_mt = [];
+            for (let k = 0; k < spl.length; k++) {
+                var spl_m = [];
+                findIndexTotalInsens(ts, spl[k], spl_m);
+
+                spl_mt.push(spl_m);
+
+
+            }
+
+            found = true;
+
+            if ((spl_mt.length == 1) && (typeof spl_mt[0][0] === "undefined")) {
+                found = false;
+            } else if (!((spl_mt.length == 1) && (typeof spl_mt[0][0] !== "undefined"))) {
+
+                for (let m = 0; m < spl_mt.length - 1; m++) {
+
+                    if ((typeof spl_mt[m][0] === "undefined") || (typeof spl_mt[m + 1][0] === "undefined")) {
+                        found = false;
+                        m = spl_mt.length - 2; //EARLY TERMINATE
+                    } else if (!(spl_mt[m + 1][0] > spl_mt[m][0])) {
+                        found = false;
+                    }
+                }
+
+            }
+            if(found){
+            		blSite = arr[i];
+					blSel = slctrs[i];
+					i = arr.length - 1;
+            }
+        }
+    }
+    //console.log(found);
+    return [found,blSite,blSel];
+
+}
+
+var isCurrentSiteBlacklisted = function()
+{
+		return blacklistMatch(addrs, window.location.href);
+};
 
 function keepMatchesShadow(els,slc,isNodeName){
    if(slc===false){
@@ -85,35 +202,51 @@ function initialise() {
 
 	if(!firstAct){
 		chrome.storage.local.get(null, function(items) {
-			if (Object.keys(items).length == 0) {
+				let setObj={}
 
-				chrome.storage.local.set({
-					"cgVisCol": "true"
-				}, function() {
-					chrome.storage.local.set({
-						"col": "#9043cc"
-					}, function() {
-						chrome.storage.local.set({
-							"bklist": []
-						}, function() {
+				if(!!items.cgVisCol && typeof  items.cgVisCol!=='undefined'){
+					setObj["cgVisCol"]=items.cgVisCol;
+				}else{
+					setObj["cgVisCol"]='true';
+				}
+				
+				if(!!items.col && typeof  items.col!=='undefined'){
+					setObj["col"]=items.col;
+				}else{
+					setObj["col"]='#9043cc';
+				}
+				
+				if(!!items.bklist && typeof  items.bklist!=='undefined'){
+					setObj["bklist"]=items.bklist;
+				}else{
+					setObj["bklist"]='[]';
+				}
+				
+				if(!!items.slc_list && typeof  items.slc_list!=='undefined'){
+					setObj["slc_list"]=items.slc_list;
+					slctrs=JSON.parse(items.slc_list);
+				}else{
+					setObj["slc_list"]='[]';
+				}
+				if(!!items.addrs_list && typeof  items.addrs_list!=='undefined'){
+					setObj["addrs_list"]=items.addrs_list;
+					addrs=JSON.parse(items.addrs_list);
+				}else{
+					setObj["addrs_list"]='[]';
+				}	
+				
+						chrome.storage.local.set(setObj, function() {
 							chrome.storage.local.get(null, function(items) {
-
 								chrome.runtime.sendMessage({
 									type: "SETTINGS",
 									items
 								}, function(response) {
 									if (response.type == "SET") {
-										console.log('Initial settings set!');
+										//console.log('Initial settings set!');
 									}
 								});
-								
 							});
 						});
-					});
-				});
-
-			}
-
 		});
 
 		firstAct=true;
@@ -142,7 +275,8 @@ if(!!u && typeof u!=='undefined' && !!a && typeof a!=='undefined'){
 		return u.includes(lkTg.href);
 	});
 
-			for (let i = 0; i < toShade.length; i++) {
+		let isBl=isCurrentSiteBlacklisted();
+		for (let i = 0; i < toShade.length; i++) {
 			if (!incog_hist_marked.map((a)=>{return a.el;}).includes(toShade[i])) {
 							let wcs=window.getComputedStyle(toShade[i]);
 							
@@ -190,9 +324,41 @@ if(!!u && typeof u!=='undefined' && !!a && typeof a!=='undefined'){
 						cnt: logged_hist.length
 					}, function(response) {});
 				}
-				
+				if(isBl[0] && toShade[i].matches(isBl[2])){// && !firstScrollDone){
+					let aRct=absBoundingClientRect(toShade[i]);
+					let asgn=false;
+					if(tl.top===null){
+						asgn=true;
+					}else if(aRct.top<tl.top){
+						asgn=true;
+					}else if(aRct.left<tl.left){
+						asgn=true;
+					}
+					if(tl.el===toShade[i]){
+						//asgn=false;
+						tl.reset_scr=false;
+					}else if(asgn){
+						tl.top=aRct.top;
+						tl.left=aRct.left;
+						tl.el=toShade[i];
+						tl.reset_scr=true;
+					}
+					
+				}
 			}
 		}
+		
+		if(tl.el!==null && tl.reset_scr && !tl.forceDisable){
+			tl.el.scrollIntoView({behavior: "auto", block: 'center', inline: "start"});
+			console.group('Incognito History — CSS-matched link scrolled to:');
+				console.log('Scrolled to:');
+				console.log(tl.el);
+				console.dir(tl.el);
+			console.groupEnd();
+			tl.reset_scr=false;
+		}
+		
+		
 	
 }
 		}
@@ -277,13 +443,14 @@ function arrangeDeshade(request) {
 
 chrome.runtime.onMessage.addListener(
 	function(request, sender, sendResponse) {
-
+		if(typeof request.add_hist_bk!=='undefined'){
+			tl.forceDisable=true;
+		}
 		switch (request.type) {
 			
 			case "VISITED":
 				getLinks();
 				arrangeShade(request, linkTags);
-				
 			break;
 
 			case "PGDELETED":

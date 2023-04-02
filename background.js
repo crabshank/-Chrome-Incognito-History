@@ -720,6 +720,7 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
 								for (let t = 0; t < tabs.length; t++) {
 									chrome.tabs.sendMessage(tabs[t].id, {
 										type: "VISITED",
+										add_hist_bk:'ADDED',
 										addedHist
 									}, function(response) {
 
@@ -865,6 +866,7 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
 								for (let t = 0; t < tabs.length; t++) {
 									chrome.tabs.sendMessage(tabs[t].id, {
 										type: "VISITED",
+										add_hist_bk:'ADDED',
 										addedHist
 									}, function(response) {
 
