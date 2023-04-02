@@ -288,7 +288,7 @@ function scrollShade(){
 		
 	for (let i = 0; i < incog_hist_marked.length; i++) {
 			let elm= incog_hist_marked[i].el;
-			if(tl.isBl[0] && elm.matches(tl.isBl[2]) && !tl.forceDisable){
+			if(tl.isBl[0] && elm.matches(tl.isBl[2])){
 					let aRct=absBoundingClientRect(elm);
 					let asgn=false;
 					if(isNullEl===null){
@@ -308,7 +308,7 @@ function scrollShade(){
 				}
 	}
 	
-		if(tl.el!==null && !tl.forceDisable){
+		if(tl.el!==null){
 			extScroll=(!extScroll || extScroll==null)?true:extScroll;
 			tl.el.scrollIntoView({behavior: "auto", block: 'center', inline: "start"});
 			if(tl.el!==tl.lastConsole){
@@ -379,7 +379,9 @@ if(!!u && typeof u!=='undefined' && !!a && typeof a!=='undefined'){
 			}
 		}
 }
-	scrollShade();
+	if(!tl.forceDisable){
+		scrollShade();
+	}
 		}
 
 function deShadeRef(u) { //u is an 'A' tag
