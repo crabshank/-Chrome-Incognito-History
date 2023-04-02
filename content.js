@@ -6,7 +6,7 @@ var logged=[];
 var logged_hist=[];
 var addrs=[];
 var slctrs=[];
-var extScroll=null;
+var extScroll=[null,false];
 
 //var last_a=false;
 
@@ -273,9 +273,9 @@ links = linkTags.map(function(lnk) {
 }
 
 window.addEventListener('scroll',(e)=>{
-	if(extScroll===true){
-		extScroll=false;
-	}else if(extScroll===false){
+	if(extScroll[0]===true){
+		extScroll[0]=false;
+	}else if(extScroll[0]===false && extScroll[1]===true){
 		tl.forceDisable=true;
 	}
 });
@@ -309,7 +309,7 @@ function scrollShade(){
 	}
 	
 		if(tl.el!==null){
-			extScroll=(!extScroll || extScroll==null)?true:extScroll;
+			extScroll[0]=(!extScroll[0] || extScroll[0]==null)?true:extScroll[0];
 			tl.el.scrollIntoView({behavior: "auto", block: 'center', inline: "start"});
 			if(tl.el!==tl.lastConsole){
 				tl.lastConsole=tl.el;
@@ -320,6 +320,7 @@ function scrollShade(){
 				console.groupEnd();
 			}
 		}
+		extScroll[1]=true;
 }
 
 function shaderef(u, a,c) { //(array of urls to shade, link tags array ['A'], color)
