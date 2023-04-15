@@ -20,8 +20,7 @@ let sct2=[...document.querySelectorAll('SECTION.site_sets')];
 	}
 }
 
-function checkNew(event){
-	let scs=event.target.parentElement;
+function checkNew(scs){
 	setHeights(scs);
 	let tst=[...document.querySelectorAll('SECTION.site_sets')];
 	if (scs===tst[tst.length-1]){
@@ -53,10 +52,10 @@ function create_sct(){
 		sc.innerHTML='<textarea placeholder="URL (Use asterisks with slashes)" style="box-shadow: 0 0 0px 1px black; border-width: 0px; width: 40%;"></textarea><textarea placeholder="CSS selector (Do not use any quotation marks)" style="box-shadow: black 0px 0px 0px 1px;border-width: 0px;margin-left: 0.16%; width: 60%;"></textarea><br><br>';
 		let scc=[...sc.children];
 		scc[0].onfocus= function(event){
-				checkNew(event);
+				checkNew(event.target.parentElement);
 		}
 		scc[1].onfocus= function(event){
-				checkNew(event);
+				checkNew(event.target.parentElement);
 		}
 		return sc;
 }
@@ -71,7 +70,7 @@ function forceNewSct(sci){
 		sci.insertAdjacentElement('afterend', sc);
 		setHeights(sc);
 		sc.oninput= function(event){
-				checkNew(event);
+				checkNew(event.target.parentElement);
 		}
 		return sc;
 }
@@ -113,7 +112,7 @@ function setAddrCSS(vs,ix){
 		setHeights(ss);
 	}
 	let sss=[...document.querySelectorAll('SECTION.site_sets')];
-	sss[sss.length-1].dispatchEvent(new Event('input'));
+	checkNew(sss[sss.length-1]);
 }
 
 var saver =function(){
