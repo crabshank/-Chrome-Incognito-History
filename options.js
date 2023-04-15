@@ -51,7 +51,11 @@ function create_sct(){
 		let sc=document.createElement('section');
 		sc.className='site_sets';
 		sc.innerHTML='<textarea placeholder="URL (Use asterisks with slashes)" style="box-shadow: 0 0 0px 1px black; border-width: 0px; width: 40%;"></textarea><textarea placeholder="CSS selector (Do not use any quotation marks)" style="box-shadow: black 0px 0px 0px 1px;border-width: 0px;margin-left: 0.16%; width: 60%;"></textarea><br><br>';
-		sc.firstChild.onfocus= function(event){
+		let scc=[...sc.children];
+		scc[0].onfocus= function(event){
+				checkNew(event);
+		}
+		scc[1].onfocus= function(event){
 				checkNew(event);
 		}
 		return sc;
