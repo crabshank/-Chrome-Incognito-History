@@ -8,35 +8,6 @@ function setHeights(sc){
 		});
 }
 
-function create_sct(){
-		let sc=document.createElement('section');
-		sc.className='site_sets';
-		sc.innerHTML='<textarea placeholder="URL (Use asterisks with slashes)" style="box-shadow: 0 0 0px 1px black; border-width: 0px; width: 40%;"></textarea><textarea placeholder="CSS selector (Do not use any quotation marks)" style="box-shadow: black 0px 0px 0px 1px;border-width: 0px;margin-left: 0.16%; width: 60%;"></textarea><br><br>';
-		return sc;
-}
-
-let sc1=create_sct();
-sts.insertAdjacentElement('beforebegin', sc1);
-setHeights(sc1);
-
-let sct=[...document.querySelectorAll('SECTION.site_sets')];
-function forceNewSct(sci){
-		let sc=create_sct();
-		sci.insertAdjacentElement('afterend', sc);
-		setHeights(sc);
-		sc.oninput= function(event){
-			let scs=event.target.parentElement;
-			setHeights(scs);
-			let tst=[...document.querySelectorAll('SECTION.site_sets')];
-			if (scs===tst[tst.length-1]){
-			chk(scs,0);
-			}else{
-			chk(scs,1);
-			}
-		}
-		return sc;
-}
-
 let chk=function(sci,init){
 	let u=sci.children[0];
 	let f=sci.children[1];
@@ -47,6 +18,58 @@ let sct2=[...document.querySelectorAll('SECTION.site_sets')];
 	}else if((u.value=="" && f.value=="")&&(sct2.length>1)&&(init!=2)){
 		sci.remove();
 	}
+}
+
+function checkNew(event){
+	let scs=event.target.parentElement;
+	setHeights(scs);
+	let tst=[...document.querySelectorAll('SECTION.site_sets')];
+	if (scs===tst[tst.length-1]){
+		let n=0;
+		let force2=true;
+		if(tst.length>1){
+			for (let i=tst.length-2; i>=0; i--){
+				let sci=tst[i]
+				let u=sci.children[0];
+				let f=sci.children[1];
+				if ( u.value=="" && f.value=="" ){
+					force2=false;
+					break
+				}
+			}
+			if(force2){
+				n=2;
+			}
+		}
+		chk(scs,n);
+	}else{
+		chk(scs,1);
+	}
+}
+
+function create_sct(){
+		let sc=document.createElement('section');
+		sc.className='site_sets';
+		sc.innerHTML='<textarea placeholder="URL (Use asterisks with slashes)" style="box-shadow: 0 0 0px 1px black; border-width: 0px; width: 40%;"></textarea><textarea placeholder="CSS selector (Do not use any quotation marks)" style="box-shadow: black 0px 0px 0px 1px;border-width: 0px;margin-left: 0.16%; width: 60%;"></textarea><br><br>';
+		sc.firstChild.onfocus= function(event){
+				checkNew(event);
+		}
+		return sc;
+}
+
+let sc1=create_sct();
+sts.insertAdjacentElement('beforebegin', sc1);
+setHeights(sc1);
+		
+let sct=[...document.querySelectorAll('SECTION.site_sets')];
+function forceNewSct(sci){
+		let sc=create_sct();
+		sci.insertAdjacentElement('afterend', sc);
+		setHeights(sc);
+		sc.oninput= function(event){
+				checkNew(event);
+		}
+		return sc;
 }
 
 sct[0].oninput= function(event){
