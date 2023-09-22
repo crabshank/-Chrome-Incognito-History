@@ -485,7 +485,7 @@ if(tId!==null){
 		//console.log(tabBlacklist);
 
 		tbRep(removedTabId, addedTabId);
-		tabBlacklist = replaceEls(newTabId, oldTabId, tabBlacklist);
+		tabBlacklist = replaceEls(addedTabId, removedTabId, tabBlacklist);
 
 		chrome.tabs.query({}, function(tabs) {
 						   if (!chrome.runtime.lastError) {
