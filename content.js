@@ -247,18 +247,71 @@ function initialise() {
 									if (response.type == "SET") {
 										//console.log('Initial settings set!');
 										tl={top:null, left:null, el:null, forceDisable:false, isBl:isCurrentSiteBlacklisted(), lastConsole:null};
+										
+										
+												firstAct=true;
+												
+												chrome.runtime.onMessage.addListener(
+											function(request, sender, sendResponse) {
+												if(typeof request.add_hist_bk!=='undefined'){
+													tl.forceDisable=true;
+												}
+												switch (request.type) {
+													
+													case "VISITED":
+														getLinks();
+														arrangeShade(request, linkTags);
+													break;
+
+													case "PGDELETED":
+														getLinks();
+														arrangeDeshade(request);
+													break;
+
+													/*case "STDELETED":
+														newGetSend(true);
+													break;*/
+
+													case "NEWACTIVE_t":
+													case "nav":
+														newGetSend(false);
+													break;
+													
+													case "chkLnkH": //forced recount
+														newGetSend(false);
+													break;
+
+													case "NWSETTINGS":
+															firstAct=false;
+															initialise();
+													break;
+
+													default:
+														//console.log(request);
+													break;
+
+												}
+												return true;
+										});
+
+										window.addEventListener('scroll',(e)=>{
+											if(extScroll[0]===true){
+												extScroll[0]=false;
+											}else if(extScroll[0]===false && extScroll[1]===true){
+												tl.forceDisable=true;
+											}
+										});
+
+												
+												getLinks();
+												send(links);
 									}
 								});
 							});
 						});
 		});
-
-		firstAct=true;
-		getLinks();
-		send(links);
 	}
 }
-
 
 function getLinks() {
 var lk = getMatchingNodesShadow(document,'A',true,false);
@@ -271,14 +324,6 @@ links = linkTags.map(function(lnk) {
 
 	links = Array.from(new Set(links));
 }
-
-window.addEventListener('scroll',(e)=>{
-	if(extScroll[0]===true){
-		extScroll[0]=false;
-	}else if(extScroll[0]===false && extScroll[1]===true){
-		tl.forceDisable=true;
-	}
-});
 
 function scrollShade(){
 		let isNullEl=tl.el;
@@ -462,49 +507,6 @@ function arrangeDeshade(request) {
 					}, function(response) {});
 				}
 }
-
-chrome.runtime.onMessage.addListener(
-	function(request, sender, sendResponse) {
-		if(typeof request.add_hist_bk!=='undefined'){
-			tl.forceDisable=true;
-		}
-		switch (request.type) {
-			
-			case "VISITED":
-				getLinks();
-				arrangeShade(request, linkTags);
-			break;
-
-			case "PGDELETED":
-				getLinks();
-				arrangeDeshade(request);
-			break;
-
-			/*case "STDELETED":
-				newGetSend(true);
-			break;*/
-
-			case "NEWACTIVE_t":
-			case "nav":
-				newGetSend(false);
-			break;
-			
-			case "chkLnkH": //forced recount
-				newGetSend(false);
-			break;
-
-			case "NWSETTINGS":
-					firstAct=false;
-					initialise();
-			break;
-
-			default:
-				//console.log(request);
-			break;
-
-		}
-		return true;
-});
 
 
 if (
