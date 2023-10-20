@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Incognito history",
-  "version": "2023.9",
+  "version": "2023.10",
    "options_page":  "options.html",
   "content_scripts": [
     {
