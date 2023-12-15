@@ -476,11 +476,13 @@ function deShadeRef(u) { //u is an 'A' tag
 
 function send(b) {
 	if(b.length>0){
-		// Send message to background:
-		chrome.runtime.sendMessage({
-			type: "PG_LINKS",
-			b: b
-		}, function(response) {});
+		try{
+			// Send message to background:
+			chrome.runtime.sendMessage({
+				type: "PG_LINKS",
+				b: b
+			}, function(response) {});
+		}catch(e){;}
 	}
 }
 

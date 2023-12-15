@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Incognito history",
-  "version": "2023.10",
+  "version": "2023.12",
    "options_page":  "options.html",
   "content_scripts": [
     {
@@ -29,7 +29,7 @@
    "background": {
      "service_worker": "background.js"
   },
-     "permissions": ["contextMenus","history", "tabs", "activeTab", "storage","scripting","bookmarks","declarativeNetRequest","declarativeNetRequestFeedback","webNavigation"],
+     "permissions": ["contextMenus","history", "tabs", "activeTab", "storage","scripting","bookmarks","declarativeNetRequest","declarativeNetRequestFeedback","webNavigation", "offscreen"],
   "action": {
     "default_icon": "ih.png",
     "default_popup": "index.html",

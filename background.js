@@ -3,6 +3,21 @@ function getUrl(tab) {
 }
 
 try {
+	async function createOffscreen2() {
+		if(createOffscreen!==null){
+			createOffscreen();
+			createOffscreen=null;
+		}
+	}
+	async function createOffscreen() {
+	  await chrome.offscreen.createDocument({
+		url: 'offscreen.html',
+		reasons: ['BLOBS'],
+		justification: 'keep service worker running',
+	  }).catch(() => {});
+	}
+	chrome.runtime.onStartup.addListener(createOffscreen2);
+	createOffscreen2();
 	var blacklist = [];
 	var tmpURLBlacklist = []
 	var tabStatus = []; //[{'tabId':_,'status': 'r'/'s'/'a'/'i'}]
@@ -425,6 +440,7 @@ if(tId!==null){
 		tabSet(tId);
 		tabFrameShaded(tId);
 		console.log('Switched to tab ' + tId);
+		
 		chrome.runtime.sendMessage({
 			type: "NEWACTIVE",
 			id: tId
@@ -894,258 +910,370 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
 	});
 	
 	chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
-		switch (request.type) {
-			case "WINDOW_ID":
-				if (request.recording == "stop") {
-					windowBlacklist.push(request.wnd.id);
-					windowBlacklist = Array.from(new Set(windowBlacklist));
-				}else if (request.recording == "rec") {
-					windowBlacklist = removeEls(request.wnd.id, windowBlacklist);
-				}
-			break;
-			case "WINDOW_ID_HIST":
-					var inHsty = 'false';
-					chrome.history.search({
-						text: "",
-						startTime: 0,
-						maxResults: 0
-					}, function(hist) {
-
-						for (let i = 0; i < hist.length; i++) {
-							if (pageBlMatch([hist[i].url], request.send_url) == true) {
-								inHsty = 'true';
-								i = hist.length - 1;
-							}
-						}
-
-					sendResponse({
-							type: "WD_STUS",
-							inHstry: inHsty,
-							blWd: windowBlacklist.includes(request.send_id)
-						});
-					});
-			break;
-			case "TAB_ID":
-				if (request.recording == "stop") {
-
-					let inHsty = 'false';
-					chrome.history.search({
-						text: "",
-						startTime: 0,
-						maxResults: 0
-					}, function(hist) {
-
-						for (let i = 0; i < hist.length; i++) {
-
-							if (pageBlMatch([hist[i].url], request.send_url) == true) {
-								inHsty = 'true';
-								i = hist.length - 1;
-
-							}
-						}
-
-						if (inHsty = 'false') {
-
-							tbSt(request.send_id, 's');
-							chrome.tabs.query({}, function(tabs) {
-											   if (!chrome.runtime.lastError) {
-								for (let i = 0; i < tabs.length; i++) {
-									if (tabs[i].id == request.send_id) {
-										if (tabs[i].active) {
-											tabSet(request.send_id);
-
-										}
-										i = tabs.length - 1;
-									}
-								}
-							}
-							});
-						}
-
-					});
-
-					tabBlacklist.push(request.send_id);
-					tabBlacklist = Array.from(new Set(tabBlacklist));
-					console.log("Won't record tab " + request.send_id + " from now on.");
-				} else if (request.recording == "rec") {
-
-					let inHsty = 'false';
-					chrome.history.search({
-						text: "",
-						startTime: 0,
-						maxResults: 0
-					}, function(hist) {
-
-						for (let i = 0; i < hist.length; i++) {
-
-							if (pageBlMatch([hist[i].url], request.send_url) == true) {
-								inHsty = 'true';
-								i = hist.length - 1;
-
-							}
-						}
-
-						if (inHsty = 'true') {
-
-							tbSt(request.send_id, 'r');
-
-							chrome.tabs.query({}, function(tabs) {
-											   if (!chrome.runtime.lastError) {
-								for (let i = 0; i < tabs.length; i++) {
-									if (tabs[i].id == request.send_id) {
-										if (tabs[i].active) {
-											tabSet(request.send_id);
-
-										}
-										i = tabs.length - 1;
-									}
-								}
-							}
-							});
-
-						}
-
-					});
-
-					tabBlacklist = removeEls(request.send_id, tabBlacklist);
-					console.log("Tab " + request.send_id + " will be recorded from now on.");
-
-					let tempURLBlacklist = tmpURLBlacklist;
-					for (let i = 0; i < tmpURLBlacklist.length; i++) {
-
-						if (pageBlMatch([tmpURLBlacklist[i]], request.send_url) == true) {
-							tempURLBlacklist = removeEls(tmpURLBlacklist[i], tmpURLBlacklist);
-						}
+		try{
+			switch (request.type) {
+				case "WINDOW_ID":
+					if (request.recording == "stop") {
+						windowBlacklist.push(request.wnd.id);
+						windowBlacklist = Array.from(new Set(windowBlacklist));
+					}else if (request.recording == "rec") {
+						windowBlacklist = removeEls(request.wnd.id, windowBlacklist);
 					}
-					tmpURLBlacklist = tempURLBlacklist;
-
-				} else if (request.recording == "ask") {
-					let inHistry = 'false';
-
-					chrome.history.search({
-						text: "",
-						startTime: 0,
-						maxResults: 0
-					}, function(hist) {
-
-						for (let i = 0; i < hist.length; i++) {
-
-							if (pageBlMatch([hist[i].url], request.send_url) == true) {
-
-								inHistry = 'true';
-								i = hist.length - 1;
-
-							}
-						}
-
-						//console.log(inHistry);
-						sendResponse({
-							type: "TBSTUS",
-							inHstry: inHistry,
-							sts: tbRd(request.send_id),
-							blTb: tabBlacklist.includes(request.send_id)
-						});
-
-					});
-
-				} else {
-					//console.log(request);
-				}
-				//console.log(tabBlacklist);
 				break;
-			case "SETTINGS":
-				chrome.storage.local.get(null, function(items) {
-					blacklist = items.bklist;
-					blacklist = removeEls("", blacklist);
-					blacklist = removeChar("\n", blacklist);
-					//chrome.storage.local.remove("bklist",function(){
-							chrome.storage.local.set({
-							"bklist": blacklist
-						}, function() {
-							sendResponse({
-								type: "SET",
-								settings: items
-							});
-						});
-					//});
-
-
-				});
-				break;
-			case "DELETE_PG":
-				console.log('Page (' + request.url + ') deletion request received');
-				chrome.tabs.query({}, function(tabs) {
-								   if (!chrome.runtime.lastError) {
-					let tmpCanDel = 0;
-					for (let t = 0; t < tabs.length; t++) {
-						if (getUrl(tabs[t]) == request.url) {
-								console.log('Page (' + request.url + ') about to be deleted');
-								tmpCanDel = 1;
-								if (delPg(request.url) == true) {
-									tbSt(tabs[i].id, 's');
-									if (tabs[i].active) {
-										tabSet(tabs[i].id)
-									}
-								};
-								t = tabs.length - 1;
-						}
-					}
-					if (tmpCanDel == 0) {
-						console.log("Please wait!");
-						sendResponse({
-							type: "DELETED_PAGE",
-							msg: "Please wait!",
-							url: request.url
-						});
-					}
-				}
-				});
-
-				function delPg(url) {
-					var done;
-					chrome.history.deleteUrl({
-						url: url
-					}, function() {
+				case "WINDOW_ID_HIST":
+						var inHsty = 'false';
 						chrome.history.search({
 							text: "",
 							startTime: 0,
 							maxResults: 0
 						}, function(hist) {
-							done = true;
+
 							for (let i = 0; i < hist.length; i++) {
-								if (pageBlMatch([hist[i].url], url) == true) {
-									console.log("Page delete failed.");
+								if (pageBlMatch([hist[i].url], request.send_url) == true) {
+									inHsty = 'true';
 									i = hist.length - 1;
-									done = false;
 								}
 							}
-							if (done) {
-								console.log(url + " deleted from history!");
+
+						sendResponse({
+								type: "WD_STUS",
+								inHstry: inHsty,
+								blWd: windowBlacklist.includes(request.send_id)
+							});
+						});
+				break;
+				case "TAB_ID":
+					if (request.recording == "stop") {
+
+						let inHsty = 'false';
+						chrome.history.search({
+							text: "",
+							startTime: 0,
+							maxResults: 0
+						}, function(hist) {
+
+							for (let i = 0; i < hist.length; i++) {
+
+								if (pageBlMatch([hist[i].url], request.send_url) == true) {
+									inHsty = 'true';
+									i = hist.length - 1;
+
+								}
+							}
+
+							if (inHsty = 'false') {
+
+								tbSt(request.send_id, 's');
+								chrome.tabs.query({}, function(tabs) {
+												   if (!chrome.runtime.lastError) {
+									for (let i = 0; i < tabs.length; i++) {
+										if (tabs[i].id == request.send_id) {
+											if (tabs[i].active) {
+												tabSet(request.send_id);
+
+											}
+											i = tabs.length - 1;
+										}
+									}
+								}
+								});
+							}
+
+						});
+
+						tabBlacklist.push(request.send_id);
+						tabBlacklist = Array.from(new Set(tabBlacklist));
+						console.log("Won't record tab " + request.send_id + " from now on.");
+					} else if (request.recording == "rec") {
+
+						let inHsty = 'false';
+						chrome.history.search({
+							text: "",
+							startTime: 0,
+							maxResults: 0
+						}, function(hist) {
+
+							for (let i = 0; i < hist.length; i++) {
+
+								if (pageBlMatch([hist[i].url], request.send_url) == true) {
+									inHsty = 'true';
+									i = hist.length - 1;
+
+								}
+							}
+
+							if (inHsty = 'true') {
+
+								tbSt(request.send_id, 'r');
+
+								chrome.tabs.query({}, function(tabs) {
+												   if (!chrome.runtime.lastError) {
+									for (let i = 0; i < tabs.length; i++) {
+										if (tabs[i].id == request.send_id) {
+											if (tabs[i].active) {
+												tabSet(request.send_id);
+
+											}
+											i = tabs.length - 1;
+										}
+									}
+								}
+								});
+
+							}
+
+						});
+
+						tabBlacklist = removeEls(request.send_id, tabBlacklist);
+						console.log("Tab " + request.send_id + " will be recorded from now on.");
+
+						let tempURLBlacklist = tmpURLBlacklist;
+						for (let i = 0; i < tmpURLBlacklist.length; i++) {
+
+							if (pageBlMatch([tmpURLBlacklist[i]], request.send_url) == true) {
+								tempURLBlacklist = removeEls(tmpURLBlacklist[i], tmpURLBlacklist);
+							}
+						}
+						tmpURLBlacklist = tempURLBlacklist;
+
+					} else if (request.recording == "ask") {
+						let inHistry = 'false';
+
+						chrome.history.search({
+							text: "",
+							startTime: 0,
+							maxResults: 0
+						}, function(hist) {
+
+							for (let i = 0; i < hist.length; i++) {
+
+								if (pageBlMatch([hist[i].url], request.send_url) == true) {
+
+									inHistry = 'true';
+									i = hist.length - 1;
+
+								}
+							}
+
+							//console.log(inHistry);
+							sendResponse({
+								type: "TBSTUS",
+								inHstry: inHistry,
+								sts: tbRd(request.send_id),
+								blTb: tabBlacklist.includes(request.send_id)
+							});
+
+						});
+
+					} else {
+						//console.log(request);
+					}
+					//console.log(tabBlacklist);
+					break;
+				case "SETTINGS":
+					chrome.storage.local.get(null, function(items) {
+						blacklist = items.bklist;
+						blacklist = removeEls("", blacklist);
+						blacklist = removeChar("\n", blacklist);
+						//chrome.storage.local.remove("bklist",function(){
+								chrome.storage.local.set({
+								"bklist": blacklist
+							}, function() {
+								sendResponse({
+									type: "SET",
+									settings: items
+								});
+							});
+						//});
+
+
+					});
+					break;
+				case "DELETE_PG":
+					console.log('Page (' + request.url + ') deletion request received');
+					chrome.tabs.query({}, function(tabs) {
+									   if (!chrome.runtime.lastError) {
+						let tmpCanDel = 0;
+						for (let t = 0; t < tabs.length; t++) {
+							if (getUrl(tabs[t]) == request.url) {
+									console.log('Page (' + request.url + ') about to be deleted');
+									tmpCanDel = 1;
+									if (delPg(request.url) == true) {
+										tbSt(tabs[i].id, 's');
+										if (tabs[i].active) {
+											tabSet(tabs[i].id)
+										}
+									};
+									t = tabs.length - 1;
+							}
+						}
+						if (tmpCanDel == 0) {
+							console.log("Please wait!");
+							sendResponse({
+								type: "DELETED_PAGE",
+								msg: "Please wait!",
+								url: request.url
+							});
+						}
+					}
+					});
+
+					function delPg(url) {
+						var done;
+						chrome.history.deleteUrl({
+							url: url
+						}, function() {
+							chrome.history.search({
+								text: "",
+								startTime: 0,
+								maxResults: 0
+							}, function(hist) {
+								done = true;
+								for (let i = 0; i < hist.length; i++) {
+									if (pageBlMatch([hist[i].url], url) == true) {
+										console.log("Page delete failed.");
+										i = hist.length - 1;
+										done = false;
+									}
+								}
+								if (done) {
+									console.log(url + " deleted from history!");
+
+									chrome.tabs.query({}, function(tabs) {
+													   if (!chrome.runtime.lastError) {
+										tabs.forEach(function(tb) {
+											if (getUrl(tb) == url) {
+
+												tbSt(tb.id, 's');
+												if (tb.active) {
+													tabSet(tb.id);
+												}
+
+											}
+										});
+									}
+									});
+
+									sendResponse({
+										type: "DELETED_PAGE",
+										status: 'successful',
+										msg: url + " deleted from history!",
+										url: url
+									});
+
+									/*chrome.runtime.sendMessage({
+										type: "PGDELETED"
+									}, function(response) {
+										//console.log(response);
+									});*/
+
+									/*chrome.tabs.query({}, function(tabs) {
+													   if (!chrome.runtime.lastError) {
+										for (let t = 0; t < tabs.length; t++) {
+											chrome.tabs.sendMessage(tabs[t].id, {
+												type: "PGDELETED"
+											}, function(response) {});
+										}
+									}
+									});*/
+
+								} else {
+									//console.log(hist);
+									console.log("Page delete failed");
+									sendResponse({
+										type: "DELETED_PAGE",
+										status: 'failed',
+										msg: "Deletion of " + url + " from history failed! Try again!",
+										url: request.url
+									});
+									//delStePg(url);
+								}
+							});
+						});
+						return done;
+					}
+					break;
+				case "DELETE_STE":
+					chrome.history.search({
+						text: "",
+						startTime: 0,
+						maxResults: 0
+					}, function(hist) {
+						//console.log(hist);
+
+						async function siteDel() {
+								return new Promise(function(resolve) {
+							var toDel = [];
+							for (let i = 0; i < hist.length; i++) {
+								if (hist[i].url.indexOf(request.url) >= 0) {
+									toDel.push(hist[i]);
+								}
+							}
+
+							if (toDel.length > 0) {
+									var count = 0;
+									for (let i = 0; i < toDel.length; i++) {
+										try{
+											chrome.history.deleteUrl({
+												url: toDel[i].url
+											}, function() {
+												count++;
+												if (count == toDel.length) {
+													resolve();
+												}
+											});
+										}catch(e){
+											count++;
+											if (count == toDel.length) {
+												resolve();
+											}
+										}
+									}
+							}else{
+								resolve();
+							}
+								});
+						}
+
+						(async ()=>{ await siteDel(); })();
+
+						chrome.history.search({
+							text: "",
+							startTime: 0,
+							maxResults: 0
+						}, function(hist) {
+							var nthgFnd = 1;
+							for (let i = 0; i < hist.length; i++) {
+								if (hist[i].url.indexOf(request.url) >= 0) {
+									nthgFnd = 0;
+									i = hist.length - 1;
+								}
+							}
+
+							if (nthgFnd == 1) {
 
 								chrome.tabs.query({}, function(tabs) {
 												   if (!chrome.runtime.lastError) {
 									tabs.forEach(function(tb) {
-										if (getUrl(tb) == url) {
-
+										if (getUrl(tb).indexOf(request.url) >= 0) {
 											tbSt(tb.id, 's');
 											if (tb.active) {
 												tabSet(tb.id);
 											}
-
 										}
 									});
 								}
 								});
-
 								sendResponse({
-									type: "DELETED_PAGE",
+									type: "DELETED_SITE",
 									status: 'successful',
-									msg: url + " deleted from history!",
-									url: url
+									msg: "All pages from site " + ((request.url.endsWith('///'))?request.url+'*':request.url) + " have been deleted from history!",
+									url: request.url
 								});
+								console.log("All pages from site " +  ((request.url.endsWith('///'))?request.url+'*':request.url) + " have been deleted from history!");
 
 								/*chrome.runtime.sendMessage({
-									type: "PGDELETED"
+									type: "STDELETED"
 								}, function(response) {
 									//console.log(response);
 								});*/
@@ -1154,205 +1282,95 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
 												   if (!chrome.runtime.lastError) {
 									for (let t = 0; t < tabs.length; t++) {
 										chrome.tabs.sendMessage(tabs[t].id, {
-											type: "PGDELETED"
+											type: "STDELETED"
 										}, function(response) {});
 									}
 								}
 								});*/
 
-							} else {
-								//console.log(hist);
-								console.log("Page delete failed");
+							}
+							if (nthgFnd == 0) {
 								sendResponse({
-									type: "DELETED_PAGE",
+									type: "DELETED_SITE",
 									status: 'failed',
-									msg: "Deletion of " + url + " from history failed! Try again!",
+									msg: "Deleting all pages from site " + request.url + " failed, please try again!",
 									url: request.url
 								});
-								//delStePg(url);
+								console.log("Deleting all pages from site " + request.url + " failed, please try again!");
 							}
 						});
+
 					});
-					return done;
-				}
+					break;
+
+				case "tb_rcnt":
+					tabFrameShadedRc(sender.tab.id);
+					chrome.tabs.sendMessage(sender.tab.id, {
+						type: "chkLnkH"
+					});
 				break;
-			case "DELETE_STE":
-				chrome.history.search({
-					text: "",
-					startTime: 0,
-					maxResults: 0
-				}, function(hist) {
-					//console.log(hist);
+				case "shd_lks":
+					tabFrameShaded(sender.tab.id,request.cnt,sender.frameId);
+				break;
+				case "PG_LINKS":
+					//console.log(request.chk);
 
-					async function siteDel() {
-							return new Promise(function(resolve) {
-						var toDel = [];
-						for (let i = 0; i < hist.length; i++) {
-							if (hist[i].url.indexOf(request.url) >= 0) {
-								toDel.push(hist[i]);
-							}
-						}
+					chrome.storage.local.get(null, function(items) {
+						if (items.cgVisCol != "") {
+								var urls=[];
+								var urls2=[];
+								var visitd=[];
+							chrome.history.search({
+								text: "",
+								startTime: 0,
+								maxResults: 0
+							}, function(hist) {
+								
+									urls=hist.map((entry)=>{return entry.url});
+									chrome.bookmarks.search({}, function(bookmarks) {
+											urls2=bookmarks.map((bookmark)=>{return bookmark.url});
+											urls= Array.from(new Set(urls.concat(urls2)));
 
-						if (toDel.length > 0) {
-								var count = 0;
-								for (let i = 0; i < toDel.length; i++) {
-									try{
-										chrome.history.deleteUrl({
-											url: toDel[i].url
-										}, function() {
-											count++;
-											if (count == toDel.length) {
-												resolve();
+									for (var i = 0; i < request.b.length; i++) {
+										for (var m = 0; m < urls.length; m++) {
+											if (urls[m] == request.b[i]) {
+												visitd.push(request.b[i]);
 											}
-										});
-									}catch(e){
-										count++;
-										if (count == toDel.length) {
-											resolve();
 										}
 									}
-								}
-						}else{
-							resolve();
-						}
-							});
-					}
+										let uniq = Array.from(new Set(visitd));
+										
+										chrome.tabs.query({}, function(tabs) {
+											if (!chrome.runtime.lastError) {
+											for (let t = 0; t < tabs.length; t++) {
+												chrome.tabs.sendMessage(tabs[t].id, {
+													type: "VISITED",
+													uniq,
+													items
+												}, function(response) {
 
-					(async ()=>{ await siteDel(); })();
-
-					chrome.history.search({
-						text: "",
-						startTime: 0,
-						maxResults: 0
-					}, function(hist) {
-						var nthgFnd = 1;
-						for (let i = 0; i < hist.length; i++) {
-							if (hist[i].url.indexOf(request.url) >= 0) {
-								nthgFnd = 0;
-								i = hist.length - 1;
-							}
-						}
-
-						if (nthgFnd == 1) {
-
-							chrome.tabs.query({}, function(tabs) {
-											   if (!chrome.runtime.lastError) {
-								tabs.forEach(function(tb) {
-									if (getUrl(tb).indexOf(request.url) >= 0) {
-										tbSt(tb.id, 's');
-										if (tb.active) {
-											tabSet(tb.id);
+												});
+											}
 										}
-									}
 								});
-							}
-							});
-							sendResponse({
-								type: "DELETED_SITE",
-								status: 'successful',
-								msg: "All pages from site " + ((request.url.endsWith('///'))?request.url+'*':request.url) + " have been deleted from history!",
-								url: request.url
-							});
-							console.log("All pages from site " +  ((request.url.endsWith('///'))?request.url+'*':request.url) + " have been deleted from history!");
 
-							/*chrome.runtime.sendMessage({
-								type: "STDELETED"
-							}, function(response) {
-								//console.log(response);
-							});*/
+								console.log('Sent visited links to be coloured');
+								visitd = [];
+								hstchk = [];
 
-							/*chrome.tabs.query({}, function(tabs) {
-											   if (!chrome.runtime.lastError) {
-								for (let t = 0; t < tabs.length; t++) {
-									chrome.tabs.sendMessage(tabs[t].id, {
-										type: "STDELETED"
-									}, function(response) {});
-								}
-							}
-							});*/
+									});
 
-						}
-						if (nthgFnd == 0) {
-							sendResponse({
-								type: "DELETED_SITE",
-								status: 'failed',
-								msg: "Deleting all pages from site " + request.url + " failed, please try again!",
-								url: request.url
 							});
-							console.log("Deleting all pages from site " + request.url + " failed, please try again!");
 						}
 					});
-
-				});
-				break;
-
-			case "tb_rcnt":
-				tabFrameShadedRc(sender.tab.id);
-				chrome.tabs.sendMessage(sender.tab.id, {
-					type: "chkLnkH"
-				});
-			break;
-			case "shd_lks":
-				tabFrameShaded(sender.tab.id,request.cnt,sender.frameId);
-			break;
-			case "PG_LINKS":
-				//console.log(request.chk);
-
-				chrome.storage.local.get(null, function(items) {
-					if (items.cgVisCol != "") {
-							var urls=[];
-							var urls2=[];
-							var visitd=[];
-						chrome.history.search({
-							text: "",
-							startTime: 0,
-							maxResults: 0
-						}, function(hist) {
-							
-								urls=hist.map((entry)=>{return entry.url});
-								chrome.bookmarks.search({}, function(bookmarks) {
-										urls2=bookmarks.map((bookmark)=>{return bookmark.url});
-										urls= Array.from(new Set(urls.concat(urls2)));
-
-								for (var i = 0; i < request.b.length; i++) {
-									for (var m = 0; m < urls.length; m++) {
-										if (urls[m] == request.b[i]) {
-											visitd.push(request.b[i]);
-										}
-									}
-								}
-									let uniq = Array.from(new Set(visitd));
-									
-									chrome.tabs.query({}, function(tabs) {
-										if (!chrome.runtime.lastError) {
-										for (let t = 0; t < tabs.length; t++) {
-											chrome.tabs.sendMessage(tabs[t].id, {
-												type: "VISITED",
-												uniq,
-												items
-											}, function(response) {
-
-											});
-										}
-									}
-							});
-
-							console.log('Sent visited links to be coloured');
-							visitd = [];
-							hstchk = [];
-
-								});
-
-						});
-					}
-				});
-				break;
-			default:
-				/*console.log(request)*/
-				;
-				break;
-		}
-		return true;
+					break;
+				default:
+					/*console.log(request)*/
+					;
+					break;
+			}
+			return true;
+		}catch(e){;}
 	});
 	
 chrome.declarativeNetRequest.onRuleMatchedDebug.addListener((info)=>{
@@ -1361,7 +1379,9 @@ chrome.declarativeNetRequest.onRuleMatchedDebug.addListener((info)=>{
 		tabId: info.request.tabId,
 		frameId: info.request.frameId
 		}, function (frameInfo){
-				  chrome.tabs.sendMessage(info.request.tabId, {type: "nav", url:frameInfo.url, f_id: info.request.frameId});
+			try{
+				chrome.tabs.sendMessage(info.request.tabId, {type: "nav", url:frameInfo.url, f_id: info.request.frameId});
+			}catch(e){;}
 		});
 	}
 
