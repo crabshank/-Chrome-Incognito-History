@@ -405,17 +405,17 @@ delSite.addEventListener('click', function() {
 
 function shwDels() {
     console.log('Showing page delete button.');
-    chrome.action.setIcon({
+    /*chrome.action.setIcon({
         path: "recAdd.png"
-    });
+    });*/
     delPage.style.display = "initial";
 }
 
 function hdeDels() {
     console.log('Hiding page delete button.');
-    chrome.action.setIcon({
+   /* chrome.action.setIcon({
         path: "stop.png"
-    });
+    });*/
     delPage.style.display = "none";
 }
 chrome.runtime.onMessage.addListener(

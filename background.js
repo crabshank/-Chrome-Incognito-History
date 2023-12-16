@@ -298,19 +298,25 @@ function cleanTabStatus(currTabs){
 
 
 function  tabSet(d){
-					 chrome.tabs.query({currentWindow: true}, function(tabs) {
+					 chrome.tabs.get(d, function(tab) {
 					if (!chrome.runtime.lastError) {
-						cleanTabStatus(tabs);
-						let t=tabs.filter((b)=>{return b.active && b.id==d});
-						if(t.length>0){
-						for (let k= 0; k < t.length; k++) {
+						cleanTabStatus([tab]);
 								chrome.history.search({
-								text: t[k].url,
+								text: getUrl(tab),
 								startTime: 0,
 								maxResults: 0
 							}, function(hist) {
-											sts=(hist.length>0)?'a':'s';
-											tbSt(t.id,sts);
+											let tid=tab.id;
+											if(hist.length>0){
+												if(windowBlacklist.includes(tab.windowId) || tabBlacklist.includes(tid)){
+													sts='h';
+												}else{
+													sts='a';
+												}
+											}else{
+												sts='s';
+											}
+											tbSt(tid,sts);
 								//console.log(tabStatus);
 								switch (sts) {
 									/*case "r":
@@ -318,6 +324,11 @@ function  tabSet(d){
 											path: "rec.png"
 										});
 										break;*/
+									case "h":
+										chrome.action.setIcon({
+											path: "recAddBl.png"
+										});
+										break;
 									case "a":
 										chrome.action.setIcon({
 											path: "recAdd.png"
@@ -337,8 +348,7 @@ function  tabSet(d){
 										console.log("Couldn't set icon for tab " + d);
 								}
 									});
-				}
-					}
+
 					}
 				});
 }
@@ -467,10 +477,11 @@ if(tId!==null){
 		//console.log(tmpHistDelPg);
 	});
 
-	chrome.windows.onFocusChanged.addListener(function(windowId) {
-		chrome.tabs.query({currentWindow: true}, function(tabs) {
+	chrome.windows.onFocusChanged.addListener(function(window_id) {
+		let wid=window_id;
+		chrome.tabs.query({windowId: wid}, function(tabs) {
 						   if (!chrome.runtime.lastError) {
-							   let tabsAct=tabs.filter((tb)=>{return tb.active});
+							   let tabsAct=tabs.filter((tb)=>{return tb.active && tb.windowId===wid;});
 							   if(tabsAct.length>0){
 								   let acTab=tabsAct[0];
 								   console.log('Switched to tab ' + acTab.id);
@@ -913,12 +924,25 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
 		try{
 			switch (request.type) {
 				case "WINDOW_ID":
+						let wid=request.wnd.id;
 					if (request.recording == "stop") {
-						windowBlacklist.push(request.wnd.id);
+						windowBlacklist.push(wid);
 						windowBlacklist = Array.from(new Set(windowBlacklist));
 					}else if (request.recording == "rec") {
-						windowBlacklist = removeEls(request.wnd.id, windowBlacklist);
+						windowBlacklist = removeEls(wid, windowBlacklist);
 					}
+					
+					chrome.tabs.query({windowId: wid}, function(tabs) {
+						   if (!chrome.runtime.lastError) {
+							   let tabsAct=tabs.filter((tb)=>{return tb.active && tb.windowId===wid;});
+							   if(tabsAct.length>0){
+								   let acTab=tabsAct[0];
+								   console.log('Switched to tab ' + acTab.id);
+										activate(acTab);
+							   }
+						}
+					});
+					
 				break;
 				case "WINDOW_ID_HIST":
 						var inHsty = 'false';
