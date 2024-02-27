@@ -46,7 +46,7 @@ try {
 		if(tab_id!==null && typeof tab_id!=='undefined'){
 					let tx=tabStatus.filter((t)=>{return t.tabId===tab_id}); if(tx.length>0){
 						let tx0=tx[0];
-						console.log(tx0);
+						//console.log(tx0);
 						let lkc=tx0.lk_cnts;
 						
 						if(cnt>=0 && typeof frame_id!=='undefined'){
@@ -357,26 +357,40 @@ function  tabSet(d){
 }
 
 	chrome.extension.isAllowedIncognitoAccess((isAllowedAccess)=>{
-		if(isAllowedAccess){
 			
-				let contexts = ["link", "image"];
-	chrome.contextMenus.create({
-		"title": "⏹ Open in unrecorded incognito tab",
-		"contexts": contexts,
-		"id": "unrec_"+ext_id
-	}, function(response) {
-		//	console.log(response);
-	});
-	chrome.contextMenus.create({
-		"title": "⊠ Open in unrecorded incognito window",
-		"contexts": contexts,
-		"id": "unrec_w_"+ext_id
-	}, function(response) {
-		//	console.log(response);
-	});
 
-	chrome.contextMenus.onClicked.addListener((info, tab) => {
-		if (info.menuItemId.startsWith("unrec")) {
+			chrome.contextMenus.onClicked.addListener((info, tab) => {
+		if (info.menuItemId.startsWith("remh_")) {
+			let lk=info.linkUrl;
+						chrome.history.deleteUrl({
+							url: lk
+						}, function() {
+							chrome.history.search({
+								text: "",
+								startTime: 0,
+								maxResults: 0
+							}, function(hist) {
+								done = true;
+								for (let i = 0; i < hist.length; i++) {
+									if (pageBlMatch([hist[i].url], lk) == true) {
+										console.log("Page delete failed.");
+										i = hist.length - 1;
+										done = false;
+									}
+								}
+								if (done) {
+									console.log(lk + " deleted from history!");
+								}
+						});
+					});
+		}else if (info.menuItemId.startsWith("addh_")) {
+			let lk=info.linkUrl;
+			chrome.history.addUrl({
+				url: lk
+			}, function() {
+				console.log(lk + " added to history!");
+			});
+		}else if (info.menuItemId.startsWith("unrec")) {
 			//console.log(tab);
 			let to_url = (typeof info.linkUrl === 'undefined') ? info.srcUrl : info.linkUrl;
 			if (tab.incognito && info.menuItemId==="unrec_"+ext_id) {
@@ -431,8 +445,33 @@ function  tabSet(d){
 		}
 		
 	});
-
+	
+		if(isAllowedAccess){
+			
+				let contexts = ["link", "image"];
+	chrome.contextMenus.create({
+		"title": "⏹ Open in unrecorded incognito tab",
+		"contexts": contexts,
+		"id": "unrec_"+ext_id
+	});
+	chrome.contextMenus.create({
+		"title": "⊠ Open in unrecorded incognito window",
+		"contexts": contexts,
+		"id": "unrec_w_"+ext_id
+	});
 		}
+		
+		chrome.contextMenus.create({
+					"title": "🚮 Remove link from history",
+					"contexts": ["link"],
+					"id":"remh_"+ext_id
+				});
+				
+				chrome.contextMenus.create({
+					"title": "➕ Add link to history",
+					"contexts": ["link"],
+					"id":"addh_"+ext_id
+				});
 	});
 
 
