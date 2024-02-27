@@ -360,6 +360,7 @@ function  tabSet(d){
 			
 
 			chrome.contextMenus.onClicked.addListener((info, tab) => {
+				if(info.menuItemId.endsWith(ext_id)){
 		if (info.menuItemId.startsWith("remh_")) {
 			let lk=info.linkUrl;
 						chrome.history.deleteUrl({
@@ -443,7 +444,7 @@ function  tabSet(d){
 			});
 		}
 		}
-		
+			}
 	});
 	
 		if(isAllowedAccess){
